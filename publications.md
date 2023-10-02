@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Publications
+title: Research
 ---
 
 You can also browse my <a href="https://scholar.google.com/citations?user=Uohs8DQAAAAJ&hl=en" target="_blank">Google Scholar profile</a>.
@@ -15,7 +15,18 @@ You can also browse my <a href="https://scholar.google.com/citations?user=Uohs8D
   [Paper](https://arxiv.org/abs/2306.09437){: .btn}
   [Code](https://github.com/rawatpranjal/algorithmic-auctions){: .btn}
 
+**2021**
+
+- **Designing Auctions when Algorithms Learn to Bid: The critical role of Payment Rules**
+  This paper examines the impact of different payment rules on efficiency when algorithms learn to bid. We use a fully randomized experiment of 427 trials, where Q-learning bidders participate in up to 250,000 auctions for a commonly valued item. The findings reveal that the first price auction, where winners pay the winning bid, is susceptible to coordinated bid suppression, with winning bids averaging roughly 20% below the true values. In contrast, the second price auction, where winners pay the second highest bid, aligns winning bids with actual values, reduces the volatility during learning and speeds up convergence. Regression analysis, incorporating design elements such as payment rules, number of participants, algorithmic factors including the discount and learning rate, asynchronous/synchronous updating, feedback, and exploration strategies, discovers the critical role of payment rules on efficiency. Furthermore, machine learning estimators find that payment rules matter even more with few bidders, high discount factors, asynchronous learning, and coarse bid spaces. This paper underscores the importance of auction design in algorithmic bidding. It suggests that computerized auctions like Google AdSense, which rely on the first price auction, can mitigate the risk of algorithmic collusion by adopting the second price auction.
+
+  [Paper](https://arxiv.org/abs/2306.09437){: .btn}
+  [Code](https://github.com/rawatpranjal/algorithmic-auctions){: .btn}
+
+
 <br />  -->
+
+
 
 <!--
 
