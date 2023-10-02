@@ -31,7 +31,7 @@ navbar-links:
 
 # Image to show in the navigation bar - image must be a square (width = height)
 # Remove this parameter if you don't want an image in the navbar
-avatar: "/static/img/desh_new.jpeg"
+avatar: "/static/img/profile-pic.png"
 
 # If you want to have an image logo in the top-left corner instead of the title text,
 # then specify the following parameter
@@ -46,7 +46,7 @@ author:
   email: "pp712@georgetown.edu"
   github: rawatpranjal    # eg. daattali
   linkedin:
-  twitter: 
+  twitter:
 
 # Select which links to show in the footer
 footer-links-active:
@@ -79,7 +79,7 @@ url-pretty: "rawatpranjal.github.io"  # eg. "deanattali.com/beautiful-jekyll"
 
 # --- Misc --- #
 # Fill in your Disqus shortname (NOT the userid) if you want to support Disqus comments
-disqus: 
+disqus:
 
 # Fill in your Google Analytics ID to track your website using GA
 google_analytics:
@@ -205,4 +205,4 @@ gems:
 # Beautiful Jekyll / Dean Attali
 # 2fc73a3a967e97599c9763d05e564189
 
-theme: 
+theme:
