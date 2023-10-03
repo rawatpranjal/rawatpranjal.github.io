@@ -6,7 +6,8 @@ use-site-title: true
 
 <p>This is my resume:</p>
 
-<embed src="/Pranjal_Rawat_Resume.pdf" type="application/pdf">
+<embed src="/Pranjal_Rawat_Resume.pdf" type="application/pdf" width="1000" height="1000">
+
 
 <!--
 <p>This is my resume:</p>
