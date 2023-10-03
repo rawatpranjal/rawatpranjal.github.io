@@ -11,7 +11,7 @@ Here is a list of my seminar presentations and workshops:
   *September 2023*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
-- **Georgetown Economics Cluster Computing Workshop**
+- **Computational Finance Group, Indian Institue of Science**
   *September 2023*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
