@@ -6,9 +6,7 @@ use-site-title: true
 
 <p>This is my resume:</p>
 
-<div id="pdf" style="height: 800px;"></div>
-<object data="{{site.url}}{{site.baseurl }}/Pranjal_Rawat_Resume.pdf" width="1000" height="1000" type="application/pdf"></object>
-
+<embed src="/Pranjal_Rawat_Resume.pdf" type="application/pdf">
 
 <!--
 <p>This is my resume:</p>
