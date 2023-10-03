@@ -4,13 +4,8 @@ title: Resume
 use-site-title: true
 ---
 
-<p>This is my resume:</p>
+<p>Here is my latest resume:</p>
 
-<embed src="/Pranjal_Rawat_Resume.pdf" type="application/pdf" width="1000" height="1000">
-
-
-<!--
-<p>This is my resume:</p>
-
-<a href="https://rawatpranjal.github.io/Pranjal_Rawat_Resume.pdf" target="_blank">Download</a>
-
+<div style="text-align:center;">
+  <embed src="/Pranjal_Rawat_Resume.pdf" type="application/pdf" width="700" height="900">
+</div>
