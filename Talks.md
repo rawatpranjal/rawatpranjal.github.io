@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Presentations
+title: Talks
 ---
 
 Here is a list of my seminar presentations and workshops:
