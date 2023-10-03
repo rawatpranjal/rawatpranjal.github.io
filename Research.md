@@ -3,26 +3,24 @@ layout: page
 title: Research
 ---
 
-You can also browse my <a href="https://scholar.google.com/citations?user=Uohs8DQAAAAJ&hl=en" target="_blank">Google Scholar profile</a>.
-<br />
+You can also browse my [Google Scholar profile](https://scholar.google.com/citations?user=Uohs8DQAAAAJ&hl=en){:target="_blank"}.
 
+## 2023
 
-**2023**
+### Designing Auctions when Algorithms Learn to Bid: The critical role of Payment Rules
 
-- **Designing Auctions when Algorithms Learn to Bid: The critical role of Payment Rules**
+**Abstract:** This paper examines the impact of different payment rules on efficiency when algorithms learn to bid. We use a fully randomized experiment of 427 trials, where Q-learning bidders participate in up to 250,000 auctions for a commonly valued item. The findings reveal that the first price auction, where winners pay the winning bid, is susceptible to coordinated bid suppression, with winning bids averaging roughly 20% below the true values. In contrast, the second price auction, where winners pay the second highest bid, aligns winning bids with actual values, reduces the volatility during learning and speeds up convergence. Regression analysis, incorporating design elements such as payment rules, number of participants, algorithmic factors including the discount and learning rate, asynchronous/synchronous updating, feedback, and exploration strategies, discovers the critical role of payment rules on efficiency. Furthermore, machine learning estimators find that payment rules matter even more with few bidders, high discount factors, asynchronous learning, and coarse bid spaces. This paper underscores the importance of auction design in algorithmic bidding. It suggests that computerized auctions like Google AdSense, which rely on the first price auction, can mitigate the risk of algorithmic collusion by adopting the second price auction.
 
-  This paper examines the impact of different payment rules on efficiency when algorithms learn to bid. We use a fully randomized experiment of 427 trials, where Q-learning bidders participate in up to 250,000 auctions for a commonly valued item. The findings reveal that the first price auction, where winners pay the winning bid, is susceptible to coordinated bid suppression, with winning bids averaging roughly 20% below the true values. In contrast, the second price auction, where winners pay the second highest bid, aligns winning bids with actual values, reduces the volatility during learning and speeds up convergence. Regression analysis, incorporating design elements such as payment rules, number of participants, algorithmic factors including the discount and learning rate, asynchronous/synchronous updating, feedback, and exploration strategies, discovers the critical role of payment rules on efficiency. Furthermore, machine learning estimators find that payment rules matter even more with few bidders, high discount factors, asynchronous learning, and coarse bid spaces. This paper underscores the importance of auction design in algorithmic bidding. It suggests that computerized auctions like Google AdSense, which rely on the first price auction, can mitigate the risk of algorithmic collusion by adopting the second price auction.
+[Paper](https://arxiv.org/abs/2306.09437){: .btn}
+[Code](https://github.com/rawatpranjal/algorithmic-auctions){: .btn}
 
-  [Paper](https://arxiv.org/abs/2306.09437){: .btn}
-  [Code](https://github.com/rawatpranjal/algorithmic-auctions){: .btn}
+## 2021
 
-**2021**
+### Inflation Targeting in the United Kingdom: Is there evidence for Asymmetric Preferences?
 
-- **Inflation Targeting in the United Kingdom: Is there evidence for Asymmetric Preferences?**
+**Abstract:** In recent times, inflation targeting has been one of the most successful monetary frameworks in advanced economics. However, critics claim that policy rates have been kept higher than necessary. They claim that central banks did not pursue a symmetric inflation target. If a central bank pursues symmetric inflation and output targets, the optimal monetary policy response is a linear forward-looking Taylor rule (Clarida et al., 1999). We use the Linex Loss function as outlined in Nobay and Peel (2003) to relax the assumption of symmetric preferences. The presence of asymmetric preferences implies that monetary policy reacts not only to the conditional expectation of inflation and output gap but also to their conditional variances. Non-linear Taylor rules are estimated on UK data from 1995: Q2 and 2003: Q3. The results support the critics. Inflation targeting was indeed pursued with asymmetric preferences. The findings are robust to the Bank of England's ex-ante forecasts, 'real-time' estimates of the output gap, non-linearities in the supply curve, and alternative forecast horizons. Policy rates have been about 30 basis points higher than necessary due to asymmetric preferences.
 
-  In recent times, inflation targeting has been one of the most successful monetary frameworks in advanced economics. However, critics claim that policy rates have been kept higher than necessary. They claim that central banks did not pursue a symmetric inflation target. If a central bank pursues symmetric inflation and output targets, the optimal monetary policy response is a linear forward-looking Taylor rule (Clarida et,. al 1999). We use the Linex Loss function as outlined in Nobay and Peel (2003) to relax the assumption of symmetric preferences. The presence of asymmetric preferences implies that monetary policy reacts not only to the conditional expectation of inflation and output gap but also to their conditional variances. Non-linear Taylor rules are estimated on UK data from 1995: Q2 and 2003: Q3. The results support the critics. Inflation targeting was indeed pursued with asymmetric preferences. The findings are robust to the Bank of England‘s ex-ante forecasts,‗ real-time ‘estimates of the output gap, non-linearities in the supply curve, and alternative forecast horizons. Policy rates have been about 30 basis points higher than necessary due to asymmetric preferences.
-
-  [Paper](https://www.mse.ac.in/wp-content/uploads/2021/05/working-paper-196.pdf){: .btn}
+[Paper](https://www.mse.ac.in/wp-content/uploads/2021/05/working-paper-196.pdf){: .btn}
 
 <br />
 
