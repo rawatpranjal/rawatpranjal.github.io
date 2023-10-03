@@ -7,20 +7,22 @@ Here is a list of my seminar presentations and workshops:
 
 #### 2023
 
-- **Georgetown Economics Cluster Computing Workshop**
-  *September 2023*
+- **Cluster Computing Workshop**
+  *Georgetown Economics, September 2023*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
-- **Computational Finance Group, Indian Institue of Science**
-  *September 2023*
+- **Designing Auctions when Algorithms Learn to Bid: The Critical Role of Payment Rules**
+  *Computational Finance Department, Indian Institue of Science*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
 #### 2022
 
-- **Economics Graduate Students Organization (EGSO) Seminar*
+- **Algorithmic Collusion**
+*Economics Graduate Students Organization (EGSO) Seminar*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
-- **Hyperparameter Tuning with Randomized Search, Customer Marketing Data Science, American Express.**
+- **Hyperparameter Tuning with Randomized Search**
+*Customer Marketing Data Science, American Express.*
 
 #### 2021
 
@@ -28,6 +30,12 @@ Here is a list of my seminar presentations and workshops:
 
 - **Madras School of Economics, Python and Machine Learning Workshop (2021)*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
+
+#### 2018
+
+- **Inflation, an inequitous tax, Reserve Bank of India**
+
+- **A survey of pavement dwelling families in Kolkata**
 
 
 <br />
