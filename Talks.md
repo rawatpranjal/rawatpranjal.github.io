@@ -28,12 +28,15 @@ Here is a list of my seminar presentations and workshops:
 
 - **Enterprise Data Analytics (EDA) Machine Learning Hackathon, American Express, Winner's Presentation**
 
-- **Madras School of Economics, Python and Machine Learning Workshop (2021)*
+- ** Python and Machine Learning Workshop**
+*Madras School of Economics*
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
 #### 2018
 
-- **Inflation, an inequitous tax, Reserve Bank of India**
+- **Inflation, an inequitous tax
+*Reserve Bank of India*
+  [Paper](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){:.btn}
 
 - **A survey of pavement dwelling families in Kolkata**
 
