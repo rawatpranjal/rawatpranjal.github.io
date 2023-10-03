@@ -3,7 +3,7 @@ layout: page
 title: PrePhD
 ---
 
-Here is a list of my seminar presentations and workshops:
+Here are some papers I wrote and presented prior to my PhD:
 
 #### 2020
 
