@@ -3,6 +3,8 @@ layout: page
 title: Talks
 ---
 
+"Theory sharpens intuition, data grounds you and code give you wings."
+
 Here is a list of my seminar presentations and workshops:
 
 #### 2023
@@ -12,13 +14,17 @@ Here is a list of my seminar presentations and workshops:
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
 - **Designing Auctions when Algorithms Learn to Bid: The Critical Role of Payment Rules**
-  *Computational Finance Department, Indian Institue of Science*
-  [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
+
+  *Mathematical Finance Department, Indian Institue of Science (IISc), Bangalore.*
+
+  [Code](https://arxiv.org/abs/2306.09437){: .btn}
 
 #### 2022
 
 - **Algorithmic Collusion**
+
 *Economics Graduate Students Organization (EGSO) Seminar*
+
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
 - **Hyperparameter Tuning with Randomized Search**
@@ -30,6 +36,7 @@ Here is a list of my seminar presentations and workshops:
 
 - ** Python and Machine Learning Workshop**
 *Madras School of Economics*
+
   [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
 #### 2018
