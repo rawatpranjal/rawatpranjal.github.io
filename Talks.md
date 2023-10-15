@@ -1,3 +1,8 @@
+---
+layout: page
+title: Talks
+---
+
 ## 2023
 
 - **[Workshop: Python, Numpy and PyTorch](#)**
@@ -23,7 +28,8 @@
 ## 2021
 
 - **[Machine Learning Hackathon (Winner's Presentation)](#)**
-  - Enterprise Data Analytics (EDA) Machine Learning Hackathon, American Express, August 2021
+  - Machine Learning Hackathon, August 2021
+  - Enterprise Data Analytics (EDA), American Express
 
 - **[Workshop: Python and Machine Learning](https://github.com/rawatpranjal/MSE-Python-Workshop-2021)**
   - Madras School of Economics, August 2020
