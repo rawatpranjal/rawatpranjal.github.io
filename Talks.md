@@ -7,13 +7,13 @@ title: Talks
 
 - **[Workshop: Python, Numpy and PyTorch](#)**
   - Georgetown Economics Department, October 2023
-<br>
+
 - **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
   - Economics Graduate Students Organization (EGSO) Seminar, October 2023
-<br>
+
 - **[Workshop: Cluster and Cloud Computing](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023)**
   - Georgetown Economics Department, September 2023
-<br>
+
 - **[Designing Auctions when Algorithms Learn to Bid](https://arxiv.org/abs/2306.09437)**
   - Mathematical Finance Department, June 2023
   - Indian Institute of Science (IISc), Bangalore
@@ -22,7 +22,7 @@ title: Talks
 
 - **[Algorithmic Collusion](https://github.com/rawatpranjal/algorithmic-auctions)**
   - Economics Graduate Students Organization (EGSO) Seminar, November 20222
-<br>
+
 - **[Hyperparameter Tuning with Randomized Search](#)**
   - Customer Marketing Data Science, American Express, October 2022
 
