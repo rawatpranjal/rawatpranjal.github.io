@@ -5,7 +5,7 @@ title: Talks
 
 Here is a list of my seminar presentations and workshops:
 
-## 2023
+#### 2023
 
 ### Workshop on Python, Numpy and PyTorch
 *Georgetown Economics, October 2023*
@@ -18,7 +18,7 @@ Here is a list of my seminar presentations and workshops:
 *Mathematical Finance Department, Indian Institute of Science (IISc), Bangalore.*
 [Paper](https://arxiv.org/abs/2306.09437){: .btn}
 
-## 2022
+#### 2022
 
 ### Algorithmic Collusion
 *Economics Graduate Students Organization (EGSO) Seminar*
@@ -27,7 +27,7 @@ Here is a list of my seminar presentations and workshops:
 ### Hyperparameter Tuning with Randomized Search
 *Customer Marketing Data Science, American Express, October 2022*
 
-## 2021
+#### 2021
 
 ### Machine Learning Hackathon (Winner's Presentation)
 *Enterprise Data Analytics (EDA) Machine Learning Hackathon, American Express, August 2021*
@@ -36,7 +36,7 @@ Here is a list of my seminar presentations and workshops:
 *Madras School of Economics, August 2020*
 [Code](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023){: .btn}
 
-## 2018
+#### 2018
 
 ### Inflation, an Inequitous Tax
 *Monetary Policy Department, Reserve Bank of India, June 2017*
