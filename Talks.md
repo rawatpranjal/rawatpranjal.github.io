@@ -3,7 +3,7 @@ layout: page
 title: Talks
 ---
 
-## 2023
+### 2023
 
 - **[Workshop: Python, Numpy and PyTorch](#)**
   - Georgetown Economics Department, October 2023
@@ -17,7 +17,7 @@ title: Talks
 - **[Designing Auctions when Algorithms Learn to Bid](https://arxiv.org/abs/2306.09437)**
   - Mathematical Finance Department, Indian Institute of Science (IISc), Bangalore
 
-## 2022
+### 2022
 
 - **[Algorithmic Collusion](https://github.com/rawatpranjal/algorithmic-auctions)**
   - Economics Graduate Students Organization (EGSO) Seminar
@@ -25,7 +25,7 @@ title: Talks
 - **[Hyperparameter Tuning with Randomized Search](#)**
   - Customer Marketing Data Science, American Express, October 2022
 
-## 2021
+### 2021
 
 - **[Machine Learning Hackathon (Winner's Presentation)](#)**
   - Machine Learning Hackathon, August 2021
@@ -34,7 +34,7 @@ title: Talks
 - **[Workshop: Python and Machine Learning](https://github.com/rawatpranjal/MSE-Python-Workshop-2021)**
   - Madras School of Economics, August 2020
 
-## 2018
+### 2018
 
 - **[Inflation, an Inequitous Tax](https://rawatpranjal.github.io/docs/VolatilityPersistenceandSynchronisationinStateBusinessCycles1960-2014.pdf)**
   - Monetary Policy Department, Reserve Bank of India, June 2017

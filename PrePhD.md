@@ -5,7 +5,7 @@ title: PrePhD
 
 Here are some papers I wrote and presented prior to my PhD:
 
-#### 2020
+### 2020
 
 **Inflation Targeting in the United Kingdom: Is there Evidence for Asymmetric Preferences?** (with Dr. Naveen Srinivasan)<br />
 Master Thesis, Madras School of Economics<br />
@@ -13,14 +13,14 @@ Master Thesis, Madras School of Economics<br />
 
 [Paper](https://www.mse.ac.in/wp-content/uploads/2021/05/working-paper-196.pdf){: .btn}
 
-#### 2017
+### 2017
 
 **Volatility, Persistence and Synchronisation in Indian State Business Cycles (1960-2014)**<br />
 Research Internship, Reserve Bank of India<br />
 <div style="text-align: justify"> <em>This paper studies Indian state business cycles in the period 1960-2014. The Hodrick-Prescott filter is applied on log-linearised Annual Net State Domestic Product (at Constant Factor Prices) to obtain estimates of state cycles. These were consequently analysed. After liberalisation in 1991, state business cycles were less volatile and more serially correlated. Across time, average volatility has fallen and first order auto-correlation has risen. In the post reform period, some states were less synchronised, with the national cycle, but average synchronisation of all states has been increasing over time. The largest Indian states were even more synchronised. Robustness checks show that these results always hold at larger values of the smoothening parameter and at different sizes of the rolling window. However the finding that volatility has fallen, holds even at smaller values of the smoothening parameter.</em></div>
 [Paper](https://rawatpranjal.github.io/docs/VolatilityPersistenceandSynchronisationinStateBusinessCycles1960-2014.pdf){:.btn}
 
-#### 2013
+### 2013
 
 **Findings of a Socio-economic Survey of Pavement Dwelling families in Central Kolkata**<br />
 Sociology Seminar, Presidency University<br />

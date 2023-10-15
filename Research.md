@@ -5,7 +5,7 @@ title: Research
 
 You can also browse my [Google Scholar profile](https://scholar.google.com/citations?user=Uohs8DQAAAAJ&hl=en){:target="_blank"}.
 
-#### 2023
+### 2023
 
 **Designing Auctions when Algorithms Learn to Bid: The Critical Role of Payment Rules**
 
