@@ -14,7 +14,7 @@ title: Talks
 - **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
   - Economics Graduate Students Organization (EGSO) Seminar, October 2023
 
-- **[Workshop: Cluster and Cloud Computing](https://rawatpranjal.github.io/docs/Basics_of_Cluster_Computing.pdf))**
+- **[Workshop: Cluster and Cloud Computing](https://rawatpranjal.github.io/docs/Basics_of_Cluster_Computing.pdf)**
   - Georgetown Economics Department, September 2023
 
 - **[Designing Auctions when Algorithms Learn to Bid](https://arxiv.org/abs/2306.09437)**
