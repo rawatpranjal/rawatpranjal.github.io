@@ -5,13 +5,16 @@ title: Talks
 
 ### 2023
 
-- **[Workshop: Python for Economists](#)**
+- **[Reinforcement Learning and Double Auctions](https://rawatpranjal.github.io/docs/December_Proposal_20mins.pdf)**
+  - Georgetown Economics Department, December 2023
+
+- **[Workshop: Python for Economists](https://rawatpranjal.github.io/docs/Python_for_Economists.pdf)**
   - Georgetown Economics Department, October 2023
 
 - **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
   - Economics Graduate Students Organization (EGSO) Seminar, October 2023
 
-- **[Workshop: Cluster and Cloud Computing](https://github.com/rawatpranjal/GU-Econ-Computer-Workshop-2023)**
+- **[Workshop: Cluster and Cloud Computing](https://rawatpranjal.github.io/docs/Basics_of_Cluster_Computing.pdf))**
   - Georgetown Economics Department, September 2023
 
 - **[Designing Auctions when Algorithms Learn to Bid](https://arxiv.org/abs/2306.09437)**
