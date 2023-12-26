@@ -5,7 +5,7 @@ title: Talks
 
 ### 2023
 
-- **[Workshop: Python, Numpy and PyTorch](#)**
+- **[Workshop: Python for Economists](#)**
   - Georgetown Economics Department, October 2023
 
 - **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
