@@ -3,6 +3,11 @@ layout: page
 title: Talks
 ---
 
+### 2024
+
+- **[A Deep Learning Approach to Heterogenous Consumer Aesthetics](https://rawatpranjal.github.io/docs/Deep_Choice_V6.pdf)**
+  - Georgetown Economics Department, May 2024
+
 ### 2023
 
 - **[Reinforcement Learning and Double Auctions](https://rawatpranjal.github.io/docs/December_Proposal_20mins.pdf)**
@@ -10,9 +15,6 @@ title: Talks
 
 - **[Workshop: Python for Economists](https://rawatpranjal.github.io/docs/Python_for_Economists.pdf)**
   - Georgetown Economics Department, October 2023
-
-- **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
-  - Economics Graduate Students Organization (EGSO) Seminar, October 2023
 
 - **[Workshop: Cluster and Cloud Computing](https://rawatpranjal.github.io/docs/Basics_of_Cluster_Computing.pdf)**
   - Georgetown Economics Department, September 2023
@@ -45,3 +47,8 @@ title: Talks
 
 - **[A Survey of Pavement Dwelling Families in Kolkata](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2532309)**
   - Presidency University Sociology Seminar, August 2017
+
+
+<!-- - **[Reinforcement Learning in Trading Games](https://github.com/rawatpranjal/double-auctions)**
+  - Economics Graduate Students Organization (EGSO) Seminar, October 2023
+ -->
