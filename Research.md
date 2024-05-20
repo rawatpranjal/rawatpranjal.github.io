@@ -13,6 +13,16 @@ You can also browse my [Google Scholar profile](https://scholar.google.com/citat
 [Paper](https://arxiv.org/abs/2306.09437){: .btn}
 [Code](https://github.com/rawatpranjal/algorithmic-auctions){: .btn}
 
+### 2024
+
+**A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Retail Fashion**
+
+<div style="text-align: justify"> <em>In some markets, the visual appearance of a product matters a lot. This paper investigates consumer transactions from a major fashion retailer, focusing on consumer aesthetics. Pretrained multimodal models convert images and text descriptions into high-dimensional embeddings. The value of these embeddings is verified both empirically and by their ability to segment the product space. A discrete choice model is used to decompose the distinct drivers of consumer choice: price, visual aesthetics, descriptive details, and seasonal variations. Consumers are allowed to differ in their preferences over these factors, both through observed variation in demographics and allowing for unobserved types. Estimation and inference employ automatic differentiation and GPUs, making it scalable and portable. The model reveals significant differences in price sensitivity and aesthetic preferences across consumers. The model is validated by its ability to predict the relative success of new designs and purchase patterns. 
+</em></div>
+[Paper](https://arxiv.org/abs/2405.10498){: .btn}
+[Code](https://github.com/rawatpranjal/fashion-choices){: .btn}
+
+
 
 <!--
 
