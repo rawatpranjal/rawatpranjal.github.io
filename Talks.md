@@ -5,9 +5,6 @@ title: Talks
 
 ### 2024
 
-- **[Productive Creators: A New Studio Indicator](https://rawatpranjal.github.io/docs/prod_creator2.pdf)**
-  - Roblox Data Science and Analytics, Aug 2024
-
 - **[A Deep Learning Approach to Heterogenous Consumer Aesthetics](https://rawatpranjal.github.io/docs/Deep_Choice_V6.pdf)**
   - Georgetown Economics Department, May 2024
 
