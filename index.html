@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pranjal Rawat</title>
+<meta name="description" content="Pranjal Rawat — PhD candidate in Economics at Georgetown. Reinforcement learning, structural econometrics, and deep learning for economics.">
+<style>
+  :root {
+    --bg: #fff;
+    --fg: #2d2d2d;
+    --muted: #9a9a9a;
+    --accent: #285e8e;
+    --rule: #ededed;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.7;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+  header { text-align: center; padding: 70px 0 30px; }
+  header h1 { font-size: 38px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+  header .tagline { color: var(--muted); font-size: 17px; margin-top: 8px; }
+  nav { margin-top: 22px; }
+  nav a {
+    color: var(--fg); text-decoration: none; font-size: 14px;
+    text-transform: uppercase; letter-spacing: 1px; margin: 0 12px;
+  }
+  nav a:hover { color: var(--accent); }
+
+  .intro { font-size: 17px; color: #444; padding: 18px 0 10px; }
+  .intro a { color: var(--accent); text-decoration: none; }
+  .intro a:hover { text-decoration: underline; }
+
+  h2.section {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--muted); margin: 48px 0 8px; font-weight: 600;
+  }
+
+  .entry { display: flex; gap: 26px; padding: 22px 0; border-top: 1px solid var(--rule); }
+  .entry .date { flex: 0 0 64px; text-align: center; padding-top: 4px; }
+  .entry .date .yr { font-size: 30px; font-weight: 700; line-height: 1; color: var(--fg); }
+  .entry .date .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
+  .entry .body { flex: 1; }
+  .entry .body h3 { font-size: 20px; font-weight: 600; margin: 0 0 4px; line-height: 1.35; }
+  .entry .body h3 a { color: var(--fg); text-decoration: none; }
+  .entry .body h3 a:hover { color: var(--accent); }
+  .entry .body .sub { color: #6b6b6b; font-size: 15.5px; }
+  .entry .body .meta { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+
+  footer { text-align: center; padding: 60px 0 50px; border-top: 1px solid var(--rule); margin-top: 50px; }
+  footer a { color: var(--muted); text-decoration: none; margin: 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    header { padding-top: 48px; }
+    header h1 { font-size: 30px; }
+    .entry { gap: 16px; }
+    .entry .date { flex-basis: 48px; }
+    .entry .date .yr { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Pranjal Rawat</h1>
+    <div class="tagline">PhD candidate in Economics · Georgetown University</div>
+    <nav>
+      <a href="#research">Research</a>
+      <a href="mailto:pp712@georgetown.edu">Email</a>
+      <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a>
+      <a href="https://substack.com/@pranjalrawat42">Substack</a>
+    </nav>
+  </header>
+
+  <p class="intro">
+    I work at the intersection of <strong>reinforcement learning</strong> and
+    <strong>structural econometrics</strong> — using deep learning to study
+    consumer demand, algorithmic pricing, and strategic behavior in markets.
+    Advised by <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.
+  </p>
+
+  <h2 class="section" id="research">Research</h2>
+
+  <div class="entry">
+    <div class="date"><div class="yr">WP</div><div class="tag">Empirical</div></div>
+    <div class="body">
+      <h3>A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Fast Fashion</h3>
+      <div class="sub">FashionCLIP embeddings and demand modeling over millions of H&amp;M purchases to recover price and taste sensitivities through deep nets.</div>
+      <div class="meta">Working paper</div>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="date"><div class="yr">'25</div><div class="tag">Empirical</div></div>
+    <div class="body">
+      <h3><a href="https://arxiv.org/pdf/2504.10636">Who is more Bayesian: Humans or ChatGPT?</a></h3>
+      <div class="sub">Comparing human vs. AI decision-making in binary classification, documenting biases and ChatGPT's evolution across versions.</div>
+      <div class="meta">with John Rust, Chengjun Zhang, Tianshi Mu, Aaron Zhong</div>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="date"><div class="yr">'25</div><div class="tag">Experiment</div></div>
+    <div class="body">
+      <h3><a href="https://arxiv.org/abs/2306.09437">Algorithmic Collusion in Auctions: Evidence from Controlled Laboratory Experiments</a></h3>
+      <div class="sub">A Monte Carlo framework measuring bid suppression across Q-learning, contextual bandits, and pacing algorithms.</div>
+      <div class="meta">WEAI Conference 2025</div>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="date"><div class="yr">'24</div><div class="tag">Experiment</div></div>
+    <div class="body">
+      <h3><a href="https://arxiv.org/html/2410.13960v1">Approximating Auction Equilibria with Reinforcement Learning</a></h3>
+      <div class="sub">Proximal Policy Optimization for learning bidding strategies in multi-item and dynamic auctions.</div>
+      <div class="meta">Working paper</div>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
+    <div class="body">
+      <h3><a href="https://arxiv.org/abs/2603.08956">A Survey of Reinforcement Learning for Economics</a></h3>
+      <div class="sub">Reinforcement learning methods for economic problems with high-dimensional states and continuous actions.</div>
+      <div class="meta">Survey</div>
+    </div>
+  </div>
+
+  <div class="entry">
+    <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
+    <div class="body">
+      <h3>Structural Econometrics and Reinforcement Learning</h3>
+      <div class="sub">Synergies between structural econometrics and reinforcement learning across finance, industrial organization, and policy.</div>
+      <div class="meta">with John Rust · Oxford Research Encyclopedia</div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="mailto:pp712@georgetown.edu">Email</a>
+    <a href="https://arxiv.org/a/rawat_p_1">arXiv</a>
+    <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a>
+    <a href="https://substack.com/@pranjalrawat42">Substack</a>
+  </footer>
+
+</div>
+</body>
+</html>
