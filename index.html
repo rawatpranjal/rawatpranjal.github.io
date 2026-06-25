@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pranjal Rawat</title>
-<meta name="description" content="Pranjal Rawat — PhD candidate in Economics at Georgetown. Reinforcement learning, structural econometrics, and deep learning for economics.">
+<meta name="description" content="Pranjal Rawat. PhD candidate in Economics at Georgetown. Reinforcement learning, structural econometrics, and deep learning for economics.">
 <style>
   :root {
     --bg: #fff;
@@ -72,10 +72,12 @@
   .entry .date .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
   .entry .body { flex: 1; }
   .entry .body h3 { font-size: 20px; font-weight: 600; margin: 0 0 4px; line-height: 1.35; }
-  .entry .body h3 a { color: var(--fg); text-decoration: none; }
-  .entry .body h3 a:hover { color: var(--accent); }
+  .entry .body h3 a { color: var(--accent); text-decoration: none; }
+  .entry .body h3 a:hover { text-decoration: underline; }
   .entry .body .sub { color: var(--sub); font-size: 15.5px; }
-  .entry .body .meta { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+  .entry .body .links { font-size: 13.5px; margin-top: 6px; }
+  .entry .body .links a { color: var(--accent); text-decoration: none; margin-right: 16px; }
+  .entry .body .links a:hover { text-decoration: underline; }
 
   .repo { padding: 16px 0; border-top: 1px solid var(--rule); }
   .repo:first-child { border-top: none; }
@@ -123,13 +125,12 @@
   <!-- ABOUT -->
   <section class="panel active" id="about">
     <div class="prose">
-      <p>Hi — I'm Pranjal, a PhD candidate in Economics at Georgetown University,
-      advised by <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.</p>
-      <p>I work at the intersection of <strong>reinforcement learning</strong> and
-      <strong>structural econometrics</strong> — using deep learning to study consumer
-      demand, algorithmic pricing, and strategic behavior in markets. My recent work
-      looks at consumer aesthetics in fast fashion, algorithmic collusion in auctions,
-      and how large language models reason under uncertainty.</p>
+      <p>Hi, I'm Pranjal. PhD candidate in Economics at Georgetown, advised by
+      <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.</p>
+      <p>I use deep learning and <strong>reinforcement learning</strong> to study
+      consumer demand, algorithmic pricing, and strategic behavior in markets.
+      Recent work: consumer aesthetics in fast fashion, algorithmic collusion in
+      auctions, and how language models reason under uncertainty.</p>
       <p>Reach me at <a href="mailto:pp712@georgetown.edu">pp712@georgetown.edu</a>.</p>
     </div>
   </section>
@@ -139,42 +140,47 @@
     <div class="entry">
       <div class="body">
         <h3>A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Fast Fashion</h3>
-        <div class="sub">FashionCLIP embeddings and demand modeling over millions of H&amp;M purchases to recover price and taste sensitivities through deep nets.</div>
+        <div class="sub">FashionCLIP embeddings and a demand model on millions of H&amp;M purchases. Recovers price and taste sensitivity.</div>
+        <div class="links"><a href="https://github.com/rawatpranjal/fashion-choices">Code</a></div>
       </div>
     </div>
 
     <div class="entry">
       <div class="body">
-        <h3><a href="https://arxiv.org/pdf/2504.10636">Who is more Bayesian: Humans or ChatGPT?</a></h3>
-        <div class="sub">Comparing human vs. AI decision-making in binary classification, documenting biases and ChatGPT's evolution across versions.</div>
+        <h3>Who is more Bayesian: Humans or ChatGPT?</h3>
+        <div class="sub">Humans vs. ChatGPT on binary classification. Documents bias and version drift. With John Rust, Chengjun Zhang, Tianshi Mu, Aaron Zhong.</div>
+        <div class="links"><a href="https://arxiv.org/abs/2504.10636">arXiv</a><a href="https://arxiv.org/pdf/2504.10636">PDF</a></div>
       </div>
     </div>
 
     <div class="entry">
       <div class="body">
-        <h3><a href="https://arxiv.org/abs/2306.09437">Algorithmic Collusion in Auctions: Evidence from Controlled Laboratory Experiments</a></h3>
-        <div class="sub">A Monte Carlo framework measuring bid suppression across Q-learning, contextual bandits, and pacing algorithms.</div>
+        <h3>Algorithmic Collusion in Auctions</h3>
+        <div class="sub">Controlled lab experiments measuring bid suppression across Q-learning, bandits, and pacing. WEAI 2025.</div>
+        <div class="links"><a href="https://arxiv.org/abs/2306.09437">arXiv</a><a href="https://arxiv.org/pdf/2306.09437">PDF</a><a href="https://github.com/rawatpranjal/algorithmic-collusion">Code</a></div>
       </div>
     </div>
 
     <div class="entry">
       <div class="body">
-        <h3><a href="https://arxiv.org/html/2410.13960v1">Approximating Auction Equilibria with Reinforcement Learning</a></h3>
-        <div class="sub">Proximal Policy Optimization for learning bidding strategies in multi-item and dynamic auctions.</div>
+        <h3>Approximating Auction Equilibria with Reinforcement Learning</h3>
+        <div class="sub">PPO learns bidding strategies in multi-item and dynamic auctions.</div>
+        <div class="links"><a href="https://arxiv.org/abs/2410.13960">arXiv</a><a href="https://arxiv.org/html/2410.13960v1">HTML</a></div>
       </div>
     </div>
 
     <div class="entry">
       <div class="body">
-        <h3><a href="https://arxiv.org/abs/2603.08956">A Survey of Reinforcement Learning for Economics</a></h3>
-        <div class="sub">Reinforcement learning methods for economic problems with high-dimensional states and continuous actions.</div>
+        <h3>A Survey of Reinforcement Learning for Economics</h3>
+        <div class="sub">RL methods for economic problems with high-dimensional states and continuous actions.</div>
+        <div class="links"><a href="https://arxiv.org/abs/2603.08956">arXiv</a><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics">Code</a></div>
       </div>
     </div>
 
     <div class="entry">
       <div class="body">
         <h3>Structural Econometrics and Reinforcement Learning</h3>
-        <div class="sub">Synergies between structural econometrics and reinforcement learning across finance, industrial organization, and policy.</div>
+        <div class="sub">Synergies across finance, IO, and policy. Oxford Research Encyclopedia, with John Rust.</div>
       </div>
     </div>
   </section>
@@ -182,7 +188,7 @@
   <!-- BLOG -->
   <section class="panel" id="blog">
     <div class="prose" style="padding-bottom:6px;">
-      <p>I write <em>Pranjal Rawat, PhD</em> on Substack — notes on economics,
+      <p>I write <em>Pranjal Rawat, PhD</em> on Substack. Notes on economics,
       machine learning, and whatever I'm reading.
       <a href="https://pranjalrawat42.substack.com/subscribe">Subscribe →</a></p>
     </div>
@@ -250,7 +256,7 @@
     </div>
     <div class="repo">
       <h3><a href="http://tech-econ.com/">tech-econ</a> <span class="sub">live site →</span></h3>
-      <div class="sub">A searchable library of 4,000+ resources at the intersection of technology and economics — papers, packages, and datasets.</div>
+      <div class="sub">A searchable library of 4,000+ resources at the intersection of technology and economics. Papers, packages, and datasets.</div>
     </div>
     <div class="repo">
       <h3><a href="https://github.com/rawatpranjal/econometrics-in-python">econometrics-in-python</a> <span class="sub">★ 61</span></h3>
