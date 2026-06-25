@@ -12,6 +12,21 @@
     --muted: #9a9a9a;
     --accent: #285e8e;
     --rule: #ededed;
+    --prose: #444;
+    --sub: #6b6b6b;
+  }
+  /* ponytail: follows the OS setting, no toggle */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16171a;
+      --fg: #e6e6e9;
+      --muted: #8b8b92;
+      --accent: #7cb0de;
+      --rule: #2a2c31;
+      --prose: #c8c8cd;
+      --sub: #a3a3ab;
+    }
+    header img.avatar { box-shadow: 0 2px 12px rgba(0,0,0,0.55); }
   }
   * { box-sizing: border-box; }
   body {
@@ -45,7 +60,7 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  .prose { font-size: 17px; color: #444; padding: 24px 0 4px; }
+  .prose { font-size: 17px; color: var(--prose); padding: 24px 0 4px; }
   .prose a { color: var(--accent); text-decoration: none; }
   .prose a:hover { text-decoration: underline; }
   .prose p { margin: 0 0 16px; }
@@ -59,7 +74,7 @@
   .entry .body h3 { font-size: 20px; font-weight: 600; margin: 0 0 4px; line-height: 1.35; }
   .entry .body h3 a { color: var(--fg); text-decoration: none; }
   .entry .body h3 a:hover { color: var(--accent); }
-  .entry .body .sub { color: #6b6b6b; font-size: 15.5px; }
+  .entry .body .sub { color: var(--sub); font-size: 15.5px; }
   .entry .body .meta { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
 
   .repo { padding: 16px 0; border-top: 1px solid var(--rule); }
@@ -67,7 +82,7 @@
   .repo h3 { font-size: 18px; margin: 0 0 2px; font-weight: 600; }
   .repo h3 a { color: var(--fg); text-decoration: none; }
   .repo h3 a:hover { color: var(--accent); }
-  .repo .sub { color: #6b6b6b; font-size: 15px; }
+  .repo .sub { color: var(--sub); font-size: 15px; }
 
   .btn {
     display: inline-block; margin-top: 6px; padding: 10px 20px;
@@ -122,56 +137,44 @@
   <!-- RESEARCH -->
   <section class="panel" id="research">
     <div class="entry">
-      <div class="date"><div class="yr">WP</div><div class="tag">Empirical</div></div>
       <div class="body">
         <h3>A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Fast Fashion</h3>
         <div class="sub">FashionCLIP embeddings and demand modeling over millions of H&amp;M purchases to recover price and taste sensitivities through deep nets.</div>
-        <div class="meta">Working paper</div>
       </div>
     </div>
 
     <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Empirical</div></div>
       <div class="body">
         <h3><a href="https://arxiv.org/pdf/2504.10636">Who is more Bayesian: Humans or ChatGPT?</a></h3>
         <div class="sub">Comparing human vs. AI decision-making in binary classification, documenting biases and ChatGPT's evolution across versions.</div>
-        <div class="meta">with John Rust, Chengjun Zhang, Tianshi Mu, Aaron Zhong</div>
       </div>
     </div>
 
     <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Experiment</div></div>
       <div class="body">
         <h3><a href="https://arxiv.org/abs/2306.09437">Algorithmic Collusion in Auctions: Evidence from Controlled Laboratory Experiments</a></h3>
         <div class="sub">A Monte Carlo framework measuring bid suppression across Q-learning, contextual bandits, and pacing algorithms.</div>
-        <div class="meta">WEAI Conference 2025</div>
       </div>
     </div>
 
     <div class="entry">
-      <div class="date"><div class="yr">'24</div><div class="tag">Experiment</div></div>
       <div class="body">
         <h3><a href="https://arxiv.org/html/2410.13960v1">Approximating Auction Equilibria with Reinforcement Learning</a></h3>
         <div class="sub">Proximal Policy Optimization for learning bidding strategies in multi-item and dynamic auctions.</div>
-        <div class="meta">Working paper</div>
       </div>
     </div>
 
     <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
       <div class="body">
         <h3><a href="https://arxiv.org/abs/2603.08956">A Survey of Reinforcement Learning for Economics</a></h3>
         <div class="sub">Reinforcement learning methods for economic problems with high-dimensional states and continuous actions.</div>
-        <div class="meta">Survey</div>
       </div>
     </div>
 
     <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
       <div class="body">
         <h3>Structural Econometrics and Reinforcement Learning</h3>
         <div class="sub">Synergies between structural econometrics and reinforcement learning across finance, industrial organization, and policy.</div>
-        <div class="meta">with John Rust · Oxford Research Encyclopedia</div>
       </div>
     </div>
   </section>
@@ -248,6 +251,10 @@
     <div class="repo">
       <h3><a href="http://tech-econ.com/">tech-econ</a> <span class="sub">live site →</span></h3>
       <div class="sub">A searchable library of 4,000+ resources at the intersection of technology and economics — papers, packages, and datasets.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/econometrics-in-python">econometrics-in-python</a> <span class="sub">★ 61</span></h3>
+      <div class="sub">A guide to econometrics packages in Python.</div>
     </div>
     <div class="repo">
       <h3><a href="https://github.com/rawatpranjal/industry-datasets">industry-datasets</a> <span class="sub">★ 54</span></h3>
