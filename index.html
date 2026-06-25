@@ -64,6 +64,11 @@
   .prose a { color: var(--accent); text-decoration: none; }
   .prose a:hover { text-decoration: underline; }
   .prose p { margin: 0 0 16px; }
+  .prose h2 { font-size: 25px; font-weight: 700; color: var(--fg); margin: 6px 0 18px; letter-spacing: -0.3px; }
+  .contact { color: var(--muted); font-size: 15px; margin-top: 22px; line-height: 1.5; }
+  .contact a { color: var(--accent); text-decoration: none; }
+  .contact a:hover { text-decoration: underline; }
+  .resume-frame { width: 100%; height: 82vh; border: 1px solid var(--rule); border-radius: 6px; margin-top: 16px; }
 
   .entry { display: flex; gap: 26px; padding: 22px 0; border-top: 1px solid var(--rule); }
   .entry:first-child { border-top: none; }
@@ -113,11 +118,11 @@
   <header>
     <img class="avatar" src="photo.jpg" alt="Pranjal Rawat">
     <h1>Pranjal Rawat</h1>
-    <div class="tagline">PhD candidate in Economics · Georgetown University</div>
+    <div class="tagline">Applied Scientist, Uber · PhD, Georgetown Economics</div>
     <nav>
       <button data-tab="about" class="active">About</button>
       <button data-tab="research">Research</button>
-      <button data-tab="blog">Blog</button>
+      <button data-tab="resume">Resume</button>
       <button data-tab="oss">Open Source</button>
     </nav>
   </header>
@@ -125,13 +130,25 @@
   <!-- ABOUT -->
   <section class="panel active" id="about">
     <div class="prose">
-      <p>Hi, I'm Pranjal. PhD candidate in Economics at Georgetown, advised by
-      <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.</p>
-      <p>I use deep learning and <strong>reinforcement learning</strong> to study
-      consumer demand, algorithmic pricing, and strategic behavior in markets.
-      Recent work: consumer aesthetics in fast fashion, algorithmic collusion in
-      auctions, and how language models reason under uncertainty.</p>
-      <p>Reach me at <a href="mailto:pp712@georgetown.edu">pp712@georgetown.edu</a>.</p>
+      <h2>Hi, I'm Pranjal</h2>
+      <p>I'm an incoming Applied Scientist at Uber working on algorithmic pricing in the
+      Delivery Marketplace. I have a PhD in Econometrics and Quantitative Economics from
+      Georgetown University and three years of full-time work experience in applied and
+      data science (Amex, RecSys).</p>
+      <p>My research interests lie in ML-powered scalable methodologies for causal inference
+      &amp; experimentation, choice &amp; preference modelling, reinforcement learning &amp;
+      dynamic programming, and optimization problems.</p>
+      <p>During my PhD, my advisors were John Rust and Nathan Miller and I also interned/worked
+      with the following tech firms: Roblox, Uber and Topsort. Before my PhD, I worked as an
+      Assistant Manager (Data Science) at American Express for 3 years on productionalizing
+      marketing rec-sys and graph embedding systems. Before that, I worked on time series
+      econometrics during my first Masters and at the Reserve Bank of India.</p>
+      <div class="contact">
+        <a href="mailto:pp712@georgetown.edu">pp712@georgetown.edu</a><br>
+        +1 202-855-4816<br>
+        <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a> ·
+        <a href="https://substack.com/@pranjalrawat42">Link</a>
+      </div>
     </div>
   </section>
 
@@ -185,102 +202,31 @@
     </div>
   </section>
 
-  <!-- BLOG -->
-  <section class="panel" id="blog">
-    <div class="prose" style="padding-bottom:6px;">
-      <p>I write <em>Pranjal Rawat, PhD</em> on Substack. Notes on economics,
-      machine learning, and whatever I'm reading.
-      <a href="https://pranjalrawat42.substack.com/subscribe">Subscribe →</a></p>
+  <!-- RESUME -->
+  <section class="panel" id="resume">
+    <div class="prose" style="padding-bottom:0;">
+      <p><a href="resume.pdf">Download CV (PDF) →</a></p>
     </div>
-    <!--POSTS:start-->
-    <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">Jun</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/remembering-dimitri-bertsekas">Remembering Dimitri Bertsekas</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">May</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/sharing-some-experiences-on-the-hiring">Sharing some experiences on the Hiring of PhD Candidates</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">Apr</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/software-for-economic-modelling">Software for Economic Modelling</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'26</div><div class="tag">Mar</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/i-got-my-phd-now-what">I got my PhD, now what?</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Nov</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/how-food-is-delivered">How food is delivered</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Nov</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/how-do-platforms-measure-the-effectiveness">How do platforms measure the effectiveness of ads?</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">May</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/how-to-work-with-llms">How to work with LLMs</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Feb</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/the-flippin-coin-a-short-story">The Flippin Coin: A Short Story</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Jan</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/econ-101-who-will-generative-ai-displace">Econ 101: Who will Generative AI displace?</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'25</div><div class="tag">Jan</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/why-are-markets-are-so-efficient">Why are markets are so efficient?</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'24</div><div class="tag">Oct</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/solving-auctions-with-reinforcement">Solving Auctions with Reinforcement Learning</a></h3></div>
-    </div>
-    <div class="entry">
-      <div class="date"><div class="yr">'24</div><div class="tag">Sep</div></div>
-      <div class="body"><h3><a href="https://pranjalrawat42.substack.com/p/improving-the-precision-of-average">Improving the precision of average treatment effects</a></h3></div>
-    </div>
-    <!--POSTS:end-->
+    <iframe class="resume-frame" src="resume.pdf" title="Pranjal Rawat CV"></iframe>
   </section>
 
   <!-- OPEN SOURCE -->
   <section class="panel" id="oss">
-    <div class="prose" style="padding-bottom:8px;">
-      <p>Code, simulators, and teaching repos. More on
-      <a href="https://github.com/rawatpranjal">GitHub</a>.</p>
+    <div class="repo">
+      <h3><a href="http://tech-econ.com/">TechEcon</a> <span class="sub">live site →</span></h3>
+      <div class="sub">A Netflix-like website and digital library of resources for Econ PhD students, early-career economists and data scientists working in US tech industry. This aggregator site contains: a) Econometrics, Statistics, &amp; ML packages (Python, R), b) Large industrial datasets from real firms, c) Learning resources, "getting started" roadmaps, d) YT series &amp; podcasts, bloggers, events &amp; conferences near you.</div>
     </div>
     <div class="repo">
-      <h3><a href="https://rawatpranjal.github.io/interactive-pricing-theory/">Interactive Pricing Theory</a> <span class="sub">live site →</span></h3>
-      <div class="sub">18 interactive tracks teaching pricing and revenue optimization through visualizations, mathematical models, and hands-on simulators.</div>
+      <h3><a href="https://github.com/rawatpranjal/deep-inference">DeepInference</a></h3>
+      <div class="sub">A Python package that implements the deep-learning-based estimators from Farrell, Liang, and Misra (2021, 2025), which combines the interpretability of classic statistical models (Logit, Poisson, etc.) with the representational power of deep nets, allowing parametric inference and capturing rich HTEs over high-dim covariates, images, text, sequences, and more.</div>
     </div>
     <div class="repo">
-      <h3><a href="http://tech-econ.com/">tech-econ</a> <span class="sub">live site →</span></h3>
-      <div class="sub">A searchable library of 4,000+ resources at the intersection of technology and economics. Papers, packages, and datasets.</div>
-    </div>
-    <div class="repo">
-      <h3><a href="https://github.com/rawatpranjal/econometrics-in-python">econometrics-in-python</a> <span class="sub">★ 61</span></h3>
-      <div class="sub">A guide to econometrics packages in Python.</div>
-    </div>
-    <div class="repo">
-      <h3><a href="https://github.com/rawatpranjal/industry-datasets">industry-datasets</a> <span class="sub">★ 54</span></h3>
-      <div class="sub">A curated collection of industry datasets for economic research.</div>
-    </div>
-    <div class="repo">
-      <h3><a href="https://github.com/rawatpranjal/computational-economics">computational-economics</a> <span class="sub">★ 40</span></h3>
-      <div class="sub">Unlocking the power of computation to solve richer economic problems.</div>
-    </div>
-    <div class="repo">
-      <h3><a href="https://github.com/rawatpranjal/deep-inference">deep-inference</a> <span class="sub">★ 4</span></h3>
-      <div class="sub">Estimating deep statistical models.</div>
+      <h3><a href="https://github.com/rawatpranjal/prefgraph">PrefGraph</a></h3>
+      <div class="sub">A Python package that implements revealed preference graph algorithms from leading papers in Microeconomics and Optimization to compute consistency and exploitability scores, and recover reward/utility functions from user choices from budgets, menus, lotteries, comparisons, etc.</div>
     </div>
     <div class="repo">
       <h3><a href="https://github.com/rawatpranjal/EconIRL">EconIRL</a></h3>
-      <div class="sub">Understanding and predicting dynamic choices.</div>
-    </div>
-    <div class="repo">
-      <h3><a href="https://github.com/rawatpranjal/prefgraph">prefgraph</a></h3>
-      <div class="sub">Measuring consistency in choices through revealed-preference graphs.</div>
+      <div class="sub">A Python package that implements SOTA dynamic discrete choice and inverse reinforcement learning algorithms to help us understand and predict users' sequential choices.</div>
     </div>
   </section>
 
