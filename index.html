@@ -24,26 +24,30 @@
   }
   .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-  header { text-align: center; padding: 70px 0 30px; }
+  header { text-align: center; padding: 70px 0 24px; }
   header h1 { font-size: 38px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
   header .tagline { color: var(--muted); font-size: 17px; margin-top: 8px; }
+
   nav { margin-top: 22px; }
-  nav a {
-    color: var(--fg); text-decoration: none; font-size: 14px;
-    text-transform: uppercase; letter-spacing: 1px; margin: 0 12px;
+  nav button {
+    font: inherit; background: none; border: none; cursor: pointer;
+    color: var(--fg); font-size: 14px; text-transform: uppercase;
+    letter-spacing: 1px; margin: 0 10px; padding: 4px 0;
+    border-bottom: 2px solid transparent;
   }
-  nav a:hover { color: var(--accent); }
+  nav button:hover { color: var(--accent); }
+  nav button.active { border-bottom-color: var(--accent); color: var(--accent); }
 
-  .intro { font-size: 17px; color: #444; padding: 18px 0 10px; }
-  .intro a { color: var(--accent); text-decoration: none; }
-  .intro a:hover { text-decoration: underline; }
+  .panel { display: none; }
+  .panel.active { display: block; }
 
-  h2.section {
-    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
-    color: var(--muted); margin: 48px 0 8px; font-weight: 600;
-  }
+  .prose { font-size: 17px; color: #444; padding: 24px 0 4px; }
+  .prose a { color: var(--accent); text-decoration: none; }
+  .prose a:hover { text-decoration: underline; }
+  .prose p { margin: 0 0 16px; }
 
   .entry { display: flex; gap: 26px; padding: 22px 0; border-top: 1px solid var(--rule); }
+  .entry:first-child { border-top: none; }
   .entry .date { flex: 0 0 64px; text-align: center; padding-top: 4px; }
   .entry .date .yr { font-size: 30px; font-weight: 700; line-height: 1; color: var(--fg); }
   .entry .date .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
@@ -54,13 +58,28 @@
   .entry .body .sub { color: #6b6b6b; font-size: 15.5px; }
   .entry .body .meta { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
 
-  footer { text-align: center; padding: 60px 0 50px; border-top: 1px solid var(--rule); margin-top: 50px; }
+  .repo { padding: 16px 0; border-top: 1px solid var(--rule); }
+  .repo:first-child { border-top: none; }
+  .repo h3 { font-size: 18px; margin: 0 0 2px; font-weight: 600; }
+  .repo h3 a { color: var(--fg); text-decoration: none; }
+  .repo h3 a:hover { color: var(--accent); }
+  .repo .sub { color: #6b6b6b; font-size: 15px; }
+
+  .btn {
+    display: inline-block; margin-top: 6px; padding: 10px 20px;
+    background: var(--accent); color: #fff; text-decoration: none;
+    border-radius: 4px; font-size: 15px;
+  }
+  .btn:hover { background: #1f4a70; }
+
+  footer { text-align: center; padding: 50px 0; border-top: 1px solid var(--rule); margin-top: 50px; }
   footer a { color: var(--muted); text-decoration: none; margin: 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
   footer a:hover { color: var(--accent); }
 
   @media (max-width: 480px) {
     header { padding-top: 48px; }
     header h1 { font-size: 30px; }
+    nav button { margin: 0 6px; font-size: 13px; }
     .entry { gap: 16px; }
     .entry .date { flex-basis: 48px; }
     .entry .date .yr { font-size: 24px; }
@@ -74,83 +93,145 @@
     <h1>Pranjal Rawat</h1>
     <div class="tagline">PhD candidate in Economics · Georgetown University</div>
     <nav>
-      <a href="#research">Research</a>
-      <a href="mailto:pp712@georgetown.edu">Email</a>
-      <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a>
-      <a href="https://substack.com/@pranjalrawat42">Substack</a>
+      <button data-tab="about" class="active">About</button>
+      <button data-tab="research">Research</button>
+      <button data-tab="blog">Blog</button>
+      <button data-tab="oss">Open Source</button>
     </nav>
   </header>
 
-  <p class="intro">
-    I work at the intersection of <strong>reinforcement learning</strong> and
-    <strong>structural econometrics</strong> — using deep learning to study
-    consumer demand, algorithmic pricing, and strategic behavior in markets.
-    Advised by <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.
-  </p>
-
-  <h2 class="section" id="research">Research</h2>
-
-  <div class="entry">
-    <div class="date"><div class="yr">WP</div><div class="tag">Empirical</div></div>
-    <div class="body">
-      <h3>A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Fast Fashion</h3>
-      <div class="sub">FashionCLIP embeddings and demand modeling over millions of H&amp;M purchases to recover price and taste sensitivities through deep nets.</div>
-      <div class="meta">Working paper</div>
+  <!-- ABOUT -->
+  <section class="panel active" id="about">
+    <div class="prose">
+      <p>Hi — I'm Pranjal, a PhD candidate in Economics at Georgetown University,
+      advised by <a href="https://sites.google.com/site/johnrustsite/">John Rust</a>.</p>
+      <p>I work at the intersection of <strong>reinforcement learning</strong> and
+      <strong>structural econometrics</strong> — using deep learning to study consumer
+      demand, algorithmic pricing, and strategic behavior in markets. My recent work
+      looks at consumer aesthetics in fast fashion, algorithmic collusion in auctions,
+      and how large language models reason under uncertainty.</p>
+      <p>Reach me at <a href="mailto:pp712@georgetown.edu">pp712@georgetown.edu</a>.</p>
     </div>
-  </div>
+  </section>
 
-  <div class="entry">
-    <div class="date"><div class="yr">'25</div><div class="tag">Empirical</div></div>
-    <div class="body">
-      <h3><a href="https://arxiv.org/pdf/2504.10636">Who is more Bayesian: Humans or ChatGPT?</a></h3>
-      <div class="sub">Comparing human vs. AI decision-making in binary classification, documenting biases and ChatGPT's evolution across versions.</div>
-      <div class="meta">with John Rust, Chengjun Zhang, Tianshi Mu, Aaron Zhong</div>
+  <!-- RESEARCH -->
+  <section class="panel" id="research">
+    <div class="entry">
+      <div class="date"><div class="yr">WP</div><div class="tag">Empirical</div></div>
+      <div class="body">
+        <h3>A Deep Learning Approach to Heterogeneous Consumer Aesthetics in Fast Fashion</h3>
+        <div class="sub">FashionCLIP embeddings and demand modeling over millions of H&amp;M purchases to recover price and taste sensitivities through deep nets.</div>
+        <div class="meta">Working paper</div>
+      </div>
     </div>
-  </div>
 
-  <div class="entry">
-    <div class="date"><div class="yr">'25</div><div class="tag">Experiment</div></div>
-    <div class="body">
-      <h3><a href="https://arxiv.org/abs/2306.09437">Algorithmic Collusion in Auctions: Evidence from Controlled Laboratory Experiments</a></h3>
-      <div class="sub">A Monte Carlo framework measuring bid suppression across Q-learning, contextual bandits, and pacing algorithms.</div>
-      <div class="meta">WEAI Conference 2025</div>
+    <div class="entry">
+      <div class="date"><div class="yr">'25</div><div class="tag">Empirical</div></div>
+      <div class="body">
+        <h3><a href="https://arxiv.org/pdf/2504.10636">Who is more Bayesian: Humans or ChatGPT?</a></h3>
+        <div class="sub">Comparing human vs. AI decision-making in binary classification, documenting biases and ChatGPT's evolution across versions.</div>
+        <div class="meta">with John Rust, Chengjun Zhang, Tianshi Mu, Aaron Zhong</div>
+      </div>
     </div>
-  </div>
 
-  <div class="entry">
-    <div class="date"><div class="yr">'24</div><div class="tag">Experiment</div></div>
-    <div class="body">
-      <h3><a href="https://arxiv.org/html/2410.13960v1">Approximating Auction Equilibria with Reinforcement Learning</a></h3>
-      <div class="sub">Proximal Policy Optimization for learning bidding strategies in multi-item and dynamic auctions.</div>
-      <div class="meta">Working paper</div>
+    <div class="entry">
+      <div class="date"><div class="yr">'25</div><div class="tag">Experiment</div></div>
+      <div class="body">
+        <h3><a href="https://arxiv.org/abs/2306.09437">Algorithmic Collusion in Auctions: Evidence from Controlled Laboratory Experiments</a></h3>
+        <div class="sub">A Monte Carlo framework measuring bid suppression across Q-learning, contextual bandits, and pacing algorithms.</div>
+        <div class="meta">WEAI Conference 2025</div>
+      </div>
     </div>
-  </div>
 
-  <div class="entry">
-    <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
-    <div class="body">
-      <h3><a href="https://arxiv.org/abs/2603.08956">A Survey of Reinforcement Learning for Economics</a></h3>
-      <div class="sub">Reinforcement learning methods for economic problems with high-dimensional states and continuous actions.</div>
-      <div class="meta">Survey</div>
+    <div class="entry">
+      <div class="date"><div class="yr">'24</div><div class="tag">Experiment</div></div>
+      <div class="body">
+        <h3><a href="https://arxiv.org/html/2410.13960v1">Approximating Auction Equilibria with Reinforcement Learning</a></h3>
+        <div class="sub">Proximal Policy Optimization for learning bidding strategies in multi-item and dynamic auctions.</div>
+        <div class="meta">Working paper</div>
+      </div>
     </div>
-  </div>
 
-  <div class="entry">
-    <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
-    <div class="body">
-      <h3>Structural Econometrics and Reinforcement Learning</h3>
-      <div class="sub">Synergies between structural econometrics and reinforcement learning across finance, industrial organization, and policy.</div>
-      <div class="meta">with John Rust · Oxford Research Encyclopedia</div>
+    <div class="entry">
+      <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
+      <div class="body">
+        <h3><a href="https://arxiv.org/abs/2603.08956">A Survey of Reinforcement Learning for Economics</a></h3>
+        <div class="sub">Reinforcement learning methods for economic problems with high-dimensional states and continuous actions.</div>
+        <div class="meta">Survey</div>
+      </div>
     </div>
-  </div>
+
+    <div class="entry">
+      <div class="date"><div class="yr">'26</div><div class="tag">Survey</div></div>
+      <div class="body">
+        <h3>Structural Econometrics and Reinforcement Learning</h3>
+        <div class="sub">Synergies between structural econometrics and reinforcement learning across finance, industrial organization, and policy.</div>
+        <div class="meta">with John Rust · Oxford Research Encyclopedia</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="panel" id="blog">
+    <div class="prose">
+      <p>I write <em>Pranjal Rawat, PhD</em> on Substack — notes on economics,
+      machine learning, and whatever I'm reading.</p>
+      <a class="btn" href="https://substack.com/@pranjalrawat42">Read on Substack →</a>
+    </div>
+  </section>
+
+  <!-- OPEN SOURCE -->
+  <section class="panel" id="oss">
+    <div class="prose" style="padding-bottom:8px;">
+      <p>Code, simulators, and teaching repos. More on
+      <a href="https://github.com/rawatpranjal">GitHub</a>.</p>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/deep-inference">deep-inference</a></h3>
+      <div class="sub">Estimating deep statistical models.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/EconIRL">EconIRL</a></h3>
+      <div class="sub">Understanding and predicting dynamic choices.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/prefgraph">prefgraph</a></h3>
+      <div class="sub">Measuring consistency in choices through revealed-preference graphs.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/operations-research">operations-research</a></h3>
+      <div class="sub">Executable operations-research and optimization tutorials through stylized marketplace problems.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/forecasting">forecasting</a></h3>
+      <div class="sub">A survey of forecasting tools, from statistics to machine learning.</div>
+    </div>
+    <div class="repo">
+      <h3><a href="https://github.com/rawatpranjal/ai-skills">ai-skills</a></h3>
+      <div class="sub">Claude skills for data scientists and economists.</div>
+    </div>
+  </section>
 
   <footer>
     <a href="mailto:pp712@georgetown.edu">Email</a>
-    <a href="https://arxiv.org/a/rawat_p_1">arXiv</a>
-    <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a>
     <a href="https://substack.com/@pranjalrawat42">Substack</a>
+    <a href="https://github.com/rawatpranjal">GitHub</a>
+    <a href="https://www.linkedin.com/in/pranjal-rawat-phd-96855a26b/">LinkedIn</a>
   </footer>
 
 </div>
+
+<script>
+  // ponytail: vanilla tab switch, no router/framework needed
+  const tabs = document.querySelectorAll('nav button');
+  const panels = document.querySelectorAll('.panel');
+  function show(id) {
+    tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    history.replaceState(null, '', '#' + id);
+  }
+  tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.tab)));
+  if (location.hash) { const id = location.hash.slice(1); if (document.getElementById(id)) show(id); }
+</script>
 </body>
 </html>
