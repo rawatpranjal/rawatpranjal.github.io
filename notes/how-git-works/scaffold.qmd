@@ -1,0 +1,826 @@
+---
+title: "How Git Works, Visually"
+subtitle: "The mental model behind commits, branches, and merges"
+author: "Pranjal Rawat"
+format:
+  revealjs:
+    theme: black
+    transition: fade
+    background-transition: fade
+    incremental: false
+    slide-number: c/t
+    controls: true
+    progress: true
+    width: 1200
+    height: 720
+    margin: 0.055
+    center: true
+    navigation-mode: linear
+---
+
+```{=html}
+<style>
+:root {
+  --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
+  --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114;
+}
+.reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
+.reveal h1, .reveal h2, .reveal h3 { color: var(--fg); font-weight: 700; letter-spacing: -0.5px; text-transform: none; }
+.reveal h2 { font-size: 1.55em; border-bottom: 2px solid var(--rule); padding-bottom: 0.25em; margin-bottom: 0.5em; }
+.reveal a { color: var(--accent); }
+.reveal .slide-number { background: none; color: var(--muted); }
+.reveal .footer, .reveal .slide-number { font-size: 12px; }
+.reveal strong { color: var(--accent); }
+.reveal em { color: var(--sub); font-style: italic; }
+.reveal .subtle { color: var(--sub); font-size: 0.8em; }
+.reveal .lead { font-size: 1.15em; line-height: 1.5; }
+.reveal code { color: var(--feat); background: rgba(124,176,222,0.08); padding: 1px 6px; border-radius: 4px; }
+.reveal section img { background: none; border: none; box-shadow: none; }
+/* SVG shared visual language */
+.gitfig { width: 100%; height: auto; max-height: 62vh; display: block; margin: 0 auto; }
+.node { fill: var(--node); stroke: var(--accent); stroke-width: 2.5; }
+.node.feat { stroke: var(--feat); }
+.node.merge { fill: #3a2f14; stroke: var(--amber); }
+.node.ghost { fill: #191c20; stroke: var(--edge); }
+.hash { fill: #cfe3f3; font: 600 16px ui-monospace, "SF Mono", Menlo, monospace; text-anchor: middle; }
+.hash.dim { fill: var(--muted); }
+.msg { fill: var(--sub); font: 15px -apple-system, sans-serif; text-anchor: middle; }
+.cap { fill: var(--fg); font: 16px -apple-system, sans-serif; text-anchor: middle; }
+.cap.big { font-size: 21px; font-weight: 600; }
+.zonelabel { fill: var(--muted); font: 600 14px -apple-system, sans-serif; letter-spacing: 1.5px; text-anchor: middle; }
+.edge { stroke: var(--edge); stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+.flow { stroke: var(--accent); stroke-width: 2.5; fill: none; marker-end: url(#arrowA); stroke-dasharray: 6 5; }
+.tag { rx: 5; }
+.tag.main { fill: var(--accent); }
+.tag.feat { fill: var(--feat); }
+.tag.head { fill: var(--amber); }
+.tagtext { fill: var(--ink); font: 700 14px ui-monospace, monospace; text-anchor: middle; }
+.leader { stroke-width: 2; fill: none; }
+.leader.main { stroke: var(--accent); }
+.leader.feat { stroke: var(--feat); }
+.leader.head { stroke: var(--amber); }
+.zone { fill: none; stroke: var(--rule); stroke-width: 1.5; rx: 12; }
+.card { fill: var(--node); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
+.card.hot { stroke: var(--amber); }
+.cardtext { fill: var(--fg); font: 15px ui-monospace, monospace; }
+.note { fill: var(--sub); font: 15px -apple-system, sans-serif; }
+.reveal .fragment.grow-in { opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
+.reveal .fragment.grow-in.visible { opacity: 1; transform: scale(1); }
+/* draw-on edges: a parent pointer draws itself from child to parent when revealed.
+   pathLength="1" makes stroke-dasharray:1 span the whole path at any length. */
+.edge.draw, .flow.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.reveal .fragment.visible .edge.draw,
+.reveal .fragment.visible .flow.draw,
+.reveal .edge.draw.fragment.visible,
+.reveal .flow.draw.fragment.visible { animation: gv-draw 0.55s ease both; }
+@keyframes gv-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+/* commit node pops in about its own centre */
+.reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6472"/>
+    </marker>
+    <marker id="arrowA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7cb0de"/>
+    </marker>
+  </defs>
+</svg>
+```
+
+# The problem, and the fix {.center}
+
+::: lead
+Every result you trust rests on one question: *exactly which version of the code and data produced it?*
+:::
+
+Git is the machine that gives that question an answer.
+
+::: notes
+This deck shows the mental model, not the commands. By the end you should be able to picture what git is doing when someone says commit, branch, merge, or rebase.
+:::
+
+---
+
+## Life without version control
+
+```{=html}
+<svg viewBox="0 0 1000 430" class="gitfig">
+  <g class="fragment"><rect class="card" x="120" y="60" width="300" height="46"/><text class="cardtext" x="140" y="89">analysis.py</text></g>
+  <g class="fragment"><rect class="card" x="150" y="120" width="300" height="46"/><text class="cardtext" x="170" y="149">analysis_final.py</text></g>
+  <g class="fragment"><rect class="card" x="180" y="180" width="300" height="46"/><text class="cardtext" x="200" y="209">analysis_final_v2.py</text></g>
+  <g class="fragment"><rect class="card hot" x="210" y="240" width="320" height="46"/><text class="cardtext" x="230" y="269" style="fill:var(--amber)">analysis_final_REALLY.py</text></g>
+  <g class="fragment">
+    <text class="cap big" x="720" y="150">Which one is real?</text>
+    <text class="note" x="720" y="192" text-anchor="middle">Who changed it last, and why?</text>
+    <text class="note" x="720" y="220" text-anchor="middle">Can I get the old version back?</text>
+    <text class="note" x="720" y="248" text-anchor="middle">Two people edited at once,</text>
+    <text class="note" x="720" y="272" text-anchor="middle">one set of edits vanished.</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the folder-of-dated-spreadsheets problem every data scientist has felt. Version control exists to answer all four of these questions at once.
+:::
+
+---
+
+## What version control gives you
+
+```{=html}
+<svg viewBox="0 0 1000 380" class="gitfig">
+  <g class="fragment">
+    <rect class="zone" x="60" y="90" width="270" height="200"/>
+    <text class="cap big" x="195" y="150" style="fill:var(--accent)">History</text>
+    <text class="note" x="195" y="192" text-anchor="middle">every version kept,</text>
+    <text class="note" x="195" y="218" text-anchor="middle">with who and why</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="365" y="90" width="270" height="200"/>
+    <text class="cap big" x="500" y="150" style="fill:var(--feat)">Recovery</text>
+    <text class="note" x="500" y="192" text-anchor="middle">return to any past</text>
+    <text class="note" x="500" y="218" text-anchor="middle">state, a mistake is</text>
+    <text class="note" x="500" y="244" text-anchor="middle">never permanent</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="670" y="90" width="270" height="200"/>
+    <text class="cap big" x="805" y="150" style="fill:var(--amber)">Collaboration</text>
+    <text class="note" x="805" y="192" text-anchor="middle">many people change</text>
+    <text class="note" x="805" y="218" text-anchor="middle">one project in</text>
+    <text class="note" x="805" y="244" text-anchor="middle">parallel, safely</text>
+  </g>
+</svg>
+```
+
+For a data scientist, these three add up to one word: **reproducibility**.
+
+::: notes
+History, recovery, collaboration. The payoff for our work specifically is reproducibility: a result is only trustworthy if you can say exactly which version produced it.
+:::
+
+---
+
+## A commit is a snapshot
+
+The unit of git. One commit records three things.
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="gitfig">
+  <circle class="node" cx="500" cy="200" r="52"/>
+  <text class="hash" x="500" y="206">a1b2c3</text>
+  <g class="fragment">
+    <path class="leader main" d="M 500 148 L 500 92" style="stroke:var(--edge)"/>
+    <text class="cap" x="500" y="76">a snapshot of every file, right now</text>
+  </g>
+  <g class="fragment">
+    <path class="leader main" d="M 552 200 L 720 200" style="stroke:var(--edge)"/>
+    <text class="cap" x="815" y="195">a message:</text>
+    <text class="note" x="815" y="222" text-anchor="middle">"why this change"</text>
+  </g>
+  <g class="fragment">
+    <circle class="node ghost" cx="245" cy="200" r="40"/>
+    <text class="hash dim" x="245" y="205">9f2e</text>
+    <path class="edge" d="M 448 200 L 288 200"/>
+    <text class="cap" x="245" y="128">a pointer to</text>
+    <text class="cap" x="245" y="152">its parent</text>
+  </g>
+</svg>
+```
+
+::: notes
+Snapshot plus message plus parent pointer. The parent pointer is what turns a pile of commits into a history.
+:::
+
+---
+
+## Commits form a chain
+
+Each commit points back to the one before it. That is the whole history.
+
+```{=html}
+<svg viewBox="0 0 1000 360" class="gitfig">
+  <g class="fragment pop" data-fragment-index="1">
+    <text class="msg" x="220" y="150">init</text>
+    <circle class="node" cx="220" cy="200" r="42"/>
+    <text class="hash" x="220" y="206">a1b</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 458 200 L 262 200"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <text class="msg" x="500" y="150">add model</text>
+    <circle class="node" cx="500" cy="200" r="42"/>
+    <text class="hash" x="500" y="206">9f2</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 738 200 L 542 200"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <text class="msg" x="780" y="150">fix bug</text>
+    <circle class="node" cx="780" cy="200" r="42"/>
+    <text class="hash" x="780" y="206">c73</text>
+  </g>
+  <g class="fragment" data-fragment-index="3">
+    <rect class="tag head" x="742" y="262" width="76" height="30"/>
+    <text class="tagtext" x="780" y="283">latest</text>
+    <path class="leader head" d="M 780 240 L 780 262"/>
+  </g>
+</svg>
+```
+
+::: notes
+Arrows point from a commit back to its parent. The newest commit is where "latest" sits. Add a commit and the chain just grows to the right.
+:::
+
+---
+
+## The hash is a fingerprint
+
+Each commit's ID is computed from its contents. Change the past and every ID downstream changes with it.
+
+```{=html}
+<svg viewBox="0 0 1000 380" class="gitfig">
+  <circle class="node" cx="220" cy="150" r="42"/>
+  <text class="hash" x="220" y="156">a1b</text>
+  <circle class="node" cx="500" cy="150" r="42"/>
+  <text class="hash" x="500" y="156">9f2</text>
+  <path class="edge" d="M 458 150 L 262 150"/>
+  <circle class="node" cx="780" cy="150" r="42"/>
+  <text class="hash" x="780" y="156">c73</text>
+  <path class="edge" d="M 738 150 L 542 150"/>
+  <g class="fragment">
+    <text class="cap" x="220" y="250" style="fill:var(--amber)">edit this commit...</text>
+    <path class="leader head" d="M 220 205 L 220 232" style="stroke:var(--amber)"/>
+  </g>
+  <g class="fragment">
+    <circle class="node merge" cx="220" cy="150" r="42"/>
+    <text class="hash" x="220" y="156" style="fill:var(--amber)">e04</text>
+    <circle class="node merge" cx="500" cy="150" r="42"/>
+    <text class="hash" x="500" y="156" style="fill:var(--amber)">77a</text>
+    <circle class="node merge" cx="780" cy="150" r="42"/>
+    <text class="hash" x="780" y="156" style="fill:var(--amber)">b19</text>
+    <text class="cap big" x="500" y="320" style="fill:var(--amber)">...and every ID after it changes too</text>
+  </g>
+</svg>
+```
+
+That is how git guarantees the history has not been quietly tampered with.
+
+::: notes
+The hash is a fingerprint of everything that came before. This tamper-evidence is a free side effect of the parent-pointer design.
+:::
+
+---
+
+## How to read the diagrams that follow {.center}
+
+Many of the diagrams from here on are a **photograph of a real git repository**. A command is run, and git's actual state is read back and drawn.
+
+A commit is a **circle**. An arrow runs to its **parent**. A colored box is a **branch** (just a pointer). `HEAD` marks where you stand. An **amber** ring is the commit the last command just made.
+
+Use the arrow keys. Each step is one command, and the graph grows as you go.
+
+<!--FB:what-git-is-->
+
+<!--FB:your-first-commit-->
+
+<!--FB:seeing-your-history-->
+
+<!--FB:ignoring-files-->
+
+<!--FB:what-a-commit-is-->
+
+## A change moves through three places
+
+You edit, you choose what to record, then you record it.
+
+```{=html}
+<svg viewBox="0 0 1000 430" class="gitfig">
+  <rect class="zone" x="40" y="120" width="270" height="210"/>
+  <text class="zonelabel" x="175" y="150">WORKING DIRECTORY</text>
+  <rect class="zone" x="365" y="120" width="270" height="210"/>
+  <text class="zonelabel" x="500" y="150">STAGING AREA</text>
+  <rect class="zone" x="690" y="120" width="270" height="210"/>
+  <text class="zonelabel" x="825" y="150">HISTORY</text>
+
+  <g class="fragment">
+    <rect class="card hot" x="70" y="215" width="210" height="54"/>
+    <text class="cardtext" x="92" y="248">model.py  (edited)</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 314 240 L 361 240"/>
+    <text class="note" x="337" y="200" text-anchor="middle" style="font-size:13px">add</text>
+    <rect class="card" x="395" y="215" width="210" height="54"/>
+    <text class="cardtext" x="417" y="248">model.py</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 639 240 L 686 240"/>
+    <text class="note" x="662" y="200" text-anchor="middle" style="font-size:13px">commit</text>
+    <circle class="node" cx="825" cy="242" r="42"/>
+    <text class="hash" x="825" y="248">a1b</text>
+  </g>
+  <text class="note" x="500" y="390" text-anchor="middle">Staging lets you record one clean, logical change even when the working directory is messy.</text>
+</svg>
+```
+
+::: notes
+Working directory, staging area, history. The staging step is the part people forget: it is what lets you commit a tidy logical change out of a half-finished mess.
+:::
+
+---
+
+## Distributed: every copy holds it all
+
+Clone a project and you copy the entire history to your machine, not just the latest files.
+
+```{=html}
+<svg viewBox="0 0 1000 440" class="gitfig">
+  <g class="fragment">
+    <rect class="zone" x="50" y="95" width="390" height="250"/>
+    <text class="zonelabel" x="245" y="128">YOUR CLONE  ·  LOCAL</text>
+    <circle class="node" cx="150" cy="235" r="30"/><text class="hash" x="150" y="241" style="font-size:14px">a1b</text>
+    <circle class="node" cx="245" cy="235" r="30"/><text class="hash" x="245" y="241" style="font-size:14px">9f2</text>
+    <circle class="node" cx="340" cy="235" r="30"/><text class="hash" x="340" y="241" style="font-size:14px">c73</text>
+    <path class="edge" d="M 215 235 L 180 235"/>
+    <path class="edge" d="M 310 235 L 275 235"/>
+    <text class="note" x="245" y="300" text-anchor="middle" style="font-size:14px">full history, works offline</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="560" y="95" width="390" height="250"/>
+    <text class="zonelabel" x="755" y="128">REMOTE  ·  GITHUB</text>
+    <circle class="node" cx="660" cy="235" r="30"/><text class="hash" x="660" y="241" style="font-size:14px">a1b</text>
+    <circle class="node" cx="755" cy="235" r="30"/><text class="hash" x="755" y="241" style="font-size:14px">9f2</text>
+    <circle class="node" cx="850" cy="235" r="30"/><text class="hash" x="850" y="241" style="font-size:14px">c73</text>
+    <path class="edge" d="M 725 235 L 690 235"/>
+    <path class="edge" d="M 820 235 L 785 235"/>
+    <path class="flow" d="M 445 175 L 555 175"/>
+    <text class="note" x="500" y="160" text-anchor="middle" style="font-size:14px">push</text>
+    <path class="flow" d="M 555 300 L 445 300"/>
+    <text class="note" x="500" y="330" text-anchor="middle" style="font-size:14px">pull</text>
+  </g>
+  <text class="note" x="500" y="410" text-anchor="middle">The remote is just another full copy. It is special only because everyone agrees to sync there.</text>
+</svg>
+```
+
+::: notes
+This is the heart of git's design. There is no single authoritative server the way older centralized tools had. Every clone is complete.
+:::
+
+---
+
+## git is not GitHub
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="gitfig">
+  <g class="fragment">
+    <rect class="card" x="70" y="90" width="360" height="240"/>
+    <text class="cap big" x="250" y="150" style="fill:var(--accent)">git</text>
+    <text class="note" x="250" y="195" text-anchor="middle">the tool</text>
+    <text class="note" x="250" y="228" text-anchor="middle">commits, branches, full history</text>
+    <text class="note" x="250" y="261" text-anchor="middle">on your machine, works offline</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="570" y="90" width="360" height="240"/>
+    <text class="cap big" x="750" y="150" style="fill:var(--feat)">GitHub, GitLab, Bitbucket</text>
+    <text class="note" x="750" y="195" text-anchor="middle">a service built on top</text>
+    <text class="note" x="750" y="228" text-anchor="middle">web UI, access control, review</text>
+    <text class="note" x="750" y="261" text-anchor="middle">the automation in the next cards</text>
+  </g>
+  <text class="note" x="500" y="370" text-anchor="middle" style="fill:var(--muted)">You can use git with no service at all. The real history lives in every clone.</text>
+</svg>
+```
+
+::: notes
+A distinction worth keeping straight in any conversation. git is the tool; GitHub is a host built on it. Torvalds wrote git in 2005 to manage the Linux kernel after BitKeeper's free terms were withdrawn.
+:::
+
+<!--FB:the-three-trees-->
+
+<!--FB:clone-fetch-push-pull-->
+
+# Branches, and how they rejoin {.center}
+
+::: lead
+A branch is a separate line of work: a movable pointer that lets you build without disturbing the main line.
+:::
+
+---
+
+## A branch is just a movable label
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="gitfig">
+  <text class="note" x="140" y="90">main</text>
+  <g class="fragment">
+    <circle class="node" cx="200" cy="180" r="38"/><text class="hash" x="200" y="186">a1b</text>
+    <circle class="node" cx="400" cy="180" r="38"/><text class="hash" x="400" y="186">9f2</text>
+    <path class="edge" d="M 362 180 L 238 180"/>
+    <rect class="tag main" x="362" y="238" width="76" height="30"/>
+    <text class="tagtext" x="400" y="259">main</text>
+    <path class="leader main" d="M 400 218 L 400 238"/>
+  </g>
+  <g class="fragment">
+    <circle class="node" cx="600" cy="180" r="38"/><text class="hash" x="600" y="186">c73</text>
+    <path class="edge" d="M 562 180 L 438 180"/>
+    <rect class="tag main" x="562" y="238" width="76" height="30"/>
+    <text class="tagtext" x="600" y="259">main</text>
+    <path class="leader main" d="M 600 218 L 600 238"/>
+    <path d="M 438 253 C 490 285, 512 285, 560 258" style="fill:none;stroke:var(--amber);stroke-width:2;stroke-dasharray:5 4;marker-end:url(#arrowA)"/>
+    <text class="note" x="500" y="315" text-anchor="middle" style="fill:var(--amber)">commit again, the label moves forward</text>
+  </g>
+  <text class="note" x="500" y="365" text-anchor="middle">Creating a branch just writes down one more pointer. That is why branching is nearly free.</text>
+</svg>
+```
+
+::: notes
+The whole trick: a branch is a name pointing at a commit. Commit on it and the pointer advances. No files are copied.
+:::
+
+---
+
+## The fork: work in isolation
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="gitfig">
+  <g class="fragment">
+    <text class="note" x="70" y="290">main</text>
+    <circle class="node" cx="180" cy="280" r="36"/><text class="hash" x="180" y="286">a1b</text>
+    <circle class="node" cx="380" cy="280" r="36"/><text class="hash" x="380" y="286">9f2</text>
+    <circle class="node" cx="580" cy="280" r="36"/><text class="hash" x="580" y="286">c73</text>
+    <path class="edge" d="M 344 280 L 216 280"/>
+    <path class="edge" d="M 544 280 L 416 280"/>
+  </g>
+  <g class="fragment">
+    <text class="note" x="470" y="95" style="fill:var(--feat)">feature</text>
+    <circle class="node feat" cx="560" cy="130" r="36"/><text class="hash" x="560" y="136">d4e</text>
+    <circle class="node feat" cx="760" cy="130" r="36"/><text class="hash" x="760" y="136">b81</text>
+    <path class="edge" d="M 540 160 L 400 250"/>
+    <path class="edge" d="M 724 130 L 596 130"/>
+  </g>
+  <text class="note" x="500" y="365" text-anchor="middle">You split off a private line. main keeps moving without you.</text>
+</svg>
+```
+
+::: notes
+Almost every change a modern team ships starts life on a branch like this. The main line stays stable while the work happens off to the side.
+:::
+
+---
+
+## Merge: tie the lines together
+
+```{=html}
+<svg viewBox="0 0 1000 420" class="gitfig">
+  <text class="note" x="60" y="290">main</text>
+  <text class="note" x="470" y="95" style="fill:var(--feat)">feature</text>
+  <circle class="node" cx="170" cy="280" r="34"/><text class="hash" x="170" y="286" style="font-size:14px">a1b</text>
+  <circle class="node" cx="360" cy="280" r="34"/><text class="hash" x="360" y="286" style="font-size:14px">9f2</text>
+  <circle class="node" cx="550" cy="280" r="34"/><text class="hash" x="550" y="286" style="font-size:14px">c73</text>
+  <path class="edge" d="M 326 280 L 204 280"/>
+  <path class="edge" d="M 516 280 L 394 280"/>
+  <circle class="node feat" cx="540" cy="130" r="34"/><text class="hash" x="540" y="136" style="font-size:14px">d4e</text>
+  <circle class="node feat" cx="730" cy="130" r="34"/><text class="hash" x="730" y="136" style="font-size:14px">b81</text>
+  <path class="edge" d="M 522 158 L 384 252"/>
+  <path class="edge" d="M 696 130 L 574 130"/>
+  <g class="fragment">
+    <circle class="node merge" cx="860" cy="280" r="40"/><text class="hash" x="860" y="286" style="fill:var(--amber)">M</text>
+    <path class="edge" d="M 820 280 L 584 280"/>
+    <path class="edge" d="M 832 262 L 762 150"/>
+    <text class="cap" x="860" y="360" style="fill:var(--amber)">merge commit</text>
+    <text class="note" x="700" y="405" text-anchor="middle">M has two parents. The history honestly records the split and the rejoin.</text>
+  </g>
+</svg>
+```
+
+::: notes
+A merge commit has two parents, one from each branch. Merging is usually automatic; git stitches together changes to different files or different parts of a file on its own.
+:::
+
+---
+
+## Rebase: replay onto a straight line
+
+```{=html}
+<svg viewBox="0 0 1000 470" class="gitfig">
+  <g class="fragment">
+    <text class="note" x="60" y="150" style="fill:var(--muted)">before</text>
+    <circle class="node" cx="180" cy="150" r="28"/><text class="hash" x="180" y="156" style="font-size:13px">a1b</text>
+    <circle class="node" cx="320" cy="150" r="28"/><text class="hash" x="320" y="156" style="font-size:13px">9f2</text>
+    <circle class="node" cx="460" cy="150" r="28"/><text class="hash" x="460" y="156" style="font-size:13px">c73</text>
+    <path class="edge" d="M 292 150 L 208 150"/>
+    <path class="edge" d="M 432 150 L 348 150"/>
+    <circle class="node feat" cx="420" cy="60" r="28"/><text class="hash" x="420" y="66" style="font-size:13px">d4e</text>
+    <circle class="node feat" cx="560" cy="60" r="28"/><text class="hash" x="560" y="66" style="font-size:13px">b81</text>
+    <path class="edge" d="M 405 84 L 335 130"/>
+    <path class="edge" d="M 532 60 L 448 60"/>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 500 200 L 500 275"/>
+    <text class="note" x="540" y="245" style="font-size:14px">git rebase</text>
+    <text class="note" x="60" y="365" style="fill:var(--muted)">after</text>
+    <circle class="node" cx="150" cy="365" r="28"/><text class="hash" x="150" y="371" style="font-size:13px">a1b</text>
+    <circle class="node" cx="290" cy="365" r="28"/><text class="hash" x="290" y="371" style="font-size:13px">9f2</text>
+    <circle class="node" cx="430" cy="365" r="28"/><text class="hash" x="430" y="371" style="font-size:13px">c73</text>
+    <circle class="node merge" cx="570" cy="365" r="28"/><text class="hash" x="570" y="371" style="font-size:12px;fill:var(--amber)">d4e'</text>
+    <circle class="node merge" cx="710" cy="365" r="28"/><text class="hash" x="710" y="371" style="font-size:12px;fill:var(--amber)">b81'</text>
+    <path class="edge" d="M 262 365 L 178 365"/>
+    <path class="edge" d="M 402 365 L 318 365"/>
+    <path class="edge" d="M 542 365 L 458 365"/>
+    <path class="edge" d="M 682 365 L 598 365"/>
+    <text class="note" x="500" y="440" text-anchor="middle">Linear and tidy, but the replayed commits are rewritten (new IDs). Rebase only work you have not shared.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Rebase rewrites your branch to look as if it were built on the latest main. Cleaner to read, but it changes commit IDs, so the rule is: rebase only your own un-shared work.
+:::
+
+---
+
+## A merge conflict is not an error
+
+```{=html}
+<svg viewBox="0 0 1000 430" class="gitfig">
+  <g class="fragment">
+    <rect class="card feat" x="90" y="90" width="330" height="110" style="stroke:var(--feat)"/>
+    <text class="zonelabel" x="255" y="122" style="fill:var(--feat)">FEATURE BRANCH</text>
+    <text class="cardtext" x="120" y="170">line 12:  rate = 0.05</text>
+    <rect class="card" x="580" y="90" width="330" height="110" style="stroke:var(--accent)"/>
+    <text class="zonelabel" x="745" y="122" style="fill:var(--accent)">MAIN BRANCH</text>
+    <text class="cardtext" x="610" y="170">line 12:  rate = 0.08</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 255 205 L 420 270"/>
+    <path class="edge" d="M 745 205 L 580 270"/>
+    <rect x="340" y="270" width="320" height="90" rx="8" style="fill:#3a2f14;stroke:var(--amber);stroke-width:2"/>
+    <text class="cap" x="500" y="308" style="fill:var(--amber);font-weight:700">CONFLICT on line 12</text>
+    <text class="note" x="500" y="338" text-anchor="middle">git stops and marks the spot</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="405" text-anchor="middle">The same line changed two ways. Git refuses to guess which wins, so a human decides.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Conflicts happen when two branches change the same lines incompatibly. They are more frequent and more painful the longer a branch lives apart, which is the practical argument for keeping branches short.
+:::
+
+<!--FB:your-first-branch-->
+
+<!--FB:a-branch-is-a-pointer-->
+
+<!--FB:fast-forward-vs-merge-->
+
+<!--FB:rebase-and-what-it-rewrites-->
+
+<!--FB:anatomy-of-a-conflict-->
+
+# Working as a team {.center}
+
+::: lead
+The mechanics of branching are settled. What teams argue about is the *workflow*: when to branch, how long a branch lives, when to merge.
+:::
+
+---
+
+## Three workflows on one spectrum
+
+```{=html}
+<svg viewBox="0 0 1000 440" class="gitfig">
+  <g class="fragment">
+    <text class="cap" x="175" y="95" style="fill:var(--accent)">git-flow</text>
+    <path class="edge" style="marker-end:none;stroke:var(--accent)" d="M 60 160 L 300 160"/>
+    <path class="edge" style="marker-end:none;stroke:var(--muted)" d="M 60 240 L 300 240"/>
+    <circle class="node" cx="90" cy="160" r="14"/><circle class="node" cx="270" cy="160" r="14"/>
+    <circle class="node ghost" cx="90" cy="240" r="14"/><circle class="node ghost" cx="180" cy="240" r="14"/><circle class="node ghost" cx="270" cy="240" r="14"/>
+    <circle class="node feat" cx="180" cy="120" r="14"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 180 226 L 180 134"/>
+    <text class="note" x="175" y="300" text-anchor="middle" style="font-size:14px">elaborate: long-lived</text>
+    <text class="note" x="175" y="324" text-anchor="middle" style="font-size:14px">develop + master, plus</text>
+    <text class="note" x="175" y="348" text-anchor="middle" style="font-size:14px">feature / release / hotfix</text>
+  </g>
+  <g class="fragment">
+    <text class="cap" x="500" y="95" style="fill:var(--feat)">trunk-based</text>
+    <path class="edge" style="marker-end:none;stroke:var(--accent)" d="M 380 200 L 620 200"/>
+    <circle class="node" cx="400" cy="200" r="14"/><circle class="node" cx="470" cy="200" r="14"/><circle class="node" cx="540" cy="200" r="14"/><circle class="node" cx="610" cy="200" r="14"/>
+    <circle class="node feat" cx="505" cy="160" r="12"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 505 188 L 505 170"/>
+    <text class="note" x="500" y="300" text-anchor="middle" style="font-size:14px">lean: one shared line,</text>
+    <text class="note" x="500" y="324" text-anchor="middle" style="font-size:14px">integrated many times a day,</text>
+    <text class="note" x="500" y="348" text-anchor="middle" style="font-size:14px">branches last hours</text>
+  </g>
+  <g class="fragment">
+    <text class="cap" x="825" y="95" style="fill:var(--amber)">GitHub flow</text>
+    <path class="edge" style="marker-end:none;stroke:var(--accent)" d="M 700 200 L 950 200"/>
+    <circle class="node" cx="725" cy="200" r="14"/><circle class="node" cx="925" cy="200" r="14"/>
+    <circle class="node feat" cx="825" cy="150" r="14"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 812 162 L 745 190"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 838 162 L 905 190"/>
+    <rect class="tag head" x="787" y="112" width="76" height="26"/><text class="tagtext" x="825" y="130" style="font-size:12px">PR</text>
+    <text class="note" x="825" y="300" text-anchor="middle" style="font-size:14px">the common default:</text>
+    <text class="note" x="825" y="324" text-anchor="middle" style="font-size:14px">one main, a short branch,</text>
+    <text class="note" x="825" y="348" text-anchor="middle" style="font-size:14px">a pull request to merge</text>
+  </g>
+  <text class="note" x="500" y="415" text-anchor="middle" style="fill:var(--muted)">Match the workflow to how you release, not to fashion. Driessen himself now points continuous-delivery teams to the simpler end.</text>
+</svg>
+```
+
+::: notes
+Git-flow (Driessen, 2010) suits software shipped as separately supported versions. Trunk-based is what high-performing teams tend to use. GitHub flow sits in between and is the everyday default. In 2020 Driessen added a note that panaceas do not exist.
+:::
+
+---
+
+## The pull request
+
+Where a branch is reviewed, tested, and let into `main`.
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="gitfig">
+  <g class="fragment">
+    <rect class="card" x="30" y="150" width="200" height="90" style="stroke:var(--feat)"/>
+    <text class="cap" x="130" y="200" style="fill:var(--feat);font-size:18px">feature branch</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 233 195 L 283 195"/>
+    <rect class="card" x="286" y="150" width="200" height="90"/>
+    <text class="cap" x="386" y="200" style="font-size:18px">open a pull request</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 489 195 L 539 195"/>
+    <rect class="card" x="542" y="150" width="210" height="90"/>
+    <text class="cap" x="647" y="192" style="font-size:17px">review + checks</text>
+    <text class="note" x="647" y="220" text-anchor="middle" style="font-size:13px;fill:var(--amber)">the CI pipeline runs here</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 755 195 L 805 195"/>
+    <rect class="card" x="808" y="150" width="170" height="90" style="stroke:var(--accent)"/>
+    <text class="cap" x="893" y="200" style="fill:var(--accent);font-size:18px">merge to main</text>
+  </g>
+  <text class="note" x="500" y="330" text-anchor="middle">Cheap branching is what made this possible: every change proposed, reviewed, and tested before it joins the main line.</text>
+</svg>
+```
+
+::: notes
+This is the cultural payoff of cheap branching. The automated checks in the third box are continuous integration, covered in the sibling card.
+:::
+
+---
+
+<!--FB:pull-requests-->
+
+<!--FB:forks-->
+
+<!--FB:merge-squash-or-rebase-->
+
+## The one tradeoff that runs backwards
+
+```{=html}
+<svg viewBox="0 0 1000 420" class="gitfig">
+  <g class="fragment">
+    <text class="note" x="60" y="110" style="fill:var(--muted)">main</text>
+    <path class="edge" style="marker-end:none" d="M 120 120 L 640 120"/>
+    <circle class="node" cx="150" cy="120" r="16"/><circle class="node" cx="640" cy="120" r="16"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 210 70 L 590 70"/>
+    <circle class="node feat" cx="210" cy="70" r="14"/><circle class="node feat" cx="590" cy="70" r="14"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 190 82 L 165 108"/>
+    <path d="M 604 82 L 628 108" style="stroke:var(--amber);stroke-width:3;fill:none"/>
+    <path d="M 640 120 l 18 -10 l -8 16 l 20 2 l -16 12 l 10 16 l -20 -8 l -6 18 l -8 -18 l -18 8 l 8 -16 z" style="fill:var(--amber);opacity:0.9"/>
+    <text class="note" x="700" y="115" style="fill:var(--amber);font-size:15px">merge hell</text>
+    <text class="note" x="380" y="165" text-anchor="middle" style="font-size:14px">long-lived: feels safe, drifts far, ends in a giant painful merge</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="60" y="300" style="fill:var(--muted)">main</text>
+    <path class="edge" style="marker-end:none" d="M 120 310 L 640 310"/>
+    <circle class="node" cx="150" cy="310" r="16"/><circle class="node" cx="400" cy="310" r="16"/><circle class="node" cx="640" cy="310" r="16"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 470 265 L 545 265"/>
+    <circle class="node feat" cx="470" cy="265" r="13"/><circle class="node feat" cx="545" cy="265" r="13"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 455 277 L 415 298"/>
+    <path class="edge" style="marker-end:none;stroke:var(--feat)" d="M 558 277 L 625 298"/>
+    <text class="note" x="380" y="355" text-anchor="middle" style="font-size:14px">short-lived: feels risky, but each tiny merge is trivial to resolve</text>
+  </g>
+</svg>
+```
+
+Small, frequent merges beat one big one. This is the logic behind trunk-based development and feature flags.
+
+::: notes
+The counterintuitive bit: the safe-feeling long-lived branch is the dangerous one. The useful question in a review is simply, how long has this branch been alive?
+:::
+
+---
+
+## Four ways teams work, on real repos {.center}
+
+The workflow is not the mechanics. It is the set of rules a team agrees on: when to branch, how long a branch lives, when to merge. Four common shapes, each on a real repository.
+
+<!--FB:direct-to-main-->
+
+<!--FB:github-flow-->
+
+<!--FB:trunk-based-->
+
+<!--FB:gitflow-->
+
+<!--FB:choosing-a-workflow-->
+
+<!--FB:parallel-work-no-conflict-->
+
+<!--FB:same-line-conflict-->
+
+<!--FB:stacked-branches-->
+
+<!--FB:stale-branch-->
+
+## You can almost always undo {.center}
+
+Git rarely loses committed work. A commit that is no longer on any branch still sits in the object store, and the reflog remembers every place `HEAD` has been. The next diagrams show the real safety net: reset, revert, restore, cherry-pick, and the reflog that recovers a "lost" commit.
+
+<!--FB:undo-reset-revert-restore-->
+
+<!--FB:reflog-the-safety-net-->
+
+<!--FB:cherry-pick-and-backport-->
+
+<!--FB:hotfix-and-revert-->
+
+## When many people, and many agents, share a repo {.center}
+
+Notebooks and large data files fight git's line-by-line model. Parallel work, by people or by coding agents, needs its own hygiene: worktrees for isolation, and care with a shared checkout.
+
+<!--FB:notebooks-data-and-lfs-->
+
+<!--FB:worktrees-for-parallel-agents-->
+
+<!--FB:the-shared-checkout-hazard-->
+
+<!--FB:agent-commit-and-review-hygiene-->
+
+## The words you will actually hear
+
+```{=html}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 48px;margin-top:12px;font-size:20px;line-height:1.5">
+  <div>
+    <div style="color:var(--muted);font-size:14px;letter-spacing:1.5px;margin-bottom:10px">THE CORE</div>
+    <div><b style="color:var(--accent)">commit</b> <span style="color:var(--sub)">a recorded snapshot, with a message and a parent</span></div>
+    <div><b style="color:var(--accent)">hash</b> <span style="color:var(--sub)">the fingerprint that identifies a commit</span></div>
+    <div><b style="color:var(--accent)">staging area</b> <span style="color:var(--sub)">the changes marked for the next commit</span></div>
+    <div><b style="color:var(--accent)">clone</b> <span style="color:var(--sub)">a full local copy, history and all</span></div>
+    <div><b style="color:var(--accent)">remote</b> <span style="color:var(--sub)">another copy you sync with</span></div>
+    <div><b style="color:var(--accent)">push / pull</b> <span style="color:var(--sub)">send commits up / bring commits down</span></div>
+  </div>
+  <div>
+    <div style="color:var(--muted);font-size:14px;letter-spacing:1.5px;margin-bottom:10px">BRANCHING</div>
+    <div><b style="color:var(--feat)">branch</b> <span style="color:var(--sub)">a movable pointer, a line of work</span></div>
+    <div><b style="color:var(--feat)">main</b> <span style="color:var(--sub)">the line treated as the source of truth</span></div>
+    <div><b style="color:var(--feat)">merge</b> <span style="color:var(--sub)">join two lines, recording a merge commit</span></div>
+    <div><b style="color:var(--feat)">rebase</b> <span style="color:var(--sub)">replay commits for a linear history</span></div>
+    <div><b style="color:var(--feat)">merge conflict</b> <span style="color:var(--sub)">same lines changed two ways, a human decides</span></div>
+    <div><b style="color:var(--feat)">pull request</b> <span style="color:var(--sub)">a proposal to merge, where review happens</span></div>
+  </div>
+</div>
+```
+
+::: notes
+This is the real payoff of the whole deck. Knowing these twelve words is what lets you follow, and join, an engineering conversation about git.
+:::
+
+---
+
+## The whole idea, in one line
+
+::: {.r-fit-text}
+A chain of snapshots,
+:::
+
+::: {.r-fit-text}
+each pointing at its parent.
+:::
+
+Everything else, branches, merges, rebases, remotes, is bookkeeping on top of that.
+
+::: notes
+If someone remembers one thing, it should be this. The commit graph is the object; all the commands are just ways of moving pointers around it.
+:::
+
+---
+
+## Go deeper
+
+- [Pro Git, 2nd edition](https://git-scm.com/book/en/v2) - Scott Chacon and Ben Straub. The canonical book, free online.
+- [What is Git? the three states and the distributed model](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F)
+- [A successful Git branching model (git-flow)](https://nvie.com/posts/a-successful-git-branching-model/) - Vincent Driessen
+- [Trunk Based Development](https://trunkbaseddevelopment.com/) and [GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow)
+
+::: {.subtle}
+Built from the version-control notes in a software-engineering-basics collection.
+:::
+
+::: notes
+Pro Git is the single best source and it is free. The workflow debate is best read straight from Driessen and the trunk-based site.
+:::
