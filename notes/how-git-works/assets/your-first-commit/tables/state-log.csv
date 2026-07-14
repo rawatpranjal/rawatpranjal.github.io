@@ -1,0 +1,6 @@
+step,label,command,repo,head,head_sha,files
+1,"a new file, not yet tracked",vim analysis.py,alice,main,,analysis.py:untracked
+2,git add lines it up,git add analysis.py,alice,main,,analysis.py:staged
+3,your first commit,git commit -m 'Add the data loader',alice,main,35ea03b,analysis.py:committed
+4,you change the file,vim analysis.py,alice,main,35ea03b,analysis.py:modified
+5,two commits,git add analysis.py; git commit -m 'Load the sales data',alice,main,f9723e4,analysis.py:committed
