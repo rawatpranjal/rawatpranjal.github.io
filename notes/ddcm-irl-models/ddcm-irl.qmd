@@ -5,9 +5,10 @@ author: "Pranjal Rawat"
 format:
   revealjs:
     theme: black
-    transition: fade
+    transition: slide
     background-transition: fade
     incremental: false
+    fragments: false
     slide-number: c/t
     controls: true
     progress: true
@@ -105,8 +106,6 @@ format:
 .axis { stroke: var(--rule); stroke-width: 2; }
 .grid { stroke: #30353b; stroke-width: 1; }
 .accentbar { fill: var(--teal); opacity: 0.72; }
-.reveal .fragment.fade-step { visibility: visible !important; opacity: 1 !important; transform: none; transition: none; }
-.reveal .fragment.fade-step.visible { opacity: 1; transform: none; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -138,21 +137,21 @@ How do we learn what people, firms, or agents value when each choice changes the
 
 ```{=html}
 <svg viewBox="0 0 1000 395" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="160" cy="190" r="48"/><text class="label" x="160" y="197">state</text>
     <text class="note" x="160" y="258">where the agent is</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node teal" cx="360" cy="190" r="48"/><text class="label" x="360" y="197">action</text>
     <text class="note" x="360" y="258">what they do</text>
     <path class="edge teal" d="M 210 190 L 310 190"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node amber" cx="560" cy="190" r="48"/><text class="label" x="560" y="197">reward</text>
     <text class="note" x="560" y="258">what they get now</text>
     <path class="edge amber" d="M 410 190 L 510 190"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node coral" cx="780" cy="190" r="54"/><text class="label" x="780" y="184">next</text><text class="label" x="780" y="210">state</text>
     <text class="note" x="780" y="258">where they land</text>
     <path class="edge coral" d="M 610 190 L 724 190"/>
@@ -171,7 +170,7 @@ The whole topic is the loop. A decision is not just a static response to today's
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="80" width="380" height="250"/>
     <text class="label big blue" x="260" y="125">Static choice</text>
     <text class="note" x="260" y="172">state today</text>
@@ -180,7 +179,7 @@ The whole topic is the loop. A decision is not just a static response to today's
     <circle class="node teal" cx="355" cy="200" r="42"/><text class="label small" x="355" y="206">buy?</text>
     <text class="note" x="260" y="280">no future state in the model</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="550" y="80" width="380" height="250"/>
     <text class="label big teal" x="740" y="125">Dynamic choice</text>
     <circle class="node blue" cx="650" cy="205" r="42"/><text class="label small" x="650" y="211">state</text>
@@ -202,7 +201,7 @@ Static discrete choice asks which option wins today. Dynamic discrete choice ask
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="250" y="56">panel rows</text>
     <rect class="panel" x="70" y="90" width="360" height="238"/>
     <line class="grid" x1="70" y1="138" x2="430" y2="138"/>
@@ -214,7 +213,7 @@ Static discrete choice asks which option wins today. Dynamic discrete choice ask
     <text class="mono" x="115" y="220">bus 7</text><text class="mono" x="215" y="220">45</text><text class="mono" x="310" y="220">keep</text><text class="mono" x="390" y="220">46</text>
     <text class="mono" x="115" y="266">bus 7</text><text class="mono" x="215" y="266">46</text><text class="mono" x="310" y="266">replace</text><text class="mono" x="390" y="266">0</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="730" y="56">model pieces</text>
     <rect class="token blue" x="555" y="105" width="350" height="44"/><text class="chiptext" x="730" y="132">transition: P(next state | state, action)</text>
     <rect class="token teal" x="555" y="170" width="350" height="44"/><text class="chiptext" x="730" y="197">reward: u(state, action; theta)</text>
@@ -248,7 +247,7 @@ This is the empirical object behind the toy row table. It is a sparse dynamic pa
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="80" y="95" width="250" height="240"/>
     <text class="label big teal" x="205" y="140">DDCM</text>
     <text class="note" x="205" y="188">choices are data</text>
@@ -256,7 +255,7 @@ This is the empirical object behind the toy row table. It is a sparse dynamic pa
     <text class="note" x="205" y="248">parameters</text>
     <text class="note" x="205" y="292">counterfactual policy</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="375" y="95" width="250" height="240"/>
     <text class="label big blue" x="500" y="140">RL</text>
     <text class="note" x="500" y="188">reward is given</text>
@@ -264,7 +263,7 @@ This is the empirical object behind the toy row table. It is a sparse dynamic pa
     <text class="note" x="500" y="248">by interaction</text>
     <text class="note" x="500" y="292">control problem</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="670" y="95" width="250" height="240"/>
     <text class="label big amber" x="795" y="140">IRL</text>
     <text class="note" x="795" y="188">behavior is given</text>
@@ -293,7 +292,7 @@ The same mathematical loop appears in three dialects. Economics usually wants in
   <path class="edge amber" d="M 526 196 C 590 180 610 150 650 142"/>
   <path class="edge coral" d="M 525 226 C 595 242 618 284 650 292"/>
   <path class="edge blue dash" d="M 710 353 C 625 405 315 405 235 270"/>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="90" y="34" width="820" height="52"/>
     <text class="mono" x="500" y="66">agent picks a to maximize u(s,a) + discounted future value</text>
   </g>
@@ -310,19 +309,19 @@ The state is the sufficient summary of the past. The transition kernel tells whe
 
 ::: {.eqbox}
 $$
-\mathcal{M}_\theta =
-\left(\mathcal{S},\mathcal{A},P(s'\mid s,a),u_\theta(s,a),\beta,\sigma\right)
+M_\theta =
+\left(S,A,P(s'\mid s,a),u_\theta(s,a),\beta,\sigma\right)
 $$
 :::
 
 ::: {.mathgrid}
 ::: {.eqbox .compact}
-$$s\in\mathcal{S}$$
+$$s\in S$$
 state
 :::
 
 ::: {.eqbox .compact}
-$$a\in\mathcal{A}(s)$$
+$$a\in A(s)$$
 feasible action
 :::
 
@@ -347,7 +346,7 @@ No derivation here. These are the primitive objects. The rest of the deck change
 
 ::: {.eqbox}
 $$
-\mathcal{D}=\{(i,t,s_{it},a_{it},s_{i,t+1})\}_{i=1,\ldots,N;\;t=1,\ldots,T_i}
+D=\{(i,t,s_{it},a_{it},s_{i,t+1})\}_{i=1,\ldots,N;\;t=1,\ldots,T_i}
 $$
 :::
 
@@ -376,13 +375,13 @@ The panel is the empirical bridge from behavior to model. It records choices and
 ::: {.eqbox}
 $$
 Q_\theta(s,a)
-= u_\theta(s,a)+\beta\sum_{s'\in\mathcal{S}}P(s'\mid s,a)V_\theta(s')
+= u_\theta(s,a)+\beta\sum_{s'\in S}P(s'\mid s,a)V_\theta(s')
 $$
 :::
 
 ::: {.eqbox}
 $$
-V_\theta(s)=\sigma\log\sum_{b\in\mathcal{A}(s)}
+V_\theta(s)=\sigma\log\sum_{b\in A(s)}
 \exp\!\left(\frac{Q_\theta(s,b)}{\sigma}\right)
 $$
 :::
@@ -403,13 +402,13 @@ This is the math the user asked to see. The slide states the equations and names
 $$
 \pi_\theta(a\mid s)=
 \frac{\exp(Q_\theta(s,a)/\sigma)}
-{\sum_{b\in\mathcal{A}(s)}\exp(Q_\theta(s,b)/\sigma)}
+{\sum_{b\in A(s)}\exp(Q_\theta(s,b)/\sigma)}
 $$
 :::
 
 ::: {.eqbox}
 $$
-\ell(\theta;\mathcal{D})
+\ell(\theta;D)
 =\sum_i\sum_t\log \pi_\theta(a_{it}\mid s_{it})
 $$
 :::
@@ -428,20 +427,20 @@ This is the likelihood spine behind NFXP and closely related structural estimato
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="70" y="120" width="330" height="170"/>
     <text class="label big teal" x="235" y="164">Q(s, a)</text>
     <text class="note" x="235" y="210">reward now</text>
     <text class="note" x="235" y="238">plus discounted future value</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 410 205 L 565 205"/>
     <rect class="panel amber" x="585" y="120" width="345" height="170"/>
     <text class="label big amber" x="758" y="164">V(s)</text>
     <text class="note" x="758" y="210">soft max over actions</text>
     <text class="note" x="758" y="238">because shocks are logit</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="350">Q(s,a) = u(s,a) + beta * E[V(s') | s,a]</text>
     <text class="mono" x="500" y="382">V(s) = sigma * log sum_a exp(Q(s,a) / sigma)</text>
   </g>
@@ -458,22 +457,22 @@ This is the soft Bellman operator used by the package. The log-sum-exp form come
 
 ```{=html}
 <svg viewBox="0 0 1000 420" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="token blue" x="80" y="155" width="145" height="56"/><text class="chiptext" x="152" y="188">V0 guess</text>
     <path class="edge blue" d="M 230 183 L 315 183"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token teal" x="320" y="155" width="145" height="56"/><text class="chiptext" x="392" y="188">T(V0)</text>
     <path class="edge teal" d="M 470 183 L 555 183"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token amber" x="560" y="155" width="145" height="56"/><text class="chiptext" x="632" y="188">T(V1)</text>
     <path class="edge amber" d="M 710 183 L 795 183"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token good" x="800" y="155" width="145" height="56"/><text class="chiptext" x="872" y="188">V*</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="240" y="285" width="520" height="62"/>
     <text class="label" x="500" y="323">contraction: repeat until the values stop moving</text>
   </g>
@@ -490,21 +489,21 @@ Dynamic programming is not a different model. It is the way we solve the same fi
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="75" y="85" width="265" height="255"/>
     <text class="label big blue" x="208" y="132">RL</text>
     <text class="note" x="208" y="184">given reward</text>
     <text class="note" x="208" y="216">learn policy</text>
     <text class="mono" x="208" y="276">r -> pi</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="370" y="85" width="265" height="255"/>
     <text class="label big amber" x="502" y="132">IRL</text>
     <text class="note" x="502" y="184">given behavior</text>
     <text class="note" x="502" y="216">learn reward</text>
     <text class="mono" x="502" y="276">pi_E -> r</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="665" y="85" width="265" height="255"/>
     <text class="label big teal" x="798" y="132">DDCM</text>
     <text class="note" x="798" y="184">given panel</text>
@@ -525,23 +524,23 @@ RL is the control direction. IRL is the inverse direction. Dynamic discrete choi
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <line class="axis" x1="110" y1="210" x2="890" y2="210"/>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node teal" cx="160" cy="210" r="42"/><text class="label small" x="160" y="216">NFXP</text>
     <text class="note" x="160" y="285">exact likelihood</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node amber" cx="335" cy="210" r="42"/><text class="label small" x="335" y="216">CCP</text>
     <text class="note" x="335" y="285">invert choices</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="510" cy="210" r="42"/><text class="label small" x="510" y="216">MCE</text>
     <text class="note" x="510" y="285">match features</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node coral" cx="685" cy="210" r="42"/><text class="label small" x="685" y="216">AIRL</text>
     <text class="note" x="685" y="285">adversarial reward</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node violet" cx="860" cy="210" r="42"/><text class="label small" x="860" y="216">more</text>
     <text class="note" x="860" y="285">scale, heterogeneity</text>
   </g>
@@ -560,23 +559,23 @@ The deck now walks this map. Each method answers one question: keep the exact st
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="70" y="70" width="860" height="280"/>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token blue" x="105" y="115" width="180" height="46"/><text class="chiptext" x="195" y="144">model pieces</text>
     <text class="note" x="195" y="190">state, action, reward</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token teal" x="305" y="115" width="180" height="46"/><text class="chiptext" x="395" y="144">DP core</text>
     <text class="note" x="395" y="190">Bellman, policy, value</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token hot" x="505" y="115" width="180" height="46"/><text class="chiptext" x="595" y="144">structural</text>
     <text class="note" x="595" y="190">NFXP, CCP, NPL</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token coral" x="705" y="115" width="180" height="46"/><text class="chiptext" x="795" y="144">IRL</text>
     <text class="note" x="795" y="190">MCE, AIRL, neural</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="290">then: support, anchors, scale, heterogeneity, and counterfactual meaning</text>
   </g>
 </svg>
@@ -592,31 +591,31 @@ This is the long version. It slows down on the assumptions because most confusio
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="65" y="70" width="260" height="120"/>
     <text class="label blue" x="195" y="110">replacement</text>
     <text class="note" x="195" y="145">keep now, pay later</text>
     <text class="mono" x="195" y="172">bus, machine, car</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="370" y="70" width="260" height="120"/>
     <text class="label teal" x="500" y="110">entry and exit</text>
     <text class="note" x="500" y="145">active status persists</text>
     <text class="mono" x="500" y="172">firm, seller, market</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="675" y="70" width="260" height="120"/>
     <text class="label amber" x="805" y="110">career choice</text>
     <text class="note" x="805" y="145">experience accumulates</text>
     <text class="mono" x="805" y="172">school, job, retire</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="215" y="235" width="260" height="120"/>
     <text class="label coral" x="345" y="275">route choice</text>
     <text class="note" x="345" y="310">path creates location</text>
     <text class="mono" x="345" y="337">taxi, commute, logistics</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="525" y="235" width="260" height="120"/>
     <text class="label" x="655" y="275">content choice</text>
     <text class="note" x="655" y="310">state includes taste</text>
@@ -635,13 +634,13 @@ The same machinery covers many stories: durable equipment, market participation,
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="95" width="350" height="235"/>
     <text class="label big blue" x="245" y="140">history</text>
     <text class="note" x="245" y="185">everything that happened</text>
     <text class="mono" x="245" y="230">s0, a0, s1, a1, ...</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 430 215 L 560 215"/>
     <rect class="panel teal" x="580" y="95" width="350" height="235"/>
     <text class="label big teal" x="755" y="140">state</text>
@@ -662,17 +661,17 @@ Markov does not mean the past does not matter. It means the past matters through
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="85" y="90" width="830" height="86"/>
     <text class="label coral" x="500" y="126">missing memory</text>
     <text class="note" x="500" y="154">today's state does not explain tomorrow or current payoff</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="85" y="205" width="830" height="86"/>
     <text class="label amber" x="500" y="241">too many cells</text>
     <text class="note" x="500" y="269">choice probabilities become sparse, especially for CCP-style estimators</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="85" y="320" width="830" height="56"/>
     <text class="mono" x="500" y="354">state design is the first estimator choice</text>
   </g>
@@ -689,11 +688,11 @@ This is the hidden modeling work. A weak state omits the variables that make beh
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node green" cx="180" cy="220" r="48"/><text class="label small" x="180" y="226">keep</text>
     <circle class="node coral" cx="360" cy="220" r="48"/><text class="label small" x="360" y="226">replace</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="525" y="118" width="355" height="205"/>
     <text class="label" x="702" y="160">discrete action set</text>
     <text class="note" x="702" y="205">makes logit choice probabilities</text>
@@ -713,7 +712,7 @@ Discrete choice models usually coarsen actions intentionally. The payoff is inte
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="230" cy="210" r="46"/><text class="label" x="230" y="216">s</text>
     <circle class="node teal" cx="450" cy="120" r="40"/><text class="label small" x="450" y="126">s1</text>
     <circle class="node teal" cx="450" cy="210" r="40"/><text class="label small" x="450" y="216">s2</text>
@@ -722,7 +721,7 @@ Discrete choice models usually coarsen actions intentionally. The payoff is inte
     <path class="edge teal" d="M 278 210 L 405 210"/>
     <path class="edge teal" d="M 272 230 L 410 288"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="590" y="110" width="315" height="200"/>
     <text class="label amber" x="748" y="152">P(s' | s, a)</text>
     <text class="note" x="748" y="200">known, estimated first,</text>
@@ -742,21 +741,21 @@ Transitions are beliefs about the environment. Structural DDC usually treats the
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="92" width="250" height="235"/>
     <text class="label big teal" x="215" y="138">structural</text>
     <text class="note" x="215" y="190">theta has a fixed</text>
     <text class="note" x="215" y="218">economic meaning</text>
     <text class="mono" x="215" y="268">cost slope, RC</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="375" y="92" width="250" height="235"/>
     <text class="label big amber" x="500" y="138">IRL</text>
     <text class="note" x="500" y="190">reward explains</text>
     <text class="note" x="500" y="218">behavior</text>
     <text class="mono" x="500" y="268">up to invariances</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="660" y="92" width="250" height="235"/>
     <text class="label big blue" x="785" y="138">policy</text>
     <text class="note" x="785" y="190">what we directly</text>
@@ -776,13 +775,13 @@ Newcomers often conflate reward, utility, and policy. The data show behavior. Th
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="90" y="100" width="360" height="220"/>
     <text class="label blue" x="270" y="145">same observed state</text>
     <circle class="node green" cx="210" cy="225" r="42"/><text class="label small" x="210" y="231">keep</text>
     <circle class="node coral" cx="330" cy="225" r="42"/><text class="label small" x="330" y="231">replace</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="560" y="100" width="350" height="220"/>
     <text class="label amber" x="735" y="145">private shocks</text>
     <text class="note" x="735" y="192">epsilon_a makes choice</text>
@@ -802,17 +801,17 @@ The logit shock is not just a technical detail. It explains why two agents in th
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="95" y="90" width="810" height="82"/>
     <text class="label coral" x="500" y="128">only payoff differences drive choices</text>
     <text class="note" x="500" y="154">adding the same constant everywhere often changes nothing observable</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="95" y="205" width="370" height="105"/>
     <text class="label teal" x="280" y="246">level anchor</text>
     <text class="mono" x="280" y="282">u(s, exit) = 0</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="535" y="205" width="370" height="105"/>
     <text class="label amber" x="720" y="246">scale anchor</text>
     <text class="mono" x="720" y="282">sigma fixed</text>
@@ -830,14 +829,14 @@ Reward recovery needs an anchor. Without a level and scale convention, the rewar
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="90" y="80" width="350" height="260"/>
     <text class="label blue" x="265" y="122">bad feature</text>
     <text class="note" x="265" y="170">same for every action</text>
     <rect class="token" x="160" y="215" width="210" height="42"/><text class="chiptext" x="265" y="241">phi(s, keep)</text>
     <rect class="token" x="160" y="270" width="210" height="42"/><text class="chiptext" x="265" y="296">phi(s, replace)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="560" y="80" width="350" height="260"/>
     <text class="label teal" x="735" y="122">good contrast</text>
     <text class="note" x="735" y="170">moves with the action</text>
@@ -857,13 +856,13 @@ If a feature does not vary across actions, it can vanish from the choice compari
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="95" width="300" height="235"/>
     <text class="label big teal" x="240" y="140">fit model</text>
     <text class="note" x="240" y="190">reward, transition, beta</text>
     <text class="mono" x="240" y="242">theta_hat</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 402 212 L 560 212"/>
     <rect class="panel amber" x="575" y="95" width="335" height="235"/>
     <text class="label big amber" x="742" y="140">change primitive</text>
@@ -883,11 +882,11 @@ Structural counterfactuals are not just predictions from a fitted classifier. Th
 
 ::: {.eqbox}
 $$
-\mathcal{M}_{\hat\theta}
+M_{\hat\theta}
 \longrightarrow
-\mathcal{M}_{cf}
+M_{cf}
 =
-\left(\mathcal{S},\mathcal{A}_{cf},P_{cf},u_{cf},\beta_{cf},\sigma\right)
+\left(S,A_{cf},P_{cf},u_{cf},\beta_{cf},\sigma\right)
 $$
 :::
 
@@ -895,7 +894,7 @@ $$
 $$
 (V_{cf},Q_{cf},\pi_{cf})
 =
-\operatorname{SolveBellman}(\mathcal{M}_{cf})
+\operatorname{SolveBellman}(M_{cf})
 $$
 :::
 
@@ -911,7 +910,7 @@ transition change
 :::
 
 ::: {.eqbox .compact}
-$$\mathcal{A}\rightarrow\mathcal{A}_{cf}$$
+$$A\rightarrow A_{cf}$$
 choice-set change
 :::
 
@@ -959,19 +958,19 @@ This slide is there because counterfactuals are not only visual policy compariso
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="90" width="255" height="240"/>
     <text class="label blue" x="198" y="132">finite horizon</text>
     <text class="note" x="198" y="184">start at the end</text>
     <text class="mono" x="198" y="232">backward induction</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="372" y="90" width="255" height="240"/>
     <text class="label teal" x="500" y="132">infinite horizon</text>
     <text class="note" x="500" y="184">repeat a contraction</text>
     <text class="mono" x="500" y="232">value iteration</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="675" y="90" width="255" height="240"/>
     <text class="label amber" x="802" y="132">near solution</text>
     <text class="note" x="802" y="184">use faster local steps</text>
@@ -990,13 +989,13 @@ The Bellman equation is one object, but the solver can be backward induction, va
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="90" y="105" width="820" height="190"/>
     <text class="mono" x="500" y="158">Q_keep = 1.2</text>
     <text class="mono" x="500" y="205">Q_replace = 0.4</text>
     <text class="mono" x="500" y="252">pi(a | s) = exp(Q_a / sigma) / sum_b exp(Q_b / sigma)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="accentbar" x="270" y="340" width="310" height="28"/><text class="tiny" x="425" y="392">higher Q, higher probability</text>
     <rect fill="var(--coral)" x="580" y="340" width="150" height="28" opacity="0.72"/><text class="tiny" x="655" y="392">still possible</text>
   </g>
@@ -1013,16 +1012,16 @@ The policy is a soft comparison of choice-specific values. Better actions become
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="90" width="820" height="260"/>
     <text class="label big teal" x="500" y="132">outer loop: search theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel2" x="170" y="175" width="660" height="100"/>
     <text class="label amber" x="500" y="212">inner loop: solve Bellman fixed point</text>
     <text class="mono" x="500" y="246">theta -> u_theta -> V_theta -> pi_theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 500 278 C 560 318 770 318 805 278"/>
     <text class="note" x="660" y="340">score observed actions, update theta, repeat</text>
   </g>
@@ -1039,7 +1038,7 @@ NFXP is conceptually clean. For each candidate reward parameter, solve the dynam
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="500" y="62">Rust bus replacement</text>
     <line class="axis" x1="120" y1="210" x2="780" y2="210"/>
     <text class="tiny" x="120" y="244">low mileage</text><text class="tiny" x="780" y="244">high mileage</text>
@@ -1048,11 +1047,11 @@ NFXP is conceptually clean. For each candidate reward parameter, solve the dynam
     <circle class="node blue" cx="490" cy="210" r="30"/><text class="label small" x="490" y="216">50</text>
     <circle class="node blue" cx="640" cy="210" r="30"/><text class="label small" x="640" y="216">70</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token good" x="190" y="98" width="150" height="44"/><text class="chiptext" x="265" y="125">keep</text>
     <path class="edge green" d="M 265 144 C 290 176 310 190 338 200"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token hot" x="620" y="98" width="150" height="44"/><text class="chiptext" x="695" y="125">replace</text>
     <path class="edge amber" d="M 695 144 C 650 275 300 280 190 240"/>
     <text class="note" x="500" y="326">replacement pays a fixed cost now, but resets future mileage</text>
@@ -1142,13 +1141,13 @@ This plot separates two evidence modes: original empirical replication and known
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="90" width="210" height="245"/>
     <text class="label big blue" x="175" y="136">panel</text>
     <text class="mono" x="175" y="190">(s_t, a_t)</text>
     <text class="mono" x="175" y="230">(s_{t+1})</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 290 212 L 365 212"/>
     <rect class="panel teal" x="375" y="90" width="250" height="245"/>
     <text class="label big teal" x="500" y="136">model</text>
@@ -1156,7 +1155,7 @@ This plot separates two evidence modes: original empirical replication and known
     <text class="mono" x="500" y="226">P(s'|s,a)</text>
     <text class="mono" x="500" y="264">beta, sigma</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 635 212 L 710 212"/>
     <rect class="panel amber" x="720" y="90" width="210" height="245"/>
     <text class="label big amber" x="825" y="136">score</text>
@@ -1177,18 +1176,18 @@ For a candidate parameter, NFXP builds the whole policy implied by the dynamic m
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="80" y="80" width="840" height="275"/>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node teal" cx="235" cy="215" r="52"/><text class="label" x="235" y="209">start</text><text class="tiny" x="235" y="235">V0</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 288 215 L 402 215"/>
     <circle class="node amber" cx="455" cy="215" r="52"/><text class="label" x="455" y="209">apply</text><text class="tiny" x="455" y="235">T_theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 508 215 L 622 215"/>
     <circle class="node blue" cx="675" cy="215" r="52"/><text class="label" x="675" y="209">update</text><text class="tiny" x="675" y="235">V1</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral dash" d="M 675 160 C 595 70 315 70 238 160"/>
     <text class="note" x="500" y="58">repeat until the value function stops moving</text>
   </g>
@@ -1205,30 +1204,30 @@ The fixed point is the value function that is unchanged by the Bellman operator.
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="100" y="72" width="230" height="85"/>
     <text class="label teal" x="215" y="108">guess theta</text>
     <text class="mono" x="215" y="136">c_replace, c_mileage</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 335 115 L 425 115"/>
     <rect class="panel amber" x="440" y="72" width="230" height="85"/>
     <text class="label amber" x="555" y="108">solve DP</text>
     <text class="mono" x="555" y="136">V_theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 675 115 L 765 115"/>
     <rect class="panel blue" x="780" y="72" width="140" height="85"/>
     <text class="label blue" x="850" y="108">policy</text>
     <text class="mono" x="850" y="136">pi_theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 850 162 L 850 245 L 555 245"/>
     <rect class="panel coral" x="440" y="250" width="230" height="85"/>
     <text class="label coral" x="555" y="286">likelihood</text>
     <text class="mono" x="555" y="314">L(theta)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral dash" d="M 435 292 C 285 315 160 245 210 162"/>
     <text class="note" x="285" y="350">optimizer chooses the next theta</text>
   </g>
@@ -1245,21 +1244,21 @@ The outer loop is ordinary maximum likelihood. The unusual part is that every sc
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="88" width="360" height="235"/>
     <text class="label big teal" x="270" y="136">clear primitives</text>
     <text class="note" x="270" y="188">reward parameters</text>
     <text class="note" x="270" y="220">transition law</text>
     <text class="note" x="270" y="252">discount factor</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="550" y="88" width="360" height="235"/>
     <text class="label big blue" x="730" y="136">clean counterfactuals</text>
     <text class="note" x="730" y="188">change a primitive</text>
     <text class="note" x="730" y="220">solve again</text>
     <text class="note" x="730" y="252">compare policy and welfare</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 450 210 L 540 210"/>
     <text class="mono" x="500" y="374">this is why structural models are worth the work</text>
   </g>
@@ -1277,17 +1276,17 @@ The reward parameters can be interpreted as primitives of the decision problem. 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="85" y="75" width="830" height="285"/>
-  <g class="fragment fade-step">
+  <g>
     <text class="label big coral" x="500" y="124">cost grows in two directions</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <line class="axis" x1="195" y1="300" x2="805" y2="300"/>
     <line class="axis" x1="195" y1="300" x2="195" y2="135"/>
     <path d="M 205 292 C 330 285 430 250 520 210 C 625 160 710 105 790 92" fill="none" stroke="var(--coral)" stroke-width="5"/>
     <text class="tiny" x="500" y="335">state grid size</text>
     <text class="tiny" x="132" y="212" transform="rotate(-90 132 212)">solve time</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token hot" x="350" y="170" width="300" height="46"/>
     <text class="chiptext" x="500" y="199">many theta guesses times many states</text>
   </g>
@@ -1318,20 +1317,20 @@ This slide keeps the later estimator roster honest. Fast methods, structural met
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="70" y="90" width="250" height="245"/>
     <text class="label big amber" x="195" y="136">1. Count</text>
     <text class="note" x="195" y="188">empirical</text>
     <text class="mono" x="195" y="222">pi_hat(a | s)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 330 210 L 405 210"/>
     <rect class="panel blue" x="415" y="90" width="250" height="245"/>
     <text class="label big blue" x="540" y="136">2. Invert</text>
     <text class="note" x="540" y="188">log odds map to</text>
     <text class="note" x="540" y="216">value differences</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 675 210 L 750 210"/>
     <rect class="panel teal" x="760" y="90" width="170" height="245"/>
     <text class="label big teal" x="845" y="136">3. Fit</text>
@@ -1353,7 +1352,7 @@ Hotz-Miller CCP methods replace repeated full Bellman solves with a first-stage 
 $$
 \hat{\pi}(a\mid s)
 =
-\Pr_{\mathcal{D}}(a_{it}=a\mid s_{it}=s)
+\Pr_D(a_{it}=a\mid s_{it}=s)
 $$
 :::
 
@@ -1381,7 +1380,7 @@ This is the equation the visual CCP slide is pointing at. It is a stated inversi
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="90" y="78" width="820" height="270"/>
     <text class="label big" x="500" y="122">firm in a market</text>
     <circle class="node coral" cx="250" cy="235" r="54"/><text class="label" x="250" y="230">out</text><text class="tiny" x="250" y="256">a=0</text>
@@ -1390,7 +1389,7 @@ This is the equation the visual CCP slide is pointing at. It is a stated inversi
     <path class="edge coral" d="M 697 250 C 580 320 420 320 303 250"/>
     <text class="note" x="500" y="195">market size, incumbency, fixed cost, entry cost</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="382">high support matters: thin state-action cells make pi_hat unstable</text>
   </g>
 </svg>
@@ -1406,21 +1405,21 @@ The survey's CCP exposition uses a simplified entry-exit model. The lesson trans
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="75" y="78" width="850" height="270"/>
     <text class="label big blue" x="500" y="122">estimate pi_hat(a | s) from observed choices</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token good" x="155" y="185" width="170" height="44"/><text class="chiptext" x="240" y="212">state bin 1</text>
     <rect class="accentbar" x="155" y="250" width="135" height="24"/><rect fill="var(--coral)" x="290" y="250" width="35" height="24" opacity="0.72"/>
     <text class="tiny" x="240" y="300">mostly keep</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token hot" x="415" y="185" width="170" height="44"/><text class="chiptext" x="500" y="212">state bin 2</text>
     <rect class="accentbar" x="415" y="250" width="92" height="24"/><rect fill="var(--coral)" x="507" y="250" width="78" height="24" opacity="0.72"/>
     <text class="tiny" x="500" y="300">mixed</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token coral" x="675" y="185" width="170" height="44"/><text class="chiptext" x="760" y="212">state bin 3</text>
     <rect class="accentbar" x="675" y="250" width="42" height="24"/><rect fill="var(--coral)" x="717" y="250" width="128" height="24" opacity="0.72"/>
     <text class="tiny" x="760" y="300">often replace</text>
@@ -1438,20 +1437,20 @@ The first stage compresses behavior into conditional choice probabilities. In sm
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="95" y="98" width="330" height="230"/>
     <text class="label big amber" x="260" y="146">observed odds</text>
     <text class="mono" x="260" y="205">log pi(a|s)</text>
     <text class="mono" x="260" y="245">- log pi(a0|s)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 435 215 L 560 215"/>
     <rect class="panel teal" x="575" y="98" width="330" height="230"/>
     <text class="label big teal" x="740" y="146">value gaps</text>
     <text class="mono" x="740" y="205">Q(a,s)</text>
     <text class="mono" x="740" y="245">- Q(a0,s)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="380">logit shocks make the bridge analytic</text>
   </g>
 </svg>
@@ -1467,21 +1466,21 @@ The Hotz-Miller insight is an inversion: if choices are logit-soft values, then 
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="185" cy="210" r="45"/><text class="label" x="185" y="216">s</text>
     <rect class="token blue" x="110" y="105" width="150" height="44"/><text class="chiptext" x="185" y="132">choose a</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 230 210 L 360 160"/>
     <circle class="node teal" cx="410" cy="145" r="42"/><text class="label small" x="410" y="151">s1</text>
     <text class="tiny" x="410" y="205">P=.4</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 230 210 L 360 260"/>
     <circle class="node amber" cx="410" cy="275" r="42"/><text class="label small" x="410" y="281">s2</text>
     <text class="tiny" x="410" y="335">P=.6</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 455 145 L 610 145"/>
     <path class="edge amber" d="M 455 275 L 610 275"/>
     <rect class="panel2" x="635" y="98" width="270" height="230"/>
@@ -1502,19 +1501,19 @@ The first-stage policy supplies the expected future behavior needed to compute c
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="80" y="95" width="250" height="230"/>
     <text class="label big amber" x="205" y="142">fast</text>
     <text class="note" x="205" y="202">avoid nested</text>
     <text class="note" x="205" y="232">fixed-point solves</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="375" y="95" width="250" height="230"/>
     <text class="label big teal" x="500" y="142">modular</text>
     <text class="note" x="500" y="202">separate policy</text>
     <text class="note" x="500" y="232">and structural fit</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="670" y="95" width="250" height="230"/>
     <text class="label big blue" x="795" y="142">scalable</text>
     <text class="note" x="795" y="202">good first step</text>
@@ -1534,17 +1533,17 @@ CCP methods turn a hard dynamic estimation problem into a two-step problem. The 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="80" y="72" width="840" height="285"/>
-  <g class="fragment fade-step">
+  <g>
     <text class="label big coral" x="500" y="118">no support, no inversion</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <g transform="translate(200 165)">
       <rect class="token good" x="0" y="0" width="160" height="50"/><text class="chiptext" x="80" y="31">seen often</text>
       <rect class="token hot" x="220" y="0" width="160" height="50"/><text class="chiptext" x="300" y="31">seen rarely</text>
       <rect class="token coral" x="440" y="0" width="160" height="50"/><text class="chiptext" x="520" y="31">never seen</text>
     </g>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 280 230 L 280 285"/>
     <path class="edge amber" d="M 500 230 L 500 285"/>
     <path class="edge coral" d="M 720 230 L 720 285"/>
@@ -1565,18 +1564,18 @@ The shortcut depends on seeing enough choices in enough states. Sparse panels an
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node amber" cx="250" cy="210" r="55"/><text class="label" x="250" y="204">policy</text><text class="tiny" x="250" y="232">pi_k</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 305 210 L 445 210"/>
     <circle class="node teal" cx="500" cy="210" r="55"/><text class="label" x="500" y="204">fit</text><text class="tiny" x="500" y="232">theta_k</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 555 210 L 695 210"/>
     <circle class="node blue" cx="750" cy="210" r="55"/><text class="label" x="750" y="204">update</text><text class="tiny" x="750" y="232">pi_{k+1}</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral dash" d="M 750 155 C 660 60 340 60 252 155"/>
     <text class="note" x="500" y="350">nested pseudo-likelihood refines the first-stage policy</text>
   </g>
@@ -1593,14 +1592,14 @@ NPL uses the CCP idea repeatedly. Start with an initial policy, estimate paramet
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="90" width="350" height="250"/>
     <text class="label big blue" x="245" y="136">expert paths</text>
     <path class="edge blue" d="M 145 275 L 200 230 L 260 230 L 315 172"/>
     <circle class="node blue" cx="145" cy="275" r="16"/><circle class="node blue" cx="200" cy="230" r="16"/><circle class="node blue" cx="260" cy="230" r="16"/><circle class="node blue" cx="315" cy="172" r="16"/>
     <text class="note" x="245" y="306">feature counts</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 430 215 L 545 215"/>
     <rect class="panel amber" x="565" y="90" width="350" height="250"/>
     <text class="label big amber" x="740" y="136">soft policy</text>
@@ -1654,7 +1653,7 @@ This is the MCE-IRL math in one slide: linear reward, feature moment matching, e
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="500" y="54">navigation with features</text>
     <g transform="translate(260 90)">
       <rect class="panel" x="0" y="0" width="480" height="280"/>
@@ -1669,7 +1668,7 @@ This is the MCE-IRL math in one slide: linear reward, feature moment matching, e
       <circle class="node blue" cx="40" cy="245" r="18"/><text class="tiny" x="40" y="250">start</text>
     </g>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="405">reward weights explain why this path, not every shortest path</text>
   </g>
 </svg>
@@ -1685,19 +1684,19 @@ This is the standard IRL mental model: demonstrations reveal tradeoffs over feat
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="85" width="250" height="245"/>
     <text class="label big blue" x="195" y="132">trajectories</text>
     <text class="mono" x="195" y="188">tau = s0,a0,...</text>
     <text class="note" x="195" y="238">expert behavior</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="375" y="85" width="250" height="245"/>
     <text class="label big teal" x="500" y="132">features</text>
     <text class="mono" x="500" y="188">f(s,a)</text>
     <text class="note" x="500" y="238">what can matter</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="680" y="85" width="250" height="245"/>
     <text class="label big amber" x="805" y="132">dynamics</text>
     <text class="mono" x="805" y="188">P(s'|s,a)</text>
@@ -1716,19 +1715,19 @@ MCE-IRL needs demonstrations, features, and dynamics. The reward is learned as a
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="100" y="92" width="350" height="240"/>
     <text class="label big amber" x="275" y="140">match moments</text>
     <text class="mono" x="275" y="202">E_pi[f] = E_expert[f]</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 460 212 L 545 212"/>
     <rect class="panel teal" x="560" y="92" width="340" height="240"/>
     <text class="label big teal" x="730" y="140">maximize entropy</text>
     <text class="mono" x="730" y="202">avoid extra claims</text>
     <text class="note" x="730" y="244">among matching policies</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="382">explain what is observed, stay uncertain elsewhere</text>
   </g>
 </svg>
@@ -1744,17 +1743,17 @@ The maximum entropy principle matters because many policies can match a small se
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="85" y="82" width="830" height="250"/>
     <text class="label big teal" x="500" y="126">replace max with log-sum-exp</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="190">V(s) = log sum_a exp(Q(s,a))</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="245">Q(s,a) = r_theta(s,a) + beta E[V(s')]</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token good" x="345" y="292" width="310" height="46"/>
     <text class="chiptext" x="500" y="321">a differentiable planner</text>
   </g>
@@ -1771,17 +1770,17 @@ The same Bellman loop appears, but it is the soft version. The policy becomes a 
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="95" y="95" width="260" height="230"/>
     <text class="label big blue" x="225" y="142">expert</text>
     <text class="mono" x="225" y="205">feature counts</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="645" y="95" width="260" height="230"/>
     <text class="label big amber" x="775" y="142">model</text>
     <text class="mono" x="775" y="205">expected counts</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral" d="M 365 210 L 635 210"/>
     <text class="label coral" x="500" y="188">gap</text>
     <text class="mono" x="500" y="250">grad = expert - model</text>
@@ -1799,21 +1798,21 @@ The learning signal is intuitive. If the expert visits a feature more than the c
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="85" width="250" height="245"/>
     <text class="label big teal" x="215" y="132">good feature</text>
     <text class="note" x="215" y="190">varies across</text>
     <text class="note" x="215" y="220">available paths</text>
     <text class="mono" x="215" y="268">identified</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="375" y="85" width="250" height="245"/>
     <text class="label big coral" x="500" y="132">bad feature</text>
     <text class="note" x="500" y="190">constant or</text>
     <text class="note" x="500" y="220">duplicated</text>
     <text class="mono" x="500" y="268">not learned</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="660" y="85" width="250" height="245"/>
     <text class="label big amber" x="785" y="132">missing feature</text>
     <text class="note" x="785" y="190">explains behavior</text>
@@ -1847,19 +1846,19 @@ This graph keeps the IRL part empirical. It also prevents overclaiming: recovere
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="80" y="105" width="230" height="200"/>
     <text class="label big blue" x="195" y="150">expert</text>
     <text class="note" x="195" y="202">observed</text>
     <text class="mono" x="195" y="238">(s,a,s')</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="385" y="105" width="230" height="200"/>
     <text class="label big amber" x="500" y="150">learner</text>
     <text class="note" x="500" y="202">policy rollouts</text>
     <text class="mono" x="500" y="238">(s,a,s')</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral" d="M 315 205 L 375 205"/>
     <path class="edge coral" d="M 620 205 L 680 205"/>
     <rect class="panel coral" x="690" y="105" width="230" height="200"/>
@@ -1918,21 +1917,21 @@ This is the AIRL math in stated form. It avoids saying AIRL universally recovers
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="90" width="360" height="240"/>
     <text class="label big teal" x="270" y="134">world A</text>
     <circle class="node green" cx="180" cy="245" r="34"/><text class="label small" x="180" y="251">goal</text>
     <circle class="node blue" cx="360" cy="185" r="30"/><text class="label small" x="360" y="191">s</text>
     <path class="edge teal" d="M 340 205 C 280 245 240 250 215 248"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="550" y="90" width="360" height="240"/>
     <text class="label big blue" x="730" y="134">world B</text>
     <circle class="node green" cx="640" cy="245" r="34"/><text class="label small" x="640" y="251">goal</text>
     <circle class="node blue" cx="820" cy="285" r="30"/><text class="label small" x="820" y="291">s</text>
     <path class="edge blue" d="M 795 270 C 740 235 700 240 675 245"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="382">state-only reward can transfer when shaping is separated</text>
   </g>
 </svg>
@@ -1948,16 +1947,16 @@ The original AIRL claim is not simply "learn any reward." It is a state-only rew
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="210" cy="210" r="55"/><text class="label" x="210" y="204">expert</text><text class="tiny" x="210" y="232">data</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node amber" cx="500" cy="105" r="55"/><text class="label" x="500" y="99">policy</text><text class="tiny" x="500" y="127">rollouts</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node coral" cx="790" cy="210" r="55"/><text class="label" x="790" y="204">disc</text><text class="tiny" x="790" y="232">classify</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node teal" cx="500" cy="325" r="55"/><text class="label" x="500" y="319">reward</text><text class="tiny" x="500" y="347">signal</text>
   </g>
   <path class="edge blue" d="M 264 200 C 420 160 610 160 736 200"/>
@@ -1978,21 +1977,21 @@ AIRL alternates between generating learner rollouts, training a discriminator ag
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="70" y="78" width="860" height="280"/>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token good" x="125" y="150" width="190" height="52"/><text class="chiptext" x="220" y="182">g(s)</text>
     <text class="note" x="220" y="232">reward-like term</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="352" y="183">+</text>
     <rect class="token blue" x="390" y="150" width="190" height="52"/><text class="chiptext" x="485" y="182">beta h(s')</text>
     <text class="note" x="485" y="232">next potential</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="617" y="183">-</text>
     <rect class="token hot" x="655" y="150" width="190" height="52"/><text class="chiptext" x="750" y="182">h(s)</text>
     <text class="note" x="750" y="232">current potential</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="305">potential terms absorb shaping; g is the transferable target</text>
   </g>
 </svg>
@@ -2008,20 +2007,20 @@ The AIRL architecture builds in a separation between reward and shaping. That st
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="95" y="90" width="330" height="245"/>
     <text class="label big teal" x="260" y="136">same behavior</text>
     <path class="edge teal" d="M 170 255 C 225 190 290 220 350 160"/>
     <circle class="node teal" cx="170" cy="255" r="16"/><circle class="node teal" cx="260" cy="205" r="16"/><circle class="node teal" cx="350" cy="160" r="16"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="575" y="90" width="330" height="245"/>
     <text class="label big amber" x="740" y="136">many rewards</text>
     <text class="mono" x="740" y="195">r</text>
     <text class="mono" x="740" y="235">r + beta Phi(s') - Phi(s)</text>
     <text class="note" x="740" y="276">policy unchanged</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral" d="M 435 215 L 565 215"/>
   </g>
 </svg>
@@ -2037,14 +2036,14 @@ Reward functions are not automatically unique. Potential-based shaping can prese
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="80" y="80" width="260" height="260"/>
     <text class="label big teal" x="210" y="128">reward</text>
     <text class="mono" x="210" y="195">r(s)</text>
     <text class="note" x="210" y="245">portable when the</text>
     <text class="note" x="210" y="272">conditions fit</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 350 210 L 465 210"/>
     <rect class="panel blue" x="480" y="80" width="440" height="260"/>
     <text class="label big blue" x="700" y="128">new dynamics</text>
@@ -2065,14 +2064,14 @@ The clean AIRL story is a state-only reward that can transfer to a changed envir
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="85" y="92" width="380" height="240"/>
     <text class="label big coral" x="275" y="140">economic actions matter</text>
     <text class="note" x="275" y="194">entry cost</text>
     <text class="note" x="275" y="224">replacement cost</text>
     <text class="note" x="275" y="254">switching cost</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 475 212 L 540 212"/>
     <rect class="panel amber" x="555" y="92" width="360" height="240"/>
     <text class="label big amber" x="735" y="140">needs anchors</text>
@@ -2099,16 +2098,16 @@ Many economic models need action-dependent rewards. Those can be useful, but the
   <line class="grid" x1="470" y1="70" x2="470" y2="350"/>
   <line class="grid" x1="690" y1="70" x2="690" y2="350"/>
   <text class="label small" x="152" y="104">method</text><text class="label small" x="360" y="104">target</text><text class="label small" x="580" y="104">shortcut</text><text class="label small" x="818" y="104">risk</text>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono left" x="92" y="164">NFXP</text><text class="note left" x="282" y="164">structural theta</text><text class="note left" x="502" y="164">none</text><text class="note left" x="722" y="164">expensive solves</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono left" x="92" y="214">CCP</text><text class="note left" x="282" y="214">same theta</text><text class="note left" x="502" y="214">invert pi_hat</text><text class="note left" x="722" y="214">thin support</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono left" x="92" y="264">MCE-IRL</text><text class="note left" x="282" y="264">feature reward</text><text class="note left" x="502" y="264">match moments</text><text class="note left" x="722" y="264">feature misspecification</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono left" x="92" y="314">AIRL</text><text class="note left" x="282" y="314">state or anchored reward</text><text class="note left" x="502" y="314">adversarial split</text><text class="note left" x="722" y="314">identification scope</text>
   </g>
 </svg>
@@ -2124,27 +2123,27 @@ The methods are not ranked from simple to fancy. Each preserves a different obje
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="70" y="75" width="270" height="125"/>
     <text class="label blue" x="205" y="116">repeated solves too slow</text>
     <text class="mono" x="205" y="158">MPEC, UFXP, NNES</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="365" y="75" width="270" height="125"/>
     <text class="label amber" x="500" y="116">transition density hard</text>
     <text class="mono" x="500" y="158">TD-CCP</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="660" y="75" width="270" height="125"/>
     <text class="label teal" x="795" y="116">unknown reward map</text>
     <text class="mono" x="795" y="158">Neural MCE, GLADIUS</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="205" y="245" width="270" height="125"/>
     <text class="label coral" x="340" y="286">latent types</text>
     <text class="mono" x="340" y="328">AIRL-Het</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel" x="525" y="245" width="270" height="125"/>
     <text class="label" x="660" y="286">bounded planning</text>
     <text class="mono" x="660" y="328">RHIP</text>
@@ -2176,14 +2175,14 @@ This graph is here to connect the estimator roster to validation evidence. It sh
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="92" width="360" height="240"/>
     <text class="label big teal" x="270" y="140">NFXP</text>
     <text class="mono" x="270" y="200">theta -> solve V</text>
     <text class="note" x="270" y="246">fixed point is hidden</text>
     <text class="note" x="270" y="274">inside each score</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 460 212 L 540 212"/>
     <rect class="panel amber" x="555" y="92" width="355" height="240"/>
     <text class="label big amber" x="733" y="140">MPEC</text>
@@ -2205,18 +2204,18 @@ MPEC changes the numerical organization of the same structural problem. It can h
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
   <rect class="panel" x="90" y="78" width="820" height="280"/>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="210" cy="210" r="50"/><text class="label" x="210" y="216">theta</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 260 210 L 395 210"/>
     <circle class="node teal" cx="445" cy="210" r="50"/><text class="label" x="445" y="205">one</text><text class="tiny" x="445" y="232">update</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 495 210 L 630 210"/>
     <circle class="node amber" cx="680" cy="210" r="50"/><text class="label" x="680" y="205">better</text><text class="tiny" x="680" y="232">value</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral dash" d="M 680 160 C 600 70 330 70 215 160"/>
     <text class="note" x="500" y="330">use Bellman updates as part of estimation progress</text>
   </g>
@@ -2233,20 +2232,20 @@ Updating-value approaches exploit the fact that the optimizer and value iteratio
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="80" y="90" width="260" height="240"/>
     <text class="label big blue" x="210" y="138">large state</text>
     <text class="note" x="210" y="196">too many cells</text>
     <text class="note" x="210" y="226">for a table</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 350 210 L 435 210"/>
     <rect class="panel teal" x="450" y="90" width="230" height="240"/>
     <text class="label big teal" x="565" y="138">network</text>
     <text class="mono" x="565" y="205">V_phi(s)</text>
     <text class="mono" x="565" y="245">r_phi(s,a)</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 690 210 L 770 210"/>
     <rect class="panel amber" x="785" y="90" width="140" height="240"/>
     <text class="label amber" x="855" y="138">policy</text>
@@ -2265,13 +2264,13 @@ Neural estimators replace tables or linear rewards with learned approximators. T
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="95" y="92" width="330" height="240"/>
     <text class="label big amber" x="260" y="140">CCP shortcut</text>
     <text class="note" x="260" y="196">needs future value</text>
     <text class="note" x="260" y="226">under pi_hat</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 435 212 L 555 212"/>
     <rect class="panel teal" x="570" y="92" width="335" height="240"/>
     <text class="label big teal" x="738" y="140">TD signal</text>
@@ -2291,19 +2290,19 @@ Temporal-difference ideas help estimate continuation values from realized transi
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel coral" x="90" y="80" width="820" height="265"/>
     <text class="label big coral" x="500" y="126">same state, different latent rewards</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node teal" cx="250" cy="235" r="50"/><text class="label" x="250" y="229">type</text><text class="tiny" x="250" y="256">low cost</text>
     <path class="edge teal" d="M 305 235 L 430 185"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node amber" cx="500" cy="235" r="50"/><text class="label" x="500" y="229">type</text><text class="tiny" x="500" y="256">patient</text>
     <path class="edge amber" d="M 555 235 L 635 235"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="750" cy="235" r="50"/><text class="label" x="750" y="229">type</text><text class="tiny" x="750" y="256">risk averse</text>
     <path class="edge blue" d="M 700 235 L 570 285"/>
   </g>
@@ -2320,17 +2319,17 @@ Heterogeneous IRL and mixture models ask whether one reward can plausibly explai
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <text class="label big" x="500" y="72">agents may not plan to infinity</text>
     <line class="axis" x1="155" y1="220" x2="850" y2="220"/>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <circle class="node blue" cx="200" cy="220" r="30"/><text class="label small" x="200" y="226">t</text>
     <circle class="node teal" cx="340" cy="220" r="30"/><text class="label small" x="340" y="226">t+1</text>
     <circle class="node amber" cx="480" cy="220" r="30"/><text class="label small" x="480" y="226">t+2</text>
     <circle class="node coral" cx="620" cy="220" r="30"/><text class="label small" x="620" y="226">t+H</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge coral dash" d="M 650 220 L 790 220"/>
     <text class="tiny" x="785" y="255">far future truncated</text>
     <rect class="token hot" x="335" y="310" width="330" height="46"/>
@@ -2349,28 +2348,28 @@ Finite-horizon or receding-horizon estimators are useful when infinite-horizon o
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="token blue" x="370" y="42" width="260" height="48"/><text class="chiptext" x="500" y="72">What do you need?</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 500 94 L 250 150"/>
     <rect class="panel teal" x="90" y="155" width="320" height="75"/>
     <text class="label teal" x="250" y="184">parameters with units</text>
     <text class="mono" x="250" y="214">NFXP -> CCP -> UFXP</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 500 94 L 500 150"/>
     <rect class="panel amber" x="340" y="155" width="320" height="75"/>
     <text class="label amber" x="500" y="184">reward from demonstrations</text>
     <text class="mono" x="500" y="214">MCE-IRL, AIRL</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 500 94 L 750 150"/>
     <rect class="panel blue" x="590" y="155" width="320" height="75"/>
     <text class="label blue" x="750" y="184">neural/high-dimensional state</text>
     <text class="mono" x="750" y="214">Neural MCE, GLADIUS, NNES</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel2" x="215" y="290" width="570" height="70"/>
     <text class="label" x="500" y="320">then check support, anchors, transitions, and feature rank</text>
   </g>
@@ -2387,24 +2386,24 @@ The most important choice is not the estimator name. It is the object you need: 
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="90" y="75" width="820" height="80"/>
     <text class="mono" x="500" y="123">src/econirl/core/bellman.py</text>
     <text class="note" x="500" y="148">soft Bellman operator shared across the stack</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge teal" d="M 500 158 L 235 210"/>
     <rect class="token" x="95" y="220" width="280" height="48"/><text class="chiptext" x="235" y="249">estimation/nfxp.py</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge amber" d="M 500 158 L 500 210"/>
     <rect class="token hot" x="360" y="220" width="280" height="48"/><text class="chiptext" x="500" y="249">estimation/ccp.py</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <path class="edge blue" d="M 500 158 L 765 210"/>
     <rect class="token blue" x="625" y="220" width="280" height="48"/><text class="chiptext" x="765" y="249">estimation/mce_irl.py</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="token coral" x="315" y="325" width="370" height="48"/><text class="chiptext" x="500" y="354">estimation/adversarial/airl.py</text>
   </g>
 </svg>
@@ -2420,25 +2419,25 @@ The code shape is the deck shape. The Bellman operator is the central object. Es
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="85" y="92" width="250" height="235"/>
     <text class="label big teal" x="210" y="138">reward</text>
     <text class="note" x="210" y="190">what the model says</text>
     <text class="note" x="210" y="218">the agent values</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="375" y="92" width="250" height="235"/>
     <text class="label big blue" x="500" y="138">policy</text>
     <text class="note" x="500" y="190">choice probabilities</text>
     <text class="note" x="500" y="218">implied by values</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="665" y="92" width="250" height="235"/>
     <text class="label big amber" x="790" y="138">value</text>
     <text class="note" x="790" y="190">future-inclusive</text>
     <text class="note" x="790" y="218">payoff of a state</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="380">counterfactuals are credible only when these objects are identified</text>
   </g>
 </svg>
@@ -2462,7 +2461,7 @@ The output objects are reward, policy, and value. For structural estimators, cou
   <path class="edge amber" d="M 553 119 C 620 128 690 160 724 177"/>
   <path class="edge coral" d="M 757 263 C 720 310 610 334 555 333"/>
   <path class="edge blue" d="M 445 333 C 360 320 280 275 252 263"/>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel2" x="175" y="24" width="650" height="54"/>
     <text class="label" x="500" y="58">DDCM and IRL differ in which part of this loop they infer</text>
   </g>
@@ -2479,22 +2478,22 @@ If the audience keeps this loop in their head, the estimators stop feeling like 
 
 ```{=html}
 <svg viewBox="0 0 1000 430" class="viz">
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel teal" x="85" y="75" width="830" height="62"/>
     <text class="label left teal" x="120" y="113">Aguirregabiria and Mira (2010)</text>
     <text class="note left" x="430" y="113">DDC survey spine: model, Bellman equation, NFXP, CCP/NPL</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel blue" x="85" y="160" width="830" height="62"/>
     <text class="label left blue" x="120" y="198">EconIRL docs and code</text>
     <text class="note left" x="430" y="198">estimator map, examples, implementation surfaces</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <rect class="panel amber" x="85" y="245" width="830" height="62"/>
     <text class="label left amber" x="120" y="283">Rust, Hotz-Miller, Ziebart, Fu-Luo-Levine</text>
     <text class="note left" x="520" y="283">canonical method examples used in the deck</text>
   </g>
-  <g class="fragment fade-step">
+  <g>
     <text class="mono" x="500" y="380">Start in EconIRL: docs/user_guide/overview.md and docs/comparing_estimators.md</text>
   </g>
 </svg>
