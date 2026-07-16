@@ -131,7 +131,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Dynamic Choice and IRL, Visually</h1>
-  <p class="subtitle">From Bellman equations to NFXP, CCP, MCE-IRL, and AIRL</p>
+  <p class="subtitle">Math objects, data, results, counterfactuals, and estimator maps</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -168,6 +168,24 @@ Pranjal Rawat
 .reveal section img { background: none; border: none; box-shadow: none; }
 .viz { width: 100%; height: auto; max-height: 60vh; display: block; margin: 0 auto; }
 .viz.tall { max-height: 64vh; }
+.figimg { display: block; width: 100%; max-height: 58vh; object-fit: contain; margin: 0 auto; border-radius: 6px; }
+.figimg.tall { max-height: 64vh; }
+.figimg.wide { max-height: 54vh; }
+.caption { color: var(--muted); font-size: 0.58em; line-height: 1.25; margin-top: 0.34em; text-align: center; }
+.eqbox { background: var(--card); border: 1.5px solid var(--rule); border-radius: 8px; padding: 0.62em 0.86em; margin: 0.36em auto; width: 88%; }
+.eqbox.compact { padding: 0.46em 0.7em; }
+.eqbox .math.display { margin: 0.16em 0; }
+.reveal .eqbox p { margin: 0.14em 0; }
+.mathgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.54em; align-items: stretch; }
+.mathgrid .eqbox { width: auto; margin: 0; }
+.metricgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.42em; margin-top: 0.4em; }
+.metric { background: var(--card); border: 1.5px solid var(--rule); border-radius: 8px; padding: 0.48em 0.35em; text-align: center; }
+.metric .num { color: var(--teal); font-weight: 760; font-size: 1.1em; line-height: 1.1; }
+.metric .txt { color: var(--sub); font-size: 0.5em; line-height: 1.22; margin-top: 0.22em; }
+.resulttable { width: 88%; margin: 0.34em auto; border-collapse: collapse; font-size: 0.54em; }
+.resulttable th { color: var(--teal); font-weight: 720; border-bottom: 1.5px solid var(--rule); padding: 0.45em 0.5em; }
+.resulttable td { color: var(--fg); border-bottom: 1px solid var(--rule); padding: 0.45em 0.5em; text-align: center; }
+.resulttable td:first-child, .resulttable th:first-child { text-align: left; color: var(--sub); }
 .panel { fill: var(--card); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
 .panel2 { fill: var(--card2); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
 .panel.teal { stroke: var(--teal); }
@@ -350,6 +368,26 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="observed-rust-bus-data" class="slide level2 center">
+<h2>Observed Rust bus data</h2>
+
+<img data-src="assets/rust_bus_data_profile.png" class="figimg tall r-stretch"><div class="caption">
+<p>Original Rust bus panel used in the EconIRL replication examples: state coverage, replacement support, and action imbalance.</p>
+</div>
+<aside class="notes">
+<p>This is the empirical object behind the toy row table. It is a sparse dynamic panel: many keep decisions, few replacement decisions, and replacement support concentrated in high-mileage states and older groups.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="three-neighboring-languages" class="slide level2 center">
 <h2>Three neighboring languages</h2>
 <svg viewbox="0 0 1000 430" class="viz">
@@ -410,6 +448,166 @@ Pranjal Rawat
 </svg>
 <aside class="notes">
 <p>The state is the sufficient summary of the past. The transition kernel tells where actions can move the agent. The reward says what is valuable. The discount says how much tomorrow matters.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-primitives" class="slide level2 center">
+<h2>Math object: primitives</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+\mathcal{M}_\theta =
+\left(\mathcal{S},\mathcal{A},P(s'\mid s,a),u_\theta(s,a),\beta,\sigma\right)
+\]</span></p>
+</div>
+<div class="mathgrid">
+<div class="eqbox compact">
+<p><span class="math display">\[s\in\mathcal{S}\]</span> state</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[a\in\mathcal{A}(s)\]</span> feasible action</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[P(s'\mid s,a)\]</span> transition law</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[u_\theta(s,a)+\varepsilon_a\]</span> flow utility plus shock</p>
+</div>
+</div>
+<aside class="notes">
+<p>No derivation here. These are the primitive objects. The rest of the deck changes which part is known, estimated, approximated, or learned.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-observed-panel" class="slide level2 center">
+<h2>Math object: observed panel</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+\mathcal{D}=\{(i,t,s_{it},a_{it},s_{i,t+1})\}_{i=1,\ldots,N;\;t=1,\ldots,T_i}
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+a_{it}\sim \pi_\theta(\cdot\mid s_{it}),\qquad
+s_{i,t+1}\sim P(\cdot\mid s_{it},a_{it})
+\]</span></p>
+</div>
+<div class="metricgrid">
+<div class="metric">
+<div class="num">
+8,260
+</div>
+<div class="txt">
+Rust bus observations
+</div>
+</div>
+<div class="metric">
+<div class="num">
+104
+</div>
+<div class="txt">
+buses in groups 1-4
+</div>
+</div>
+<div class="metric">
+<div class="num">
+90
+</div>
+<div class="txt">
+mileage state bins
+</div>
+</div>
+<div class="metric">
+<div class="num">
+2
+</div>
+<div class="txt">
+actions: keep or replace
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>The panel is the empirical bridge from behavior to model. It records choices and state transitions; it does not directly record reward.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-bellman-system" class="slide level2 center">
+<h2>Math object: Bellman system</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+Q_\theta(s,a)
+= u_\theta(s,a)+\beta\sum_{s'\in\mathcal{S}}P(s'\mid s,a)V_\theta(s')
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+V_\theta(s)=\sigma\log\sum_{b\in\mathcal{A}(s)}
+\exp\!\left(\frac{Q_\theta(s,b)}{\sigma}\right)
+\]</span></p>
+</div>
+<div class="caption">
+<p>This states the fixed point. Dynamic programming is the numerical route to the pair <span class="math inline">\((Q_\theta,V_\theta)\)</span>.</p>
+</div>
+<aside class="notes">
+<p>This is the math the user asked to see. The slide states the equations and names their role without deriving the log-sum-exp expression.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-policy-and-likelihood" class="slide level2 center">
+<h2>Math object: policy and likelihood</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+\pi_\theta(a\mid s)=
+\frac{\exp(Q_\theta(s,a)/\sigma)}
+{\sum_{b\in\mathcal{A}(s)}\exp(Q_\theta(s,b)/\sigma)}
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+\ell(\theta;\mathcal{D})
+=\sum_i\sum_t\log \pi_\theta(a_{it}\mid s_{it})
+\]</span></p>
+</div>
+<div class="caption">
+<p>Structural DDCM estimation asks which <span class="math inline">\(\theta\)</span> makes the observed choices most likely after solving the dynamic problem.</p>
+</div>
+<aside class="notes">
+<p>This is the likelihood spine behind NFXP and closely related structural estimators.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -952,6 +1150,92 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="math-object-counterfactuals" class="slide level2 center">
+<h2>Math object: counterfactuals</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+\mathcal{M}_{\hat\theta}
+\longrightarrow
+\mathcal{M}_{cf}
+=
+\left(\mathcal{S},\mathcal{A}_{cf},P_{cf},u_{cf},\beta_{cf},\sigma\right)
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+(V_{cf},Q_{cf},\pi_{cf})
+=
+\operatorname{SolveBellman}(\mathcal{M}_{cf})
+\]</span></p>
+</div>
+<div class="mathgrid">
+<div class="eqbox compact">
+<p><span class="math display">\[u_{\hat\theta}\rightarrow u_{cf}\]</span> reward change</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[P_{\hat\theta}\rightarrow P_{cf}\]</span> transition change</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[\mathcal{A}\rightarrow\mathcal{A}_{cf}\]</span> choice-set change</p>
+</div>
+<div class="eqbox compact">
+<p><span class="math display">\[\beta\rightarrow\beta_{cf}\]</span> planning change</p>
+</div>
+</div>
+<aside class="notes">
+<p>The key point is that a counterfactual is a new solved model, not just a label swap on the observed choices.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="counterfactual-graph-replacement-cost" class="slide level2 center">
+<h2>Counterfactual graph: replacement cost</h2>
+
+<img data-src="assets/rust_bus_counterfactual.png" class="figimg wide r-stretch"><div class="caption">
+<p>Rust bus example: change a structural primitive and re-solve the replacement policy.</p>
+</div>
+<aside class="notes">
+<p>This plot gives the audience the operational meaning of a structural counterfactual. The policy curve changes because the replacement cost primitive changes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="counterfactual-graph-elasticity" class="slide level2 center">
+<h2>Counterfactual graph: elasticity</h2>
+
+<img data-src="assets/rust_bus_elasticity.png" class="figimg wide r-stretch"><div class="caption">
+<p>The counterfactual surface can be summarized as a behavioral response curve rather than one policy at a time.</p>
+</div>
+<aside class="notes">
+<p>This slide is there because counterfactuals are not only visual policy comparisons; they also produce response summaries that look closer to applied demand or maintenance elasticity objects.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="dp-has-several-computational-faces" class="slide level2 center">
 <h2>DP has several computational faces</h2>
 <svg viewbox="0 0 1000 430" class="viz">
@@ -1071,6 +1355,171 @@ Pranjal Rawat
 </svg>
 <aside class="notes">
 <p>The canonical structural problem is keep or replace. Keeping is cheap today but raises expected future maintenance. Replacing is expensive today but resets the state.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="result-graph-estimated-policy" class="slide level2 center">
+<h2>Result graph: estimated policy</h2>
+
+<img data-src="assets/rust_bus_policies.png" class="figimg wide r-stretch"><div class="caption">
+<p>Estimated replacement probabilities by mileage state. The policy is the solved behavioral object implied by the estimated primitives.</p>
+</div>
+<aside class="notes">
+<p>This is the first result graph the audience should retain: values and parameters are not abstract; they produce a replacement policy over states.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="result-graph-value-function" class="slide level2 center">
+<h2>Result graph: value function</h2>
+
+<img data-src="assets/rust_bus_values.png" class="figimg r-stretch"><div class="caption">
+<p>Estimated value functions show how future maintenance costs make high-mileage states less attractive.</p>
+</div>
+<aside class="notes">
+<p>The value graph makes the forward-looking part visible. Mileage is not just a covariate; it is a state with continuation value.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="result-table-rust-1987-replication" class="slide level2 center">
+<h2>Result table: Rust 1987 replication</h2>
+<table class="resulttable">
+<thead>
+<tr>
+<th>
+Sample
+</th>
+<th>
+EconIRL RC
+</th>
+<th>
+Rust RC
+</th>
+<th>
+EconIRL c
+</th>
+<th>
+Rust c
+</th>
+<th>
+Distance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Groups 1,2,3
+</td>
+<td>
+11.99
+</td>
+<td>
+11.73
+</td>
+<td>
+4.93
+</td>
+<td>
+4.83
+</td>
+<td>
+within 1-2%
+</td>
+</tr>
+<tr>
+<td>
+Group 4
+</td>
+<td>
+10.14
+</td>
+<td>
+10.07
+</td>
+<td>
+2.26
+</td>
+<td>
+2.29
+</td>
+<td>
+within 1-2%
+</td>
+</tr>
+<tr>
+<td>
+Groups 1,2,3,4
+</td>
+<td>
+9.81
+</td>
+<td>
+9.76
+</td>
+<td>
+2.60
+</td>
+<td>
+2.63
+</td>
+<td>
+within 1-2%
+</td>
+</tr>
+</tbody>
+</table>
+<div class="caption">
+<p>Table IX-style replication numbers from the EconIRL Rust bus notes.</p>
+</div>
+<aside class="notes">
+<p>This is intentionally framed as replication evidence for the Rust bus example, not as a blanket claim about every estimator.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="result-graph-parameter-recovery" class="slide level2 center">
+<h2>Result graph: parameter recovery</h2>
+
+<img data-src="assets/nfxp_recovery.png" class="figimg r-stretch"><div class="caption">
+<p>NFXP recovery plot from the package paper figures: estimated parameters against known simulation truth.</p>
+</div>
+<aside class="notes">
+<p>This plot separates two evidence modes: original empirical replication and known-truth simulation recovery. They answer different questions.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1270,6 +1719,26 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="benchmark-graph-speed-and-fit" class="slide level2 center">
+<h2>Benchmark graph: speed and fit</h2>
+
+<img data-src="assets/rust_bus_benchmark.png" class="figimg wide r-stretch"><div class="caption">
+<p>Rust bus benchmark-style comparison: runtime and behavioral distance are separate axes, not one ranking.</p>
+</div>
+<aside class="notes">
+<p>This slide keeps the later estimator roster honest. Fast methods, structural methods, imitation-style methods, and reward-learning methods make different claims.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="ccp-choices-reveal-value-differences" class="slide level2 center">
 <h2>CCP: choices reveal value differences</h2>
 <svg viewbox="0 0 1000 430" class="viz">
@@ -1296,6 +1765,41 @@ Pranjal Rawat
 </svg>
 <aside class="notes">
 <p>Hotz-Miller CCP methods replace repeated full Bellman solves with a first-stage estimate of choice probabilities. Under the logit dynamic-choice assumptions, those probabilities identify value differences.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-ccp-inversion" class="slide level2 center">
+<h2>Math object: CCP inversion</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+\hat{\pi}(a\mid s)
+=
+\Pr_{\mathcal{D}}(a_{it}=a\mid s_{it}=s)
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+Q(s,a)-Q(s,a_0)
+=
+\sigma\left[
+\log \hat{\pi}(a\mid s)-\log \hat{\pi}(a_0\mid s)
+\right]
+\]</span></p>
+</div>
+<div class="caption">
+<p>The shortcut is mathematical: choice probabilities become value differences under the logit dynamic-choice structure.</p>
+</div>
+<aside class="notes">
+<p>This is the equation the visual CCP slide is pointing at. It is a stated inversion, not a proof.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1588,6 +2092,43 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="math-object-mce-irl-objective" class="slide level2 center">
+<h2>Math object: MCE-IRL objective</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+r_\theta(s,a)=\theta^\top f(s,a)
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+\mathbb{E}_{\pi_\theta}\!\left[\sum_t f(s_t,a_t)\right]
+=
+\mathbb{E}_{\mathrm{expert}}\!\left[\sum_t f(s_t,a_t)\right]
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+\pi^*=\arg\max_{\pi}\;H(\pi)
+\quad\text{subject to feature matching}
+\]</span></p>
+</div>
+<div class="caption">
+<p>The reward weights are the multipliers that make the soft planner match expert feature counts.</p>
+</div>
+<aside class="notes">
+<p>This is the MCE-IRL math in one slide: linear reward, feature moment matching, entropy preference among policies that explain the demonstrations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="canonical-mce-example-a-grid" class="slide level2 center">
 <h2>Canonical MCE example: a grid</h2>
 <svg viewbox="0 0 1000 430" class="viz">
@@ -1797,6 +2338,26 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="result-graph-taxi-gridworld-irl" class="slide level2 center">
+<h2>Result graph: taxi gridworld IRL</h2>
+
+<img data-src="assets/taxi_gridworld_results.png" class="figimg wide r-stretch"><div class="caption">
+<p>Taxi/gridworld result figure from the package paper artifacts: reward learning is evaluated by recovered behavior and transfer, not only by a pretty reward map.</p>
+</div>
+<aside class="notes">
+<p>This graph keeps the IRL part empirical. It also prevents overclaiming: recovered rewards matter because of the behavior and transfer they induce.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="airl-adversarial-reward-recovery" class="slide level2 center">
 <h2>AIRL: adversarial reward recovery</h2>
 <svg viewbox="0 0 1000 430" class="viz">
@@ -1823,6 +2384,48 @@ Pranjal Rawat
 </svg>
 <aside class="notes">
 <p>AIRL trains a structured discriminator. The structure is the point: it tries to put transferable reward in g and dynamics-dependent shaping in h.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="math-object-airl-discriminator" class="slide level2 center">
+<h2>Math object: AIRL discriminator</h2>
+<div class="eqbox">
+<p><span class="math display">\[
+f_\omega(s,a,s')
+=
+g_\omega(s)+\beta h_\omega(s')-h_\omega(s)
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+D_\omega(s,a,s')
+=
+\frac{\exp(f_\omega(s,a,s'))}
+{\exp(f_\omega(s,a,s'))+\pi(a\mid s)}
+\]</span></p>
+</div>
+<div class="eqbox">
+<p><span class="math display">\[
+\max_\omega\;
+\mathbb{E}_{\tau_E}[\log D_\omega]
++
+\mathbb{E}_{\tau_\pi}[\log(1-D_\omega)]
+\]</span></p>
+</div>
+<div class="caption">
+<p>The structured split separates reward-like content from potential-based shaping terms.</p>
+</div>
+<aside class="notes">
+<p>This is the AIRL math in stated form. It avoids saying AIRL universally recovers “the” reward; the reward-like term is meaningful under the assumptions behind the split.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2107,6 +2710,26 @@ Pranjal Rawat
 </svg>
 <aside class="notes">
 <p>EconIRL’s estimator roster is organized by the complication each method answers: scale, transition modeling, reward flexibility, heterogeneity, and finite-horizon planning.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="result-graph-rust-bus-simulation-study" class="slide level2 center">
+<h2>Result graph: Rust bus simulation study</h2>
+
+<img data-src="assets/rust_bus_results.png" class="figimg wide r-stretch"><div class="caption">
+<p>Simulation-study result artifact: estimator comparisons are checked against known-truth recovery, not only visual plausibility.</p>
+</div>
+<aside class="notes">
+<p>This graph is here to connect the estimator roster to validation evidence. It should be described as a simulation-study result, not as an empirical replication table.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

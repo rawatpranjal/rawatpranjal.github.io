@@ -1,6 +1,6 @@
 ---
 title: "Dynamic Choice and IRL, Visually"
-subtitle: "From Bellman equations to NFXP, CCP, MCE-IRL, and AIRL"
+subtitle: "Math objects, data, results, counterfactuals, and estimator maps"
 author: "Pranjal Rawat"
 format:
   revealjs:
@@ -43,6 +43,24 @@ format:
 .reveal section img { background: none; border: none; box-shadow: none; }
 .viz { width: 100%; height: auto; max-height: 60vh; display: block; margin: 0 auto; }
 .viz.tall { max-height: 64vh; }
+.figimg { display: block; width: 100%; max-height: 58vh; object-fit: contain; margin: 0 auto; border-radius: 6px; }
+.figimg.tall { max-height: 64vh; }
+.figimg.wide { max-height: 54vh; }
+.caption { color: var(--muted); font-size: 0.58em; line-height: 1.25; margin-top: 0.34em; text-align: center; }
+.eqbox { background: var(--card); border: 1.5px solid var(--rule); border-radius: 8px; padding: 0.62em 0.86em; margin: 0.36em auto; width: 88%; }
+.eqbox.compact { padding: 0.46em 0.7em; }
+.eqbox .math.display { margin: 0.16em 0; }
+.reveal .eqbox p { margin: 0.14em 0; }
+.mathgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.54em; align-items: stretch; }
+.mathgrid .eqbox { width: auto; margin: 0; }
+.metricgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.42em; margin-top: 0.4em; }
+.metric { background: var(--card); border: 1.5px solid var(--rule); border-radius: 8px; padding: 0.48em 0.35em; text-align: center; }
+.metric .num { color: var(--teal); font-weight: 760; font-size: 1.1em; line-height: 1.1; }
+.metric .txt { color: var(--sub); font-size: 0.5em; line-height: 1.22; margin-top: 0.22em; }
+.resulttable { width: 88%; margin: 0.34em auto; border-collapse: collapse; font-size: 0.54em; }
+.resulttable th { color: var(--teal); font-weight: 720; border-bottom: 1.5px solid var(--rule); padding: 0.45em 0.5em; }
+.resulttable td { color: var(--fg); border-bottom: 1px solid var(--rule); padding: 0.45em 0.5em; text-align: center; }
+.resulttable td:first-child, .resulttable th:first-child { text-align: left; color: var(--sub); }
 .panel { fill: var(--card); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
 .panel2 { fill: var(--card2); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
 .panel.teal { stroke: var(--teal); }
@@ -212,6 +230,20 @@ EconIRL fits panels of decisions. A row is one observed state, action, and usual
 
 ---
 
+## Observed Rust bus data
+
+![](assets/rust_bus_data_profile.png){.figimg .tall}
+
+::: {.caption}
+Original Rust bus panel used in the EconIRL replication examples: state coverage, replacement support, and action imbalance.
+:::
+
+::: notes
+This is the empirical object behind the toy row table. It is a sparse dynamic panel: many keep decisions, few replacement decisions, and replacement support concentrated in high-mileage states and older groups.
+:::
+
+---
+
 ## Three neighboring languages
 
 ```{=html}
@@ -270,6 +302,124 @@ The same mathematical loop appears in three dialects. Economics usually wants in
 
 ::: notes
 The state is the sufficient summary of the past. The transition kernel tells where actions can move the agent. The reward says what is valuable. The discount says how much tomorrow matters.
+:::
+
+---
+
+## Math object: primitives
+
+::: {.eqbox}
+$$
+\mathcal{M}_\theta =
+\left(\mathcal{S},\mathcal{A},P(s'\mid s,a),u_\theta(s,a),\beta,\sigma\right)
+$$
+:::
+
+::: {.mathgrid}
+::: {.eqbox .compact}
+$$s\in\mathcal{S}$$
+state
+:::
+
+::: {.eqbox .compact}
+$$a\in\mathcal{A}(s)$$
+feasible action
+:::
+
+::: {.eqbox .compact}
+$$P(s'\mid s,a)$$
+transition law
+:::
+
+::: {.eqbox .compact}
+$$u_\theta(s,a)+\varepsilon_a$$
+flow utility plus shock
+:::
+:::
+
+::: notes
+No derivation here. These are the primitive objects. The rest of the deck changes which part is known, estimated, approximated, or learned.
+:::
+
+---
+
+## Math object: observed panel
+
+::: {.eqbox}
+$$
+\mathcal{D}=\{(i,t,s_{it},a_{it},s_{i,t+1})\}_{i=1,\ldots,N;\;t=1,\ldots,T_i}
+$$
+:::
+
+::: {.eqbox}
+$$
+a_{it}\sim \pi_\theta(\cdot\mid s_{it}),\qquad
+s_{i,t+1}\sim P(\cdot\mid s_{it},a_{it})
+$$
+:::
+
+::: {.metricgrid}
+<div class="metric"><div class="num">8,260</div><div class="txt">Rust bus observations</div></div>
+<div class="metric"><div class="num">104</div><div class="txt">buses in groups 1-4</div></div>
+<div class="metric"><div class="num">90</div><div class="txt">mileage state bins</div></div>
+<div class="metric"><div class="num">2</div><div class="txt">actions: keep or replace</div></div>
+:::
+
+::: notes
+The panel is the empirical bridge from behavior to model. It records choices and state transitions; it does not directly record reward.
+:::
+
+---
+
+## Math object: Bellman system
+
+::: {.eqbox}
+$$
+Q_\theta(s,a)
+= u_\theta(s,a)+\beta\sum_{s'\in\mathcal{S}}P(s'\mid s,a)V_\theta(s')
+$$
+:::
+
+::: {.eqbox}
+$$
+V_\theta(s)=\sigma\log\sum_{b\in\mathcal{A}(s)}
+\exp\!\left(\frac{Q_\theta(s,b)}{\sigma}\right)
+$$
+:::
+
+::: {.caption}
+This states the fixed point. Dynamic programming is the numerical route to the pair $(Q_\theta,V_\theta)$.
+:::
+
+::: notes
+This is the math the user asked to see. The slide states the equations and names their role without deriving the log-sum-exp expression.
+:::
+
+---
+
+## Math object: policy and likelihood
+
+::: {.eqbox}
+$$
+\pi_\theta(a\mid s)=
+\frac{\exp(Q_\theta(s,a)/\sigma)}
+{\sum_{b\in\mathcal{A}(s)}\exp(Q_\theta(s,b)/\sigma)}
+$$
+:::
+
+::: {.eqbox}
+$$
+\ell(\theta;\mathcal{D})
+=\sum_i\sum_t\log \pi_\theta(a_{it}\mid s_{it})
+$$
+:::
+
+::: {.caption}
+Structural DDCM estimation asks which $\theta$ makes the observed choices most likely after solving the dynamic problem.
+:::
+
+::: notes
+This is the likelihood spine behind NFXP and closely related structural estimators.
 :::
 
 ---
@@ -729,6 +879,82 @@ Structural counterfactuals are not just predictions from a fitted classifier. Th
 
 ---
 
+## Math object: counterfactuals
+
+::: {.eqbox}
+$$
+\mathcal{M}_{\hat\theta}
+\longrightarrow
+\mathcal{M}_{cf}
+=
+\left(\mathcal{S},\mathcal{A}_{cf},P_{cf},u_{cf},\beta_{cf},\sigma\right)
+$$
+:::
+
+::: {.eqbox}
+$$
+(V_{cf},Q_{cf},\pi_{cf})
+=
+\operatorname{SolveBellman}(\mathcal{M}_{cf})
+$$
+:::
+
+::: {.mathgrid}
+::: {.eqbox .compact}
+$$u_{\hat\theta}\rightarrow u_{cf}$$
+reward change
+:::
+
+::: {.eqbox .compact}
+$$P_{\hat\theta}\rightarrow P_{cf}$$
+transition change
+:::
+
+::: {.eqbox .compact}
+$$\mathcal{A}\rightarrow\mathcal{A}_{cf}$$
+choice-set change
+:::
+
+::: {.eqbox .compact}
+$$\beta\rightarrow\beta_{cf}$$
+planning change
+:::
+:::
+
+::: notes
+The key point is that a counterfactual is a new solved model, not just a label swap on the observed choices.
+:::
+
+---
+
+## Counterfactual graph: replacement cost
+
+![](assets/rust_bus_counterfactual.png){.figimg .wide}
+
+::: {.caption}
+Rust bus example: change a structural primitive and re-solve the replacement policy.
+:::
+
+::: notes
+This plot gives the audience the operational meaning of a structural counterfactual. The policy curve changes because the replacement cost primitive changes.
+:::
+
+---
+
+## Counterfactual graph: elasticity
+
+![](assets/rust_bus_elasticity.png){.figimg .wide}
+
+::: {.caption}
+The counterfactual surface can be summarized as a behavioral response curve rather than one policy at a time.
+:::
+
+::: notes
+This slide is there because counterfactuals are not only visual policy comparisons; they also produce response summaries that look closer to applied demand or maintenance elasticity objects.
+:::
+
+---
+
 ## DP has several computational faces
 
 ```{=html}
@@ -836,6 +1062,78 @@ NFXP is conceptually clean. For each candidate reward parameter, solve the dynam
 
 ::: notes
 The canonical structural problem is keep or replace. Keeping is cheap today but raises expected future maintenance. Replacing is expensive today but resets the state.
+:::
+
+---
+
+## Result graph: estimated policy
+
+![](assets/rust_bus_policies.png){.figimg .wide}
+
+::: {.caption}
+Estimated replacement probabilities by mileage state. The policy is the solved behavioral object implied by the estimated primitives.
+:::
+
+::: notes
+This is the first result graph the audience should retain: values and parameters are not abstract; they produce a replacement policy over states.
+:::
+
+---
+
+## Result graph: value function
+
+![](assets/rust_bus_values.png){.figimg}
+
+::: {.caption}
+Estimated value functions show how future maintenance costs make high-mileage states less attractive.
+:::
+
+::: notes
+The value graph makes the forward-looking part visible. Mileage is not just a covariate; it is a state with continuation value.
+:::
+
+---
+
+## Result table: Rust 1987 replication
+
+<table class="resulttable">
+  <thead>
+    <tr>
+      <th>Sample</th>
+      <th>EconIRL RC</th>
+      <th>Rust RC</th>
+      <th>EconIRL c</th>
+      <th>Rust c</th>
+      <th>Distance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Groups 1,2,3</td><td>11.99</td><td>11.73</td><td>4.93</td><td>4.83</td><td>within 1-2%</td></tr>
+    <tr><td>Group 4</td><td>10.14</td><td>10.07</td><td>2.26</td><td>2.29</td><td>within 1-2%</td></tr>
+    <tr><td>Groups 1,2,3,4</td><td>9.81</td><td>9.76</td><td>2.60</td><td>2.63</td><td>within 1-2%</td></tr>
+  </tbody>
+</table>
+
+::: {.caption}
+Table IX-style replication numbers from the EconIRL Rust bus notes.
+:::
+
+::: notes
+This is intentionally framed as replication evidence for the Rust bus example, not as a blanket claim about every estimator.
+:::
+
+---
+
+## Result graph: parameter recovery
+
+![](assets/nfxp_recovery.png){.figimg}
+
+::: {.caption}
+NFXP recovery plot from the package paper figures: estimated parameters against known simulation truth.
+:::
+
+::: notes
+This plot separates two evidence modes: original empirical replication and known-truth simulation recovery. They answer different questions.
 :::
 
 ---
@@ -1002,6 +1300,20 @@ NFXP is most painful when the state space is large or the optimizer needs many l
 
 ---
 
+## Benchmark graph: speed and fit
+
+![](assets/rust_bus_benchmark.png){.figimg .wide}
+
+::: {.caption}
+Rust bus benchmark-style comparison: runtime and behavioral distance are separate axes, not one ranking.
+:::
+
+::: notes
+This slide keeps the later estimator roster honest. Fast methods, structural methods, imitation-style methods, and reward-learning methods make different claims.
+:::
+
+---
+
 ## CCP: choices reveal value differences
 
 ```{=html}
@@ -1031,6 +1343,36 @@ NFXP is most painful when the state space is large or the optimizer needs many l
 
 ::: notes
 Hotz-Miller CCP methods replace repeated full Bellman solves with a first-stage estimate of choice probabilities. Under the logit dynamic-choice assumptions, those probabilities identify value differences.
+:::
+
+---
+
+## Math object: CCP inversion
+
+::: {.eqbox}
+$$
+\hat{\pi}(a\mid s)
+=
+\Pr_{\mathcal{D}}(a_{it}=a\mid s_{it}=s)
+$$
+:::
+
+::: {.eqbox}
+$$
+Q(s,a)-Q(s,a_0)
+=
+\sigma\left[
+\log \hat{\pi}(a\mid s)-\log \hat{\pi}(a_0\mid s)
+\right]
+$$
+:::
+
+::: {.caption}
+The shortcut is mathematical: choice probabilities become value differences under the logit dynamic-choice structure.
+:::
+
+::: notes
+This is the equation the visual CCP slide is pointing at. It is a stated inversion, not a proof.
 :::
 
 ---
@@ -1275,6 +1617,39 @@ Maximum causal entropy IRL says: among policies that explain the expert's featur
 
 ---
 
+## Math object: MCE-IRL objective
+
+::: {.eqbox}
+$$
+r_\theta(s,a)=\theta^\top f(s,a)
+$$
+:::
+
+::: {.eqbox}
+$$
+\mathbb{E}_{\pi_\theta}\!\left[\sum_t f(s_t,a_t)\right]
+=
+\mathbb{E}_{\mathrm{expert}}\!\left[\sum_t f(s_t,a_t)\right]
+$$
+:::
+
+::: {.eqbox}
+$$
+\pi^*=\arg\max_{\pi}\;H(\pi)
+\quad\text{subject to feature matching}
+$$
+:::
+
+::: {.caption}
+The reward weights are the multipliers that make the soft planner match expert feature counts.
+:::
+
+::: notes
+This is the MCE-IRL math in one slide: linear reward, feature moment matching, entropy preference among policies that explain the demonstrations.
+:::
+
+---
+
 ## Canonical MCE example: a grid
 
 ```{=html}
@@ -1454,6 +1829,20 @@ IRL is only as good as the feature language. The reward can only put weight on t
 
 ---
 
+## Result graph: taxi gridworld IRL
+
+![](assets/taxi_gridworld_results.png){.figimg .wide}
+
+::: {.caption}
+Taxi/gridworld result figure from the package paper artifacts: reward learning is evaluated by recovered behavior and transfer, not only by a pretty reward map.
+:::
+
+::: notes
+This graph keeps the IRL part empirical. It also prevents overclaiming: recovered rewards matter because of the behavior and transfer they induce.
+:::
+
+---
+
 ## AIRL: adversarial reward recovery
 
 ```{=html}
@@ -1483,6 +1872,44 @@ IRL is only as good as the feature language. The reward can only put weight on t
 
 ::: notes
 AIRL trains a structured discriminator. The structure is the point: it tries to put transferable reward in g and dynamics-dependent shaping in h.
+:::
+
+---
+
+## Math object: AIRL discriminator
+
+::: {.eqbox}
+$$
+f_\omega(s,a,s')
+=
+g_\omega(s)+\beta h_\omega(s')-h_\omega(s)
+$$
+:::
+
+::: {.eqbox}
+$$
+D_\omega(s,a,s')
+=
+\frac{\exp(f_\omega(s,a,s'))}
+{\exp(f_\omega(s,a,s'))+\pi(a\mid s)}
+$$
+:::
+
+::: {.eqbox}
+$$
+\max_\omega\;
+\mathbb{E}_{\tau_E}[\log D_\omega]
++
+\mathbb{E}_{\tau_\pi}[\log(1-D_\omega)]
+$$
+:::
+
+::: {.caption}
+The structured split separates reward-like content from potential-based shaping terms.
+:::
+
+::: notes
+This is the AIRL math in stated form. It avoids saying AIRL universally recovers "the" reward; the reward-like term is meaningful under the assumptions behind the split.
 :::
 
 ---
@@ -1727,6 +2154,20 @@ The methods are not ranked from simple to fancy. Each preserves a different obje
 
 ::: notes
 EconIRL's estimator roster is organized by the complication each method answers: scale, transition modeling, reward flexibility, heterogeneity, and finite-horizon planning.
+:::
+
+---
+
+## Result graph: Rust bus simulation study
+
+![](assets/rust_bus_results.png){.figimg .wide}
+
+::: {.caption}
+Simulation-study result artifact: estimator comparisons are checked against known-truth recovery, not only visual plausibility.
+:::
+
+::: notes
+This graph is here to connect the estimator roster to validation evidence. It should be described as a simulation-study result, not as an empirical replication table.
 :::
 
 ---
