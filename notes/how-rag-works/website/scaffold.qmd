@@ -1,0 +1,2176 @@
+---
+title: "How RAG Works, Visually"
+subtitle: "The mental model behind chunks, retrieval, and grounded answers"
+author: "Pranjal Rawat"
+format:
+  revealjs:
+    theme: black
+    transition: fade
+    background-transition: fade
+    incremental: false
+    slide-number: c/t
+    controls: true
+    progress: true
+    width: 1200
+    height: 720
+    margin: 0.055
+    center: true
+    navigation-mode: linear
+---
+
+```{=html}
+<style>
+:root {
+  --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
+  --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114;
+}
+.reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
+.reveal h1, .reveal h2, .reveal h3 { color: var(--fg); font-weight: 700; letter-spacing: -0.5px; text-transform: none; }
+.reveal h2 { font-size: 1.55em; border-bottom: 2px solid var(--rule); padding-bottom: 0.25em; margin-bottom: 0.5em; }
+.reveal a { color: var(--accent); }
+.reveal .slide-number { background: none; color: var(--muted); }
+.reveal .footer, .reveal .slide-number { font-size: 12px; }
+.reveal strong { color: var(--accent); }
+.reveal em { color: var(--sub); font-style: italic; }
+.reveal .subtle { color: var(--sub); font-size: 0.8em; }
+.reveal .lead { font-size: 1.15em; line-height: 1.5; }
+.reveal code { color: var(--feat); background: rgba(124,176,222,0.08); padding: 1px 6px; border-radius: 4px; }
+.reveal section img { background: none; border: none; box-shadow: none; }
+/* SVG shared visual language */
+.ragfig { width: 100%; height: auto; max-height: 62vh; display: block; margin: 0 auto; }
+.node { fill: var(--node); stroke: var(--accent); stroke-width: 2.5; }
+.node.feat { stroke: var(--feat); }
+.node.merge { fill: #3a2f14; stroke: var(--amber); }
+.node.ghost { fill: #191c20; stroke: var(--edge); }
+.hash { fill: #cfe3f3; font: 600 16px ui-monospace, "SF Mono", Menlo, monospace; text-anchor: middle; }
+.hash.dim { fill: var(--muted); }
+.msg { fill: var(--sub); font: 15px -apple-system, sans-serif; text-anchor: middle; }
+.cap { fill: var(--fg); font: 16px -apple-system, sans-serif; text-anchor: middle; }
+.cap.big { font-size: 21px; font-weight: 600; }
+.zonelabel { fill: var(--muted); font: 600 14px -apple-system, sans-serif; letter-spacing: 1.5px; text-anchor: middle; }
+.edge { stroke: var(--edge); stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+.flow { stroke: var(--accent); stroke-width: 2.5; fill: none; marker-end: url(#arrowA); stroke-dasharray: 6 5; }
+.tag { rx: 5; }
+.tag.main { fill: var(--accent); }
+.tag.feat { fill: var(--feat); }
+.tag.head { fill: var(--amber); }
+.tagtext { fill: var(--ink); font: 700 14px ui-monospace, monospace; text-anchor: middle; }
+.leader { stroke-width: 2; fill: none; }
+.leader.main { stroke: var(--accent); }
+.leader.feat { stroke: var(--feat); }
+.leader.head { stroke: var(--amber); }
+.zone { fill: none; stroke: var(--rule); stroke-width: 1.5; rx: 12; }
+.card { fill: var(--node); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
+.card.hot { stroke: var(--amber); }
+.cardtext { fill: var(--fg); font: 15px ui-monospace, monospace; }
+.note { fill: var(--sub); font: 15px -apple-system, sans-serif; }
+.reveal .fragment.grow-in { opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
+.reveal .fragment.grow-in.visible { opacity: 1; transform: scale(1); }
+/* draw-on edges: an edge draws itself in when revealed.
+   pathLength="1" makes stroke-dasharray:1 span the whole path at any length. */
+.edge.draw, .flow.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.reveal .fragment.visible .edge.draw,
+.reveal .fragment.visible .flow.draw,
+.reveal .edge.draw.fragment.visible,
+.reveal .flow.draw.fragment.visible { animation: gv-draw 0.55s ease both; }
+@keyframes gv-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+/* a node pops in about its own centre */
+.reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6472"/>
+    </marker>
+    <marker id="arrowA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7cb0de"/>
+    </marker>
+  </defs>
+</svg>
+```
+
+# The problem, and the fix {.center}
+
+::: lead
+Ask a plain language model a question about documents it has never seen, and it
+will still answer. Confidently, and often wrong.
+:::
+
+Retrieval-augmented generation is the fix: look the answer up before writing it.
+
+::: notes
+This deck shows the mental model, not a library's API. By the end you should be able
+to picture what happens, step by step, when a RAG system and an agent built on top of
+it answer a question over a real corpus. The running example throughout is a fictional
+company, Aurora Cloud, with 48 real documents: HR policy, product docs, engineering
+runbooks, and some deliberately unrelated pages. Every figure in this deck is a real
+run against that real corpus -- nothing is a mockup.
+:::
+
+---
+
+## Ask it something it has never seen
+
+A plain model has no way to check itself against real documents. It fills the gap with whatever is most probable, not what is true.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="40" y="165" width="270" height="70"/>
+    <text class="cardtext" x="60" y="196">"How many days of</text>
+    <text class="cardtext" x="60" y="218">PTO do I get?"</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 310 200 L 385 200"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="390" y="160" width="230" height="80" rx="10"/>
+    <text class="cap" x="505" y="196">language model,</text>
+    <text class="cap" x="505" y="220">alone</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 620 175 L 690 90"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card" x="700" y="60" width="240" height="60" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="720" y="96" style="fill:var(--feat)">"15 days"</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="4" pathLength="1" d="M 620 200 L 690 200"/>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="card" x="700" y="170" width="240" height="60" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="720" y="206" style="fill:var(--amber)">"20 days"</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="5" pathLength="1" d="M 620 225 L 690 310"/>
+  <g class="fragment pop" data-fragment-index="5">
+    <rect class="card" x="700" y="280" width="240" height="60" style="stroke:var(--muted)"/>
+    <text class="cardtext" x="720" y="316" style="fill:var(--muted)">"not sure"</text>
+  </g>
+  <g class="fragment" data-fragment-index="6">
+    <text class="cap big" x="500" y="30">Three answers, one question</text>
+  </g>
+</svg>
+```
+
+Same question, three different answers, and no way to tell which one is real.
+
+::: notes
+This is the hallucination problem in its plainest form: no grounding means no way to
+adjudicate between guesses. Note the number changes each time -- that's a deliberate
+callback to the near-duplicate PTO docs (hr-01 at 15 days, hr-02 at 20) that show up
+later in the corpus.
+:::
+
+---
+
+## Meet Aurora Cloud
+
+Aurora Cloud is the fictional company behind every example in this deck: 48 documents across four topics.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="zone" x="40" y="60" width="210" height="220"/>
+    <text class="zonelabel" x="145" y="90">HR</text>
+    <text class="cap" x="145" y="170">PTO, expenses,</text>
+    <text class="cap" x="145" y="192">leave policy</text>
+    <text class="note" x="145" y="250" text-anchor="middle">12 docs</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="zone" x="270" y="60" width="210" height="220"/>
+    <text class="zonelabel" x="375" y="90">PRODUCT</text>
+    <text class="cap" x="375" y="170">pricing, specs,</text>
+    <text class="cap" x="375" y="192">release notes</text>
+    <text class="note" x="375" y="250" text-anchor="middle">12 docs</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="zone" x="500" y="60" width="210" height="220"/>
+    <text class="zonelabel" x="605" y="90">ENGINEERING</text>
+    <text class="cap" x="605" y="170">runbooks,</text>
+    <text class="cap" x="605" y="192">architecture</text>
+    <text class="note" x="605" y="250" text-anchor="middle">12 docs</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="zone" x="730" y="60" width="210" height="220"/>
+    <text class="zonelabel" x="835" y="90">OFF-TOPIC</text>
+    <text class="cap" x="835" y="170">unrelated</text>
+    <text class="cap" x="835" y="192">pages</text>
+    <text class="note" x="835" y="250" text-anchor="middle">12 docs</text>
+  </g>
+  <g class="fragment" data-fragment-index="5">
+    <text class="cap big" x="500" y="340">48 documents -- exactly what the model above never saw</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the corpus every later slide in the deck runs against, for real: chunking,
+embedding, retrieval, reranking, evaluation. Nothing here is a mockup -- it's the
+same 48-document object every topic's run.py imports from corpus.py.
+:::
+
+---
+
+## What retrieval changes
+
+Retrieval-augmented generation adds one step in front of writing: look before you answer.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 340">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="20" y="140" width="180" height="70"/>
+    <text class="cardtext" x="40" y="180">question</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 200 175 L 275 175"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="280" y="140" width="200" height="70" rx="10"/>
+    <text class="cap" x="380" y="180">search the corpus</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 480 175 L 555 175"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card hot" x="560" y="140" width="190" height="70"/>
+    <text class="cardtext" x="580" y="172">retrieved</text>
+    <text class="cardtext" x="580" y="194">chunk [1]</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="4" pathLength="1" d="M 750 175 L 825 175"/>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="node" x="830" y="115" width="140" height="120" rx="10" style="stroke:var(--feat)"/>
+    <text class="cap" x="900" y="170" style="fill:var(--feat)">grounded</text>
+    <text class="cap" x="900" y="192" style="fill:var(--feat)">answer</text>
+  </g>
+  <g class="fragment" data-fragment-index="5">
+    <text class="cap big" x="500" y="60">Look the answer up, then write it</text>
+  </g>
+</svg>
+```
+
+The answer is no longer memory. It is a copy of what the corpus actually says.
+
+::: notes
+Search, cite, write -- three steps, each of which later topics in the deck open up
+in detail (retrieval, reranking, prompt assembly). For now this is just the shape
+of the fix.
+:::
+
+---
+
+## The rule: cite or refuse
+
+Grounding is a contract, not a suggestion. A covered question gets a citation. An uncovered one gets a decline, never a guess.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="380" y="20" width="240" height="60"/>
+    <text class="cardtext" x="400" y="56">any question</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 460 80 L 260 190"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card" x="90" y="195" width="320" height="70" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="110" y="228" style="fill:var(--feat)">covered by a chunk</text>
+    <text class="cardtext" x="110" y="250" style="fill:var(--feat)">-> answer + [1]</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 540 80 L 740 190"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card" x="590" y="195" width="320" height="70" style="stroke:var(--muted)"/>
+    <text class="cardtext" x="610" y="228" style="fill:var(--muted)">not covered</text>
+    <text class="cardtext" x="610" y="250" style="fill:var(--muted)">-> decline, no guess</text>
+  </g>
+  <g class="fragment" data-fragment-index="4">
+    <text class="cap big" x="500" y="330">Cite or refuse -- never a bare guess</text>
+  </g>
+</svg>
+```
+
+A refusal is a correct answer too, when the corpus genuinely doesn't cover it.
+
+::: notes
+This is the cite-or-refuse gate the rest of the deck builds toward: a similarity
+threshold decides which branch a question takes. Topic 10 (generation) is where
+this becomes a concrete number.
+:::
+
+---
+
+<!--FB:the-problem|The Problem, and the Fix-->
+
+---
+
+# Two clocks, one system {.center}
+
+::: lead
+Building the index and answering a question are two different jobs, on two different clocks.
+:::
+
+One runs once, ahead of time. The other runs every time someone types a question.
+
+::: notes
+This is the map for the whole deck. Everything that follows -- chunking, embeddings, hybrid search, reranking, prompts, refusals -- is a closeup of one box in this picture. Keep this shape in mind and the details never get confusing about when they happen.
+:::
+
+---
+
+## The corpus becomes a frozen index
+
+The raw documents get chunked and turned into vectors a single time. After that, the index just sits there, ready to be searched.
+
+```{=html}
+<svg viewBox="0 0 1000 380" class="ragfig">
+  <rect class="zone" x="30" y="60" width="940" height="260"/>
+  <text class="zonelabel" x="500" y="92" text-anchor="middle">OFFLINE &middot; RUNS ONCE</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="55" y="150" width="230" height="90"/>
+    <text class="cardtext" x="77" y="201" style="font-size:20px">corpus</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 285 195 L 393 195"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <text class="note" x="340" y="175" text-anchor="middle" style="font-size:13px">chunk</text>
+    <rect class="card" x="395" y="150" width="230" height="90"/>
+    <text class="cardtext" x="417" y="201" style="font-size:20px">chunks</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 625 195 L 733 195"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <text class="note" x="680" y="175" text-anchor="middle" style="font-size:13px">embed + fit</text>
+    <rect class="card" x="735" y="150" width="230" height="90"/>
+    <text class="cardtext" x="757" y="201" style="font-size:20px">index</text>
+  </g>
+  <text class="note fragment" x="500" y="285" text-anchor="middle">A batch job. Nothing here is waiting on a question.</text>
+</svg>
+```
+
+::: notes
+Notice there is no question anywhere in this picture. The corpus doesn't know what anyone is going to ask. It just gets chunked and indexed, once, and then it waits.
+:::
+
+---
+
+## Every question walks the same four steps
+
+A question comes in, gets turned into a search, and the results get folded into a prompt before the model ever runs.
+
+```{=html}
+<svg viewBox="0 0 1000 380" class="ragfig">
+  <rect class="zone" x="20" y="60" width="960" height="260"/>
+  <text class="zonelabel" x="500" y="92" text-anchor="middle">ONLINE &middot; RUNS PER QUESTION</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="45" y="150" width="190" height="90"/>
+    <text class="cardtext" x="65" y="201" style="font-size:19px">query</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 235 195 L 281 195"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <text class="note" x="258" y="175" text-anchor="middle" style="font-size:12px">search index</text>
+    <rect class="card" x="285" y="150" width="190" height="90"/>
+    <text class="cardtext" x="305" y="201" style="font-size:19px">retrieve</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 475 195 L 521 195"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <text class="note" x="498" y="175" text-anchor="middle" style="font-size:12px">build prompt</text>
+    <rect class="card" x="525" y="150" width="190" height="90"/>
+    <text class="cardtext" x="545" y="201" style="font-size:19px">augment</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="4" pathLength="1" d="M 715 195 L 761 195"/>
+  <g class="fragment pop" data-fragment-index="4">
+    <text class="note" x="738" y="175" text-anchor="middle" style="font-size:12px">call model</text>
+    <rect class="card" x="765" y="150" width="190" height="90"/>
+    <text class="cardtext" x="785" y="201" style="font-size:19px">generate</text>
+  </g>
+  <text class="note fragment" x="500" y="285" text-anchor="middle">Same four steps, every single time someone asks.</text>
+</svg>
+```
+
+::: notes
+Retrieve, augment, generate: this is the whole online loop. No matter how the retrieval or the prompt gets fancier later in the deck, it still runs inside these four boxes.
+:::
+
+---
+
+## Same shape, very different rhythm
+
+Put both loops side by side and the contrast is the whole point: one column runs once, the other runs again for every question that comes in.
+
+```{=html}
+<svg viewBox="0 0 1000 620" class="ragfig">
+  <rect class="zone" x="40" y="50" width="400" height="540"/>
+  <text class="zonelabel" x="240" y="85" text-anchor="middle">OFFLINE</text>
+
+  <rect class="zone" x="560" y="50" width="380" height="540"/>
+  <text class="zonelabel" x="750" y="85" text-anchor="middle">ONLINE</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="90" y="140" width="300" height="70"/>
+    <text class="cardtext" x="112" y="181" style="font-size:18px">corpus</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 240 210 L 240 258"/>
+  <g class="fragment pop" data-fragment-index="2">
+    <text class="note" x="270" y="238" style="font-size:12px">chunk</text>
+    <rect class="card" x="90" y="260" width="300" height="70"/>
+    <text class="cardtext" x="112" y="301" style="font-size:18px">chunks</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 240 330 L 240 378"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <text class="note" x="270" y="358" style="font-size:12px">embed + fit</text>
+    <rect class="card" x="90" y="380" width="300" height="70"/>
+    <text class="cardtext" x="112" y="421" style="font-size:18px">index</text>
+  </g>
+  <text class="note fragment" x="240" y="505" text-anchor="middle">a batch job, ahead of time</text>
+
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="card" x="610" y="110" width="280" height="60"/>
+    <text class="cardtext" x="632" y="146" style="font-size:17px">query</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="5" pathLength="1" d="M 750 170 L 750 203"/>
+  <g class="fragment pop" data-fragment-index="5">
+    <text class="note" x="800" y="192" style="font-size:11px">search index</text>
+    <rect class="card" x="610" y="205" width="280" height="60"/>
+    <text class="cardtext" x="632" y="241" style="font-size:17px">retrieve</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="6" pathLength="1" d="M 750 265 L 750 298"/>
+  <g class="fragment pop" data-fragment-index="6">
+    <text class="note" x="800" y="287" style="font-size:11px">build prompt</text>
+    <rect class="card" x="610" y="300" width="280" height="60"/>
+    <text class="cardtext" x="632" y="336" style="font-size:17px">augment</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="7" pathLength="1" d="M 750 360 L 750 393"/>
+  <g class="fragment pop" data-fragment-index="7">
+    <text class="note" x="800" y="382" style="font-size:11px">call model</text>
+    <rect class="card" x="610" y="395" width="280" height="60"/>
+    <text class="cardtext" x="632" y="431" style="font-size:17px">generate</text>
+  </g>
+  <text class="note fragment" x="750" y="505" text-anchor="middle">runs again for every new question</text>
+
+  <path class="flow draw fragment" data-fragment-index="8" pathLength="1" d="M 890 425 C 970 425, 970 140, 890 140"/>
+  <text class="note fragment" data-fragment-index="8" x="995" y="282" text-anchor="end" style="font-size:12px">next question</text>
+</svg>
+```
+
+::: notes
+The left column happens once and then it's done. The right column is the loop -- it fires again for every question, always starting cold from the same frozen index. That's why it's called the naive RAG loop: nothing carries over between questions except the index itself.
+:::
+
+---
+
+## This is the whole map
+
+Everything from here on zooms into one box from this picture: how retrieval actually scores a match, how the prompt gets assembled, how the model is kept from making things up.
+
+::: notes
+Worth restating before diving into details: the split between "build the index" and "answer a question" is the single most useful fact to hold onto in this whole deck. Get that right and every later concept has an obvious home.
+:::
+
+<!--FB:the-naive-rag-loop|The Naive RAG Loop-->
+
+---
+
+# One document holds many facts {.center}
+
+::: lead
+A document mixes several separate facts into one block of text. A question only needs one of them back, not the whole page.
+:::
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="220" y="60" width="560" height="300"/>
+    <text class="cap big" x="500" y="100" text-anchor="middle" style="fill:var(--accent)">Paid Time Off Policy v1</text>
+    <rect class="card" x="260" y="130" width="480" height="50"/>
+    <text class="cardtext" x="284" y="160">15 days accrued per year</text>
+    <rect class="card" x="260" y="195" width="480" height="50"/>
+    <text class="cardtext" x="284" y="225">carries over up to 5 days</text>
+    <rect class="card" x="260" y="260" width="480" height="50"/>
+    <text class="cardtext" x="284" y="290">request 2 weeks ahead</text>
+  </g>
+  <g class="fragment pop">
+    <rect class="card hot" x="260" y="130" width="480" height="50"/>
+    <path class="leader head" d="M 750 155 L 815 155"/>
+    <text class="cap" x="890" y="150" text-anchor="middle" style="fill:var(--amber)">the one line</text>
+    <text class="cap" x="890" y="173" text-anchor="middle" style="fill:var(--amber)">a query needs</text>
+  </g>
+  <text class="note" x="500" y="385" text-anchor="middle">Retrieval works chunk by chunk -- it can only hand back what it indexed as one unit.</text>
+</svg>
+```
+
+::: notes
+This is the motivating problem for chunking. Indexed whole, this document returns three unrelated facts for any query that touches it. Chunked, a query about accrual only pulls the accrual sentence. This exact document (hr-01, "Paid Time Off Policy v1") is the one the walkthrough later splits for real.
+:::
+
+---
+
+## Equal, non-overlapping cuts can break an idea
+
+A window of fixed size slides across the words. The simplest version just cuts, edge to edge, with nothing shared.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="40" y="210" width="58" height="40"/>
+    <rect class="card" x="106" y="210" width="58" height="40"/>
+    <rect class="card" x="172" y="210" width="58" height="40"/>
+    <rect class="card" x="238" y="210" width="58" height="40"/>
+    <rect class="card" x="304" y="210" width="58" height="40"/>
+    <rect class="card" x="370" y="210" width="58" height="40"/>
+    <rect class="card" x="436" y="210" width="58" height="40"/>
+    <rect class="card" x="502" y="210" width="58" height="40"/>
+    <rect class="card" x="568" y="210" width="58" height="40"/>
+    <rect class="card" x="634" y="210" width="58" height="40"/>
+  </g>
+  <g class="fragment">
+    <rect x="36" y="185" width="330" height="90" style="fill:var(--accent); fill-opacity:0.08; stroke:var(--accent); stroke-width:3; rx:14"/>
+    <text class="cap" x="201" y="165" text-anchor="middle" style="fill:var(--accent)">chunk 1</text>
+  </g>
+  <g class="fragment">
+    <rect x="366" y="185" width="330" height="90" style="fill:var(--feat); fill-opacity:0.08; stroke:var(--feat); stroke-width:3; rx:14"/>
+    <text class="cap" x="531" y="165" text-anchor="middle" style="fill:var(--feat)">chunk 2</text>
+  </g>
+  <g class="fragment pop">
+    <path class="leader head" d="M 366 178 L 366 288" style="stroke-dasharray:8 6"/>
+    <text class="note" x="366" y="320" text-anchor="middle" style="fill:var(--amber)">a fact split exactly here survives whole in neither chunk</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the naive version of chunking: slide the window by its full size, no sharing. It works until an idea happens to straddle the cut -- then half of it ends up in chunk 1, half in chunk 2, and neither chunk contains the whole thing.
+:::
+
+---
+
+## Overlap keeps the idea whole
+
+Shift the window by less than its full size, and consecutive chunks share a few words at the seam.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="40" y="210" width="58" height="40"/>
+    <rect class="card" x="106" y="210" width="58" height="40"/>
+    <rect class="card" x="172" y="210" width="58" height="40"/>
+    <rect class="card" x="238" y="210" width="58" height="40"/>
+    <rect class="card" x="304" y="210" width="58" height="40"/>
+    <rect class="card" x="370" y="210" width="58" height="40"/>
+    <rect class="card" x="436" y="210" width="58" height="40"/>
+    <rect class="card" x="502" y="210" width="58" height="40"/>
+    <rect class="card" x="568" y="210" width="58" height="40"/>
+    <rect class="card" x="634" y="210" width="58" height="40"/>
+  </g>
+  <g class="fragment">
+    <rect x="36" y="185" width="396" height="90" style="fill:var(--accent); fill-opacity:0.08; stroke:var(--accent); stroke-width:3; rx:14"/>
+    <text class="cap" x="234" y="165" text-anchor="middle" style="fill:var(--accent)">chunk 1</text>
+  </g>
+  <g class="fragment">
+    <rect x="300" y="185" width="396" height="90" style="fill:var(--feat); fill-opacity:0.08; stroke:var(--feat); stroke-width:3; rx:14"/>
+    <text class="cap" x="498" y="305" text-anchor="middle" style="fill:var(--feat)">chunk 2</text>
+  </g>
+  <g class="fragment pop">
+    <rect x="300" y="185" width="132" height="90" style="fill:var(--amber); fill-opacity:0.22; stroke:var(--amber); stroke-width:2; rx:8"/>
+    <text class="note" x="366" y="234" text-anchor="middle" style="fill:var(--amber); font-weight:600">overlap</text>
+  </g>
+  <text class="note" x="500" y="380" text-anchor="middle">The last words of chunk 1 are the first words of chunk 2 -- the idea at the seam survives in both.</text>
+</svg>
+```
+
+::: notes
+Same window, shifted by less than its width. The two chunks now share a band of words. Whatever idea lands in that band is complete in chunk 1 and complete again in chunk 2 -- overlap is just insurance against the cut in the previous slide. The walkthrough proves this against real words: literally `chunk_i.text.split()[-5:] == chunk_{i+1}.text.split()[:5]`.
+:::
+
+---
+
+## Size is a tradeoff
+
+A bigger window swallows unrelated ideas into one chunk. A smaller window slices a single idea into fragments that lose their surrounding context.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment pop">
+    <rect class="card hot" x="60" y="90" width="400" height="240"/>
+    <text class="cap" x="260" y="70" text-anchor="middle" style="fill:var(--amber)">size too big</text>
+    <rect class="tag main" x="100" y="140" width="140" height="36"/>
+    <text class="tagtext" x="170" y="163" text-anchor="middle">pricing</text>
+    <rect class="tag feat" x="260" y="140" width="150" height="36"/>
+    <text class="tagtext" x="335" y="163" text-anchor="middle">retention</text>
+    <rect class="tag head" x="100" y="210" width="170" height="36"/>
+    <text class="tagtext" x="185" y="233" text-anchor="middle">encryption</text>
+    <text class="note" x="260" y="300" text-anchor="middle">three unrelated facts, one chunk</text>
+  </g>
+  <g class="fragment pop">
+    <rect class="card hot" x="540" y="90" width="400" height="240"/>
+    <text class="cap" x="740" y="70" text-anchor="middle" style="fill:var(--amber)">size too small</text>
+    <rect class="card" x="560" y="150" width="100" height="40"/>
+    <text class="cardtext" x="568" y="175" style="font-size:13px">...costs 6</text>
+    <rect class="card" x="680" y="150" width="100" height="40"/>
+    <text class="cardtext" x="688" y="175" style="font-size:13px">dollars a</text>
+    <rect class="card" x="800" y="150" width="100" height="40"/>
+    <text class="cardtext" x="808" y="175" style="font-size:13px">month...</text>
+    <path class="edge" d="M 660 170 L 680 170" style="stroke-dasharray:4 4"/>
+    <path class="edge" d="M 780 170 L 800 170" style="stroke-dasharray:4 4"/>
+    <text class="note" x="740" y="300" text-anchor="middle">one idea, chopped into pieces with no context</text>
+  </g>
+  <text class="note" x="500" y="370" text-anchor="middle">There is no universally right size -- it depends on how self-contained your documents' ideas are.</text>
+</svg>
+```
+
+::: notes
+Both failure modes are real. Too big, and a single chunk answers for three different questions, diluting what a retriever matches against. Too small, and a chunk stops being a coherent unit at all -- just a shard of a sentence. Aurora Cloud's pipeline uses size=40 with overlap=10 as its working default; the walkthrough shows what a much smaller window does instead.
+:::
+
+---
+
+## Most of Aurora Cloud's documents need no splitting at all
+
+Under the window this pipeline actually uses, nearly every one of the 48 documents collapses to a single chunk. Shrink the window, and one of them finally splits for real.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <text class="zonelabel" x="500" y="110" text-anchor="middle">48 SHORT DOCUMENTS</text>
+    <rect class="card" x="300" y="150" width="40" height="90"/>
+    <rect class="card" x="350" y="150" width="40" height="90"/>
+    <rect class="card" x="400" y="150" width="40" height="90"/>
+    <rect class="card" x="450" y="150" width="40" height="90"/>
+    <rect class="card" x="500" y="150" width="40" height="90"/>
+    <rect class="card hot" x="550" y="150" width="40" height="90"/>
+    <rect class="card" x="600" y="150" width="40" height="90"/>
+    <rect class="card" x="650" y="150" width="40" height="90"/>
+    <rect class="card" x="700" y="150" width="40" height="90"/>
+    <rect class="card" x="750" y="150" width="40" height="90"/>
+    <rect class="card" x="800" y="150" width="40" height="90"/>
+    <rect class="card" x="850" y="150" width="40" height="90"/>
+  </g>
+  <g class="fragment pop">
+    <path class="leader head" d="M 570 244 L 570 280"/>
+    <text class="cap" x="570" y="305" text-anchor="middle" style="fill:var(--amber)">this one splits</text>
+  </g>
+  <text class="note" x="500" y="370" text-anchor="middle">The walkthrough shrinks the window until a real document splits, then proves the overlap is real too.</text>
+</svg>
+```
+
+::: notes
+Every square here is one of Aurora Cloud's real documents. Under the pipeline's actual default (size=40, overlap=10), all 48 stay whole -- confirmed empirically, not assumed. The flipbook that follows shrinks the window to size=15, finds a document that really does split into multiple chunks, and checks the overlapping words against each other directly.
+:::
+
+<!--FB:chunking-the-corpus|Chunking the Corpus-->
+
+---
+
+# Embeddings are geometry {.center}
+
+::: lead
+A chunk of text turns into a list of numbers. That list is a location - somewhere you could point to on a map.
+:::
+
+Once meaning has a location, comparing meanings becomes measuring distance.
+
+::: notes
+This is the idea that makes every later concept (retrieval, hybrid search, reranking) possible. Before this, a "search" is a distance calculation.
+:::
+
+---
+
+## A chunk becomes a point in space
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="ragfig">
+  <g class="fragment">
+    <rect class="card" x="40" y="150" width="270" height="100"/>
+    <text class="cardtext" x="60" y="185">"requests for time off</text>
+    <text class="cardtext" x="60" y="210">must be submitted two</text>
+    <text class="cardtext" x="60" y="235">weeks in advance..."</text>
+    <text class="cap" x="175" y="128">a chunk of text</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 316 200 L 380 200"/>
+    <text class="note" x="348" y="182" text-anchor="middle" style="font-size:13px">vectorize</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="385" y="165" width="270" height="70"/>
+    <text class="cardtext" x="405" y="192">[0.02, 0.31, 0.00,</text>
+    <text class="cardtext" x="405" y="217">0.18, 0.00, ...]</text>
+    <text class="cap" x="520" y="128">a TF-IDF vector</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 661 200 L 725 200"/>
+    <text class="note" x="693" y="182" text-anchor="middle" style="font-size:13px">project</text>
+  </g>
+  <g class="fragment pop">
+    <circle class="node" cx="830" cy="200" r="34"/>
+    <text class="cap big" x="830" y="128" style="fill:var(--accent)">a point in space</text>
+  </g>
+</svg>
+```
+
+::: notes
+Any vectorizer works here: TF-IDF weighted word counts, or a neural embedding model. The pipeline in this deck uses TF-IDF (real, computed, not staged) because it is transparent - every coordinate traces back to actual words in the chunk.
+:::
+
+---
+
+## Hundreds of numbers, two you can draw
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="ragfig">
+  <g class="fragment">
+    <text class="cap" x="500" y="80" style="fill:var(--muted)">a real vector has hundreds of numbers</text>
+    <rect class="card" x="120" y="120" width="34" height="34"/>
+    <rect class="card" x="164" y="120" width="34" height="34"/>
+    <rect class="card" x="208" y="120" width="34" height="34"/>
+    <rect class="card" x="252" y="120" width="34" height="34"/>
+    <text class="note" x="310" y="142">...</text>
+    <rect class="card" x="360" y="120" width="34" height="34"/>
+    <rect class="card" x="404" y="120" width="34" height="34"/>
+    <rect class="card" x="448" y="120" width="34" height="34"/>
+    <rect class="card" x="492" y="120" width="34" height="34"/>
+    <text class="note" x="700" y="142">...</text>
+    <rect class="card" x="750" y="120" width="34" height="34"/>
+    <rect class="card" x="794" y="120" width="34" height="34"/>
+    <rect class="card" x="838" y="120" width="34" height="34"/>
+    <text class="note" x="500" y="192" text-anchor="middle">one number per dimension of meaning</text>
+  </g>
+  <g class="fragment">
+    <path class="flow" d="M 500 210 L 500 250"/>
+    <text class="note" x="500" y="238" text-anchor="middle" style="font-size:13px">keep the 2 that separate topics best</text>
+  </g>
+  <g class="fragment pop">
+    <path d="M 350 355 L 350 270" style="stroke:var(--edge);stroke-width:1.5;fill:none"/>
+    <path d="M 350 355 L 650 355" style="stroke:var(--edge);stroke-width:1.5;fill:none"/>
+    <circle class="node" cx="500" cy="310" r="18"/>
+    <text class="note" x="500" y="390" text-anchor="middle">a flat picture you can actually look at</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the honest caveat: the pictures in this deck are a 2D projection (TruncatedSVD on the real TF-IDF matrix), not the literal embedding. A projection can't preserve every distance perfectly, but it preserves enough of the structure that near-in-2D reliably means near-in-reality here.
+:::
+
+---
+
+## Related chunks land close together
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="ragfig">
+  <g class="fragment">
+    <rect class="zone" x="185" y="175" width="220" height="150" style="stroke-dasharray:5 4"/>
+    <circle class="node" cx="260" cy="220" r="26"/>
+    <circle class="node" cx="330" cy="260" r="26"/>
+    <circle class="node" cx="230" cy="290" r="26"/>
+    <text class="note" x="270" y="180" text-anchor="middle">"PTO"</text>
+    <text class="note" x="370" y="245" text-anchor="middle">"parental leave"</text>
+    <text class="note" x="150" y="305" text-anchor="middle">"sick days"</text>
+    <text class="cap" x="295" y="360" style="fill:var(--accent)">close together = related</text>
+  </g>
+  <g class="fragment pop">
+    <circle class="node ghost" cx="800" cy="150" r="26"/>
+    <text class="note" x="800" y="110" text-anchor="middle">"sharpen a kitchen knife"</text>
+    <text class="cap" x="800" y="200" style="fill:var(--muted)">far away = unrelated</text>
+  </g>
+</svg>
+```
+
+::: notes
+Three HR questions huddle together because they share vocabulary and topic. A kitchen-knife question shares almost none of that vocabulary, so it lands somewhere else entirely. This is the whole trick, drawn as plainly as possible.
+:::
+
+---
+
+## Search by meaning is search by distance
+
+```{=html}
+<svg viewBox="0 0 1000 400" class="ragfig">
+  <rect class="zone" x="185" y="175" width="220" height="150" style="stroke-dasharray:5 4"/>
+  <circle class="node" cx="260" cy="220" r="24"/>
+  <circle class="node" cx="330" cy="260" r="24"/>
+  <circle class="node" cx="230" cy="290" r="24"/>
+  <circle class="node ghost" cx="800" cy="150" r="24"/>
+  <g class="fragment pop">
+    <circle class="node merge" cx="300" cy="330" r="22"/>
+    <text class="cap" x="300" y="378" style="fill:var(--amber)">query: "how many days off do I get"</text>
+  </g>
+  <g class="fragment">
+    <path class="edge draw" pathLength="1" d="M 300 308 L 260 244" style="stroke:var(--amber);marker-end:none"/>
+    <text class="note" x="140" y="270" style="fill:var(--amber);font-size:13px">nearest -> this is the answer</text>
+  </g>
+  <g class="fragment">
+    <path d="M 320 315 L 780 172" style="stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4;fill:none"/>
+    <text class="note" x="640" y="230" style="fill:var(--muted);font-size:13px">far -> never considered</text>
+  </g>
+</svg>
+```
+
+The query gets vectorized exactly like every chunk, then dropped onto the same map. Whichever dot it lands nearest is the answer.
+
+::: notes
+This reframe is the payoff of the whole concept: "search by meaning" was always going to need a precise mechanical definition, and the definition turns out to be nearest-neighbor distance on this map. Retrieval (the next concept) is exactly this, run at real scale with a real distance metric (cosine similarity).
+:::
+
+---
+
+## The next screens are the real thing {.center}
+
+Not a mockup: the real 48-document Aurora Cloud corpus, chunked and turned into real TF-IDF vectors, projected to 2 axes. Each dot is a real chunk, colored by its document's tag. The star is a real query, placed by the same vectorizer, at its real projected position.
+
+<!--FB:embeddings-as-geometry|Embeddings Are Geometry-->
+
+---
+
+# Building the Index {.center}
+
+::: lead
+Every chunk now has a vector. Those vectors don't sit around loose -- they
+get packed together into one structure: the index. Building it happens
+once. Answering a question against it never does.
+:::
+
+::: notes
+This is the hinge between "embeddings as geometry" and "retrieval": once
+each of the 48 chunks is a point in vector space, those points get stored
+together as a single fitted object -- the TF-IDF matrix plus the vectorizer
+that produced it. Fitting that object is a one-time cost. Every question
+that follows, no matter how different, is just a lookup against the same
+object.
+:::
+
+---
+
+## Vectors get stored together
+
+48 separate vectors. One structure holds all of them.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment pop">
+    <circle class="node" cx="150" cy="120" r="16"/>
+    <circle class="node" cx="230" cy="180" r="16"/>
+    <circle class="node" cx="130" cy="240" r="16"/>
+    <circle class="node" cx="270" cy="90"  r="16"/>
+    <circle class="node" cx="190" cy="300" r="16"/>
+    <circle class="node" cx="310" cy="230" r="16"/>
+    <text class="cap" x="220" y="350">48 chunk vectors</text>
+  </g>
+  <path class="edge draw fragment" pathLength="1" d="M 162 126 L 620 195"/>
+  <path class="edge draw fragment" pathLength="1" d="M 240 184 L 620 202"/>
+  <path class="edge draw fragment" pathLength="1" d="M 140 243 L 620 210"/>
+  <path class="edge draw fragment" pathLength="1" d="M 278 94  L 620 190"/>
+  <path class="edge draw fragment" pathLength="1" d="M 200 302 L 620 216"/>
+  <path class="edge draw fragment" pathLength="1" d="M 318 232 L 620 205"/>
+  <g class="fragment pop">
+    <rect class="card hot" x="620" y="150" width="280" height="100"/>
+    <text class="cap big" x="760" y="207" text-anchor="middle">the index</text>
+  </g>
+  <text class="note" x="500" y="385" text-anchor="middle">Not 48 separate lookups later -- one shared structure, right now.</text>
+</svg>
+```
+
+::: notes
+Under the hood this is literally one `VectorIndex` object: a fitted
+`TfidfVectorizer` plus the matrix of every chunk's vector, together. There
+is no per-chunk index -- there is one index that happens to contain 48 rows.
+:::
+
+---
+
+## Fit once, then query without limit
+
+The fit is a single event. Every search after it is free to repeat.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <line x1="120" y1="230" x2="900" y2="230" style="stroke:var(--rule);stroke-width:2"/>
+  <g class="fragment pop">
+    <text class="zonelabel" x="220" y="90">BUILD -- ONCE</text>
+    <circle class="node merge" cx="220" cy="230" r="28"/>
+    <text class="cap" x="220" y="175">fit the index</text>
+  </g>
+  <path class="edge draw fragment" pathLength="1" d="M 248 230 L 900 230" style="stroke-dasharray:8 6"/>
+  <text class="zonelabel" x="620" y="90">QUERY -- ANY NUMBER OF TIMES</text>
+  <g class="fragment pop">
+    <circle class="node" cx="400" cy="230" r="18"/>
+    <text class="cap" x="400" y="290">search #1</text>
+  </g>
+  <g class="fragment pop">
+    <circle class="node" cx="570" cy="230" r="18"/>
+    <text class="cap" x="570" y="290">search #2</text>
+  </g>
+  <g class="fragment pop">
+    <circle class="node" cx="740" cy="230" r="18"/>
+    <text class="cap" x="740" y="290">search #3</text>
+  </g>
+  <g class="fragment pop">
+    <text class="cap big" x="860" y="238" text-anchor="middle">...</text>
+  </g>
+  <text class="note" x="500" y="365" text-anchor="middle">The fit sits at the left edge, once. Everything to its right is the same lookup, repeated.</text>
+</svg>
+```
+
+::: notes
+This is the piece people miss: fitting (building the vocabulary, the
+matrix, the whole structure) is asymptotically irrelevant once it has
+happened, because it happens exactly once. Search cost is what recurs, and
+search is cheap.
+:::
+
+---
+
+## Many questions, one index
+
+Three unrelated questions. One already-built index answers all of them.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <rect class="card hot" x="370" y="260" width="260" height="90"/>
+  <text class="cap big" x="500" y="312" text-anchor="middle">the index</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="40" y="40" width="300" height="80"/>
+    <text class="cardtext" x="60" y="70">"how many days of PTO</text>
+    <text class="cardtext" x="60" y="94">do I get?"</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="1" pathLength="1" d="M 200 120 L 415 260"/>
+
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card" x="360" y="10" width="280" height="80"/>
+    <text class="cardtext" x="380" y="40">"what happens during a</text>
+    <text class="cardtext" x="380" y="64">database outage?"</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 500 90 L 500 258"/>
+
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card" x="660" y="40" width="300" height="80"/>
+    <text class="cardtext" x="680" y="70">"how do I sharpen a</text>
+    <text class="cardtext" x="680" y="94">kitchen knife?"</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 800 120 L 585 260"/>
+
+  <text class="note" x="500" y="385" text-anchor="middle">One PTO question, one outage question, one totally off-topic question -- same index, zero refits.</text>
+</svg>
+```
+
+::: notes
+The three questions are deliberately unrelated: an HR question, an
+engineering question, and one the corpus barely covers. All three hit
+`.search()` on the exact same fitted object built at the top of this
+section.
+:::
+
+---
+
+## The index never rebuilds
+
+The wrong mental model refits per question. The right one fits once.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <text class="zonelabel" x="500" y="45" text-anchor="middle">NOT THIS</text>
+  <g class="fragment pop">
+    <rect class="node ghost" x="120" y="65" width="180" height="70"/>
+    <text class="cap" x="210" y="105" text-anchor="middle">rebuild</text>
+    <rect class="node ghost" x="410" y="65" width="180" height="70"/>
+    <text class="cap" x="500" y="105" text-anchor="middle">rebuild</text>
+    <rect class="node ghost" x="700" y="65" width="180" height="70"/>
+    <text class="cap" x="790" y="105" text-anchor="middle">rebuild</text>
+    <text class="note" x="500" y="160" text-anchor="middle">a fresh index per question -- thrown away every time</text>
+  </g>
+
+  <line x1="80" y1="195" x2="920" y2="195" style="stroke:var(--rule);stroke-width:1.5;stroke-dasharray:4 4"/>
+
+  <text class="zonelabel" x="500" y="235" text-anchor="middle">THIS</text>
+  <g class="fragment pop">
+    <rect class="card hot" x="410" y="250" width="180" height="70"/>
+    <text class="cap" x="500" y="290" text-anchor="middle">one index</text>
+    <path class="flow" d="M 480 250 C 380 205, 260 295, 210 320"/>
+    <path class="flow" d="M 500 250 L 500 320"/>
+    <path class="flow" d="M 520 250 C 620 205, 740 295, 790 320"/>
+    <text class="cap" x="210" y="345" text-anchor="middle">search</text>
+    <text class="cap" x="500" y="345" text-anchor="middle">search</text>
+    <text class="cap" x="790" y="345" text-anchor="middle">search</text>
+  </g>
+  <text class="note" x="500" y="385" text-anchor="middle">Built once, searched as many times as there are questions. Next: watch it happen for real.</text>
+</svg>
+```
+
+::: notes
+The failure mode to rule out: treating "build the index" as a step inside
+the query loop. It isn't. It runs once, before the first question ever
+arrives, and every subsequent question is a pure read against it.
+:::
+
+<!--FB:building-the-index|Building the Index-->
+
+---
+
+# Retrieval: The Nearest Points Win {.center}
+
+::: lead
+The index holds 48 points. Retrieval is the one operation that matters: drop the
+query onto the same map, and read off whichever points sit closest.
+:::
+
+Nothing about retrieval is mysterious once the geometry is in place. It's a distance
+calculation, run once per question.
+
+::: notes
+This is the payoff of "embeddings are geometry" and "building the index." Both of
+those concepts existed to make this one moment possible: a question arrives, and
+answering it becomes "which points are nearest," not "which document sounds right."
+:::
+
+---
+
+## From a question to a ranked list
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <g class="fragment pop">
+    <rect class="card" x="60" y="150" width="260" height="70"/>
+    <text class="cardtext" x="80" y="182">"how many days of</text>
+    <text class="cardtext" x="80" y="204">PTO do I get?"</text>
+  </g>
+  <path class="flow draw fragment" pathLength="1" d="M 320 185 L 390 185"/>
+  <g class="fragment pop">
+    <text class="note" x="355" y="165" text-anchor="middle" style="font-size:13px">vectorize</text>
+    <rect class="node" x="395" y="150" width="180" height="70" rx="10"/>
+    <text class="cap" x="485" y="192" text-anchor="middle">query vector</text>
+  </g>
+  <path class="flow draw fragment" pathLength="1" d="M 575 185 L 645 185"/>
+  <g class="fragment pop">
+    <text class="note" x="610" y="165" text-anchor="middle" style="font-size:13px">compare</text>
+    <rect class="node" x="650" y="150" width="180" height="70" rx="10"/>
+    <text class="cap" x="740" y="192" text-anchor="middle">48 chunk scores</text>
+  </g>
+  <path class="flow draw fragment" pathLength="1" d="M 830 185 L 900 185"/>
+  <g class="fragment pop">
+    <rect class="card hot" x="905" y="150" width="70" height="70"/>
+    <text class="cap" x="940" y="192" text-anchor="middle">top-k</text>
+  </g>
+  <text class="note fragment" x="500" y="300" text-anchor="middle">Every chunk gets a score. Only the highest few ever get shown to anyone.</text>
+</svg>
+```
+
+::: notes
+The query is embedded through the exact same vectorizer that embedded every chunk --
+that's what makes the comparison meaningful. Cosine similarity scores all 48 chunks
+at once; sorting and slicing to the top-k is the only step left.
+:::
+
+---
+
+## Nearest wins, and "nearest" is a number
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 360">
+  <circle class="node merge" cx="500" cy="180" r="24"/>
+  <text class="cap" x="500" y="140" text-anchor="middle" style="fill:var(--amber)">query</text>
+  <g class="fragment">
+    <circle class="node" cx="330" cy="140" r="18"/>
+    <path class="edge draw" pathLength="1" d="M 480 190 L 348 148"/>
+    <text class="note" x="300" y="110" text-anchor="middle" style="fill:var(--feat)">0.481 -- close</text>
+  </g>
+  <g class="fragment">
+    <circle class="node" cx="740" cy="230" r="18"/>
+    <path class="edge draw" pathLength="1" d="M 520 195 L 725 226"/>
+    <text class="note" x="770" y="270" text-anchor="middle" style="fill:var(--muted)">0.068 -- far</text>
+  </g>
+  <g class="fragment">
+    <circle class="node" cx="620" cy="90" r="18"/>
+    <path class="edge draw" pathLength="1" d="M 510 160 L 610 100"/>
+    <text class="note" x="660" y="70" text-anchor="middle" style="fill:var(--muted)">0.062 -- far</text>
+  </g>
+  <text class="cap big fragment" x="500" y="330" text-anchor="middle">Rank by score, take the top few, done.</text>
+</svg>
+```
+
+::: notes
+There's no threshold logic inside retrieval itself -- it always returns its top-k,
+confidently, whether the best score is 0.48 or 0.02. Deciding what to do with a weak
+top score is generation's job (cite or refuse), a few concepts from now.
+:::
+
+---
+
+## The next screens are the real thing
+
+Not a mockup: the real 48-document Aurora Cloud corpus, the real fitted index from
+the last concept, one real query run through `.search()`. The ranked list, the
+scores, and the map are all computed live.
+
+::: notes
+Watch the same query land in the embedding space right where the top-ranked hr
+documents sit, and watch a second, uncovered question come back with uniformly low
+scores -- retrieval still answers, it just isn't confident about any of it.
+:::
+
+<!--FB:retrieval|Retrieval: The Nearest Points Win-->
+
+---
+
+# One ranking isn't enough {.center}
+
+::: lead
+Dense search ranks by meaning. Sparse search ranks by exact words. Run the same
+query through both and they don't agree -- fusing the two beats trusting either alone.
+:::
+
+---
+
+## Dense vs. sparse: two different notions of "relevant"
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="zone" x="40" y="55" width="430" height="300"/>
+    <text class="zonelabel" x="255" y="90" text-anchor="middle" style="fill:var(--accent)">DENSE -- COSINE SIMILARITY</text>
+    <text class="note" x="118" y="155">query</text>
+    <circle class="node" cx="150" cy="205" r="34"/><text class="hash" x="150" y="211">Q</text>
+    <circle class="node" cx="365" cy="150" r="30" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="365" y="127" text-anchor="middle">Pricing</text>
+    <circle class="node" cx="365" cy="270" r="30" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="365" y="313" text-anchor="middle">Escalation</text>
+    <path class="edge" d="M 182 192 L 336 158"/>
+    <text class="note" x="255" y="160" style="font-size:13px">0.28</text>
+    <path class="edge" d="M 182 216 L 336 262"/>
+    <text class="note" x="255" y="255" style="font-size:13px">0.16</text>
+    <text class="note" x="255" y="335" text-anchor="middle">scores every doc by overall topical closeness</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="530" y="55" width="430" height="300"/>
+    <text class="zonelabel" x="745" y="90" text-anchor="middle" style="fill:var(--feat)">SPARSE -- BM25</text>
+    <rect class="card" x="565" y="120" width="105" height="42"/><text class="cardtext" x="617" y="146" text-anchor="middle">notify</text>
+    <rect class="card" x="680" y="120" width="120" height="42" style="stroke:var(--feat)"/><text class="cardtext" x="740" y="146" text-anchor="middle" style="fill:var(--feat)">escalation</text>
+    <rect class="card" x="810" y="120" width="105" height="42"/><text class="cardtext" x="862" y="146" text-anchor="middle">on-call</text>
+    <path class="edge" d="M 740 162 L 740 228" style="stroke:var(--feat)"/>
+    <rect class="card" x="650" y="235" width="180" height="55" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="740" y="268" text-anchor="middle" style="fill:var(--feat)">Escalation Policy</text>
+    <text class="note" x="745" y="335" text-anchor="middle">exact term match wins, regardless of topic overlap</text>
+  </g>
+</svg>
+```
+
+::: notes
+Dense turns the query into a vector and measures how close it lands to every doc's
+vector -- a graded, continuous notion of "about the same thing." Sparse never leaves
+the words: it rewards a document for containing the query's rare terms, "escalation"
+and "on-call" here, whether or not the rest of the document is topically similar.
+:::
+
+---
+
+## Same query, two different rankings
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <text class="cap big" x="140" y="50" text-anchor="middle" style="fill:var(--accent)">DENSE</text>
+    <rect class="card" x="10" y="80" width="260" height="60" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="30" y="116">#1</text><text class="cardtext" x="90" y="116" style="fill:var(--amber)">Pricing</text>
+    <rect class="card" x="10" y="170" width="260" height="60"/>
+    <text class="cardtext" x="30" y="206">#2</text><text class="cardtext" x="90" y="206">Overview</text>
+    <rect class="card" x="10" y="260" width="260" height="60" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="30" y="296">#3</text><text class="cardtext" x="90" y="296" style="fill:var(--feat)">Escalation Policy</text>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="860" y="50" text-anchor="middle" style="fill:var(--feat)">SPARSE</text>
+    <rect class="card" x="730" y="80" width="260" height="60" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="750" y="116">#1</text><text class="cardtext" x="810" y="116" style="fill:var(--feat)">Escalation Policy</text>
+    <rect class="card" x="730" y="170" width="260" height="60" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="750" y="206">#2</text><text class="cardtext" x="810" y="206" style="fill:var(--amber)">Pricing</text>
+    <rect class="card" x="730" y="260" width="260" height="60"/>
+    <text class="cardtext" x="750" y="296">#3</text><text class="cardtext" x="810" y="296">Overview</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 270 110 C 450 110, 550 196, 730 196" style="stroke:var(--amber);stroke-dasharray:5 4"/>
+    <path class="edge" d="M 270 200 C 450 200, 550 286, 730 286" style="stroke:var(--accent);stroke-dasharray:5 4"/>
+    <path class="edge" d="M 270 290 C 450 290, 550 110, 730 110" style="stroke:var(--feat);stroke-dasharray:5 4"/>
+    <text class="note" x="500" y="370" text-anchor="middle">Same corpus, same query -- Escalation Policy jumps from #3 to #1.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Nobody changed the corpus or the query between these two lists. The only thing that
+changed is which notion of "relevant" is doing the ranking, and that alone reorders
+the results. Neither list is wrong; they're answering slightly different questions.
+:::
+
+---
+
+## Fusion: combine by rank, not raw score
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <text class="cap big" x="140" y="50" text-anchor="middle" style="fill:var(--accent)">DENSE</text>
+    <rect class="card" x="10" y="88" width="260" height="54" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="30" y="115">#1</text><text class="cardtext" x="90" y="115" style="fill:var(--amber)">Pricing</text>
+    <rect class="card" x="10" y="178" width="260" height="54"/>
+    <text class="cardtext" x="30" y="205">#2</text><text class="cardtext" x="90" y="205">Overview</text>
+    <rect class="card" x="10" y="268" width="260" height="54" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="30" y="295">#3</text><text class="cardtext" x="90" y="295" style="fill:var(--feat)">Escalation</text>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="500" y="50" text-anchor="middle" style="fill:var(--feat)">SPARSE</text>
+    <rect class="card" x="370" y="88" width="260" height="54" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="390" y="115">#1</text><text class="cardtext" x="450" y="115" style="fill:var(--feat)">Escalation</text>
+    <rect class="card" x="370" y="178" width="260" height="54" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="390" y="205">#2</text><text class="cardtext" x="450" y="205" style="fill:var(--amber)">Pricing</text>
+    <rect class="card" x="370" y="268" width="260" height="54"/>
+    <text class="cardtext" x="390" y="295">#3</text><text class="cardtext" x="450" y="295">Overview</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 270 115 C 550 115, 600 115, 730 115" style="stroke:var(--amber)"/>
+    <path class="edge" d="M 630 205 C 690 205, 700 130, 730 118" style="stroke:var(--amber)"/>
+    <path class="edge" d="M 270 295 C 550 295, 600 220, 730 208" style="stroke:var(--feat)"/>
+    <path class="edge" d="M 630 115 C 690 115, 700 190, 730 205" style="stroke:var(--feat)"/>
+    <path class="edge" d="M 270 205 C 550 205, 600 290, 730 298" style="stroke:var(--accent)"/>
+    <path class="edge" d="M 630 295 C 690 295, 700 300, 730 298" style="stroke:var(--accent)"/>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="860" y="50" text-anchor="middle">FUSED</text>
+    <rect class="card" x="730" y="88" width="260" height="54" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="750" y="115">#1</text><text class="cardtext" x="810" y="115" style="fill:var(--amber)">Pricing</text>
+    <rect class="card" x="730" y="178" width="260" height="54" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="750" y="205">#2</text><text class="cardtext" x="810" y="205" style="fill:var(--feat)">Escalation</text>
+    <rect class="card" x="730" y="268" width="260" height="54" style="stroke:var(--accent)"/>
+    <text class="cardtext" x="750" y="295">#3</text><text class="cardtext" x="810" y="295">Overview</text>
+    <text class="note" x="500" y="375" text-anchor="middle">score(chunk) = 1/(60 + rank_dense) + 1/(60 + rank_sparse) -- rank position only, never raw score</text>
+  </g>
+</svg>
+```
+
+::: notes
+Reciprocal rank fusion never looks at the raw cosine similarity or the raw BM25
+score, only at where each chunk landed in each list. That sidesteps a real problem:
+the two scores live on incomparable scales, so averaging them directly would let
+whichever scale happens to be bigger quietly dominate. A chunk that's decent in
+both rankings can out-rank a chunk that's great in one and absent from the other.
+:::
+
+---
+
+## Why fusion is more robust than either alone
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <circle cx="380" cy="200" r="170" style="fill:var(--accent);fill-opacity:0.10;stroke:var(--accent);stroke-width:2.5"/>
+    <text class="cap big" x="260" y="105" style="fill:var(--accent)">DENSE</text>
+    <text class="note" x="150" y="335">paraphrases, synonyms, "what happens when..."</text>
+  </g>
+  <g class="fragment">
+    <circle cx="620" cy="200" r="170" style="fill:var(--feat);fill-opacity:0.10;stroke:var(--feat);stroke-width:2.5"/>
+    <text class="cap big" x="655" y="105" text-anchor="end" style="fill:var(--feat)">SPARSE</text>
+    <text class="note" x="855" y="335" text-anchor="end">product names, IDs, exact jargon</text>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="500" y="215" text-anchor="middle" style="fill:var(--amber);font-weight:700">FUSED</text>
+    <text class="note" x="500" y="385" text-anchor="middle">doesn't have to guess which case the query is</text>
+  </g>
+</svg>
+```
+
+::: notes
+Neither method is strictly better; each has a blind spot the other one covers.
+Dense misses a rare product name it's never seen phrased that way; sparse misses
+a paraphrase that shares no words with the document. Fusing them means the system
+doesn't have to bet on which failure mode this particular query will hit.
+:::
+
+<!--FB:hybrid-search|Hybrid Search-->
+
+---
+
+# Reranking: A Second, More Careful Pass {.center}
+
+::: lead
+Retrieval scores every chunk against the query with one cheap, global signal, across
+the whole corpus at once. That is what makes it fast, and it is also why the order it
+returns is only approximately right.
+:::
+
+Reranking takes just the candidates retrieval already found and looks at each one
+again, one at a time, with a narrower, more literal question: how much of the query's
+actual wording is in this chunk.
+
+::: notes
+Set up the handoff cleanly before showing anything moving. Retrieval already ran and
+already narrowed 48 documents down to 5 candidates -- reranking never sees the other
+43. It is a second pass over a short list, not a second search.
+:::
+
+---
+
+## The First Pass Is Approximate
+
+A single global signal, spread across every word in the query, does not always put
+the right document on top.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <text class="zonelabel" x="230" y="55">RETRIEVAL'S ORDER</text>
+  <text class="zonelabel" x="770" y="55">A CLOSER LOOK</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card hot" x="70" y="80" width="320" height="64"/>
+    <text class="cardtext" x="95" y="107">#1 &middot; candidate A</text>
+    <text class="cardtext" x="95" y="128" style="fill:var(--muted);font-size:12px">matches many query words a little</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="70" y="164" width="320" height="64"/>
+    <text class="cardtext" x="95" y="191">#2 &middot; candidate B</text>
+    <text class="cardtext" x="95" y="212" style="fill:var(--muted);font-size:12px">matches one query word exactly</text>
+  </g>
+
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 410 112 C 500 112, 500 228, 610 228"/>
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 410 196 C 500 196, 500 112, 610 112"/>
+
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card" x="610" y="80" width="320" height="64"/>
+    <text class="cardtext" x="635" y="107">#1 &middot; candidate B</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card hot" x="610" y="164" width="320" height="64"/>
+    <text class="cardtext" x="635" y="191">#2 &middot; candidate A</text>
+  </g>
+
+  <text class="note" x="500" y="360" text-anchor="middle">Same two candidates. Scored one at a time, the exact match wins.</text>
+</svg>
+```
+
+::: notes
+This slide is the abstract version of the mechanism, no real numbers yet. A doc that
+scores well by scattering partial matches across many query words can still lose to a
+doc with one precise match, once each is judged on its own instead of against the
+whole corpus at once.
+:::
+
+---
+
+## What Actually Happened: "on-call handoff day"
+
+Tried the near-duplicate pairs first (PTO days, expense threshold, outage lag) --
+none of them swap, because the one word that tells those two docs apart never appears
+in the query. This query, tried next, produces a real swap at #1.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <text class="cap big" x="500" y="40" text-anchor="middle">query: "on-call handoff day"</text>
+  <text class="zonelabel" x="230" y="80">BEFORE &middot; TF-IDF COSINE</text>
+  <text class="zonelabel" x="770" y="80">AFTER &middot; KEYWORD OVERLAP</text>
+
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card hot" x="60" y="100" width="340" height="66"/>
+    <text class="cardtext" x="85" y="128">#1 Onboarding Checklist</text>
+    <text class="cardtext" x="85" y="150" style="fill:var(--amber);font-size:13px">score 0.208</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="60" y="186" width="340" height="66"/>
+    <text class="cardtext" x="85" y="214">#2 On-call Rotation Schedule</text>
+    <text class="cardtext" x="85" y="236" style="fill:var(--muted);font-size:13px">score 0.138</text>
+  </g>
+
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 420 133 C 520 133, 520 253, 600 253"/>
+  <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 420 219 C 520 219, 520 133, 600 133"/>
+
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card hot" x="600" y="100" width="340" height="66"/>
+    <text class="cardtext" x="625" y="128">#1 On-call Rotation Schedule</text>
+    <text class="cardtext" x="625" y="150" style="fill:var(--amber);font-size:13px">score 0.557</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card" x="600" y="186" width="340" height="66"/>
+    <text class="cardtext" x="625" y="214">#2 Onboarding Checklist</text>
+    <text class="cardtext" x="625" y="236" style="fill:var(--muted);font-size:13px">score 0.371</text>
+  </g>
+
+  <text class="note" x="500" y="330" text-anchor="middle">"Onboarding Checklist" repeats the generic word "day" twice.</text>
+  <text class="note" x="500" y="352" text-anchor="middle">Only "On-call Rotation Schedule" contains the exact word "handoff" -- reranking promotes it.</text>
+</svg>
+```
+
+::: notes
+This is the real run, not a mockup: `index.search("on-call handoff day", k=5)` then
+`rerank(...)` on those same five results, in `build/topics/reranking/run.py`. TF-IDF's
+top hit is genuinely the wrong document for this query. The reranker's plain
+exact-word-count fixes it, and it is honest to say why: "day" is common and diluted
+by idf, "handoff" is rare and, once scored on its own per chunk, decisive.
+:::
+
+---
+
+## Reranking Reorders. It Does Not Fetch.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <rect class="zone" x="60" y="100" width="380" height="220"/>
+  <text class="zonelabel" x="250" y="130">5 CANDIDATES</text>
+  <circle class="node" cx="150" cy="220" r="26"/>
+  <circle class="node" cx="220" cy="220" r="26"/>
+  <circle class="node feat" cx="290" cy="220" r="26"/>
+  <circle class="node" cx="360" cy="220" r="26"/>
+  <circle class="node" cx="150" cy="270" r="0"/>
+
+  <path class="flow" d="M 460 210 L 555 210"/>
+  <text class="note" x="507" y="190" text-anchor="middle" style="font-size:13px">rerank()</text>
+
+  <rect class="zone" x="560" y="100" width="380" height="220"/>
+  <text class="zonelabel" x="750" y="130">SAME 5, REORDERED</text>
+  <circle class="node feat" cx="650" cy="220" r="26"/>
+  <circle class="node" cx="720" cy="220" r="26"/>
+  <circle class="node" cx="790" cy="220" r="26"/>
+  <circle class="node" cx="860" cy="220" r="26"/>
+
+  <text class="note" x="500" y="360" text-anchor="middle">No new document ever enters. Reranking can only work with what retrieval already found.</text>
+</svg>
+```
+
+::: notes
+Ties directly to the assert in run.py: `set(ids_before) == set(ids_after)`. Worth
+saying plainly -- if retrieval missed the right document entirely, no amount of
+reranking gets it back. That is still retrieval's job, not reranking's.
+:::
+
+---
+
+## What Reranking Can't Fix
+
+The corpus has three near-duplicate pairs, same wording, one changed number. None of
+them swap under this reranker.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <rect class="card" x="230" y="110" width="300" height="90"/>
+  <text class="cardtext" x="255" y="145">Paid Time Off Policy v1</text>
+  <text class="cardtext" x="255" y="170" style="fill:var(--muted);font-size:13px">"...accrue <tspan style="fill:var(--fg)">15</tspan> days..."</text>
+
+  <rect class="card" x="470" y="110" width="300" height="90"/>
+  <text class="cardtext" x="495" y="145">Paid Time Off Policy v2</text>
+  <text class="cardtext" x="495" y="170" style="fill:var(--muted);font-size:13px">"...accrue <tspan style="fill:var(--fg)">20</tspan> days..."</text>
+
+  <g class="fragment">
+    <text class="cap" x="500" y="250" text-anchor="middle">query: "how many days of paid time off"</text>
+    <text class="note" x="500" y="280" text-anchor="middle">Neither "15" nor "20" is in the query, so both chunks overlap it identically.</text>
+    <text class="note" x="500" y="304" text-anchor="middle">The tie always breaks back to whichever retrieval already ranked first.</text>
+  </g>
+</svg>
+```
+
+That is an honest limit, not a bug: a reranker that only counts word overlap can't
+tell two documents apart on the one word neither of them is being asked about.
+
+::: notes
+Confirmed empirically, not assumed: run the PTO query and the pair's relative order
+is identical before and after reranking, down to the score (both land on the same
+overlap count and the same tie-break). Whatever actually resolves this pair -- picking
+one canonical version, deduplication upstream -- is a different concept's job, not
+reranking's.
+:::
+
+<!--FB:reranking|Reranking-->
+
+---
+
+# The chunks aren't the input {.center}
+
+::: lead
+Retrieval hands back three objects. The model reads one string. Something has to build that string.
+:::
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <rect class="zone" x="40" y="70" width="920" height="230"/>
+  <text class="zonelabel" x="500" y="100" text-anchor="middle">RETRIEVAL'S OUTPUT</text>
+  <g class="fragment">
+    <rect class="card" x="80" y="130" width="260" height="120" style="stroke:var(--accent)"/>
+    <text class="cardtext" x="100" y="168">Paid Time Off</text>
+    <text class="cardtext" x="100" y="192">Policy v2</text>
+    <text class="note" x="100" y="226">score 0.481</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="370" y="130" width="260" height="120" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="390" y="168">Paid Time Off</text>
+    <text class="cardtext" x="390" y="192">Policy v1</text>
+    <text class="note" x="390" y="226">score 0.480</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="660" y="130" width="260" height="120" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="680" y="168">Remote Work</text>
+    <text class="cardtext" x="680" y="192">Guidelines</text>
+    <text class="note" x="680" y="226">score 0.068</text>
+  </g>
+  <text class="cap" x="500" y="335" text-anchor="middle">a title, a score, a wall of text -- three separate objects</text>
+</svg>
+```
+
+A chat model takes plain text in. Three `Chunk` objects are not plain text yet.
+
+::: notes
+Every retrieval call in this deck so far has ended at a ranked list of chunk objects. That list is still structured data: a doc title, a score, a body of text. Before generation can run, something has to flatten that into the one string a language model actually consumes.
+:::
+
+---
+
+## assemble_prompt() turns them into one string
+
+The retrieved chunks flow into a single card, and each one gains a number as it lands.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="60" y="30" width="240" height="60" style="stroke:var(--accent)"/>
+    <text class="cardtext" x="80" y="66">PTO Policy v2</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="380" y="30" width="240" height="60" style="stroke:var(--feat)"/>
+    <text class="cardtext" x="400" y="66">PTO Policy v1</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="700" y="30" width="240" height="60" style="stroke:var(--amber)"/>
+    <text class="cardtext" x="720" y="66">Remote Work Guidelines</text>
+  </g>
+
+  <path class="flow draw fragment" pathLength="1" d="M 180 92 L 260 195"/>
+  <path class="flow draw fragment" pathLength="1" d="M 500 92 L 500 195"/>
+  <path class="flow draw fragment" pathLength="1" d="M 820 92 L 740 195"/>
+
+  <text class="cap big" x="500" y="178" text-anchor="middle" style="fill:var(--amber)">assemble_prompt()</text>
+  <rect class="card hot" x="120" y="195" width="760" height="170"/>
+
+  <g class="fragment">
+    <rect class="tag main" x="150" y="222" width="46" height="30"/>
+    <text class="tagtext" x="173" y="243">[1]</text>
+    <text class="cardtext" x="210" y="243">PTO Policy v2, excerpt</text>
+  </g>
+  <g class="fragment">
+    <rect class="tag feat" x="150" y="264" width="46" height="30"/>
+    <text class="tagtext" x="173" y="285">[2]</text>
+    <text class="cardtext" x="210" y="285">PTO Policy v1, excerpt</text>
+  </g>
+  <g class="fragment">
+    <rect class="tag head" x="150" y="306" width="46" height="30"/>
+    <text class="tagtext" x="173" y="327">[3]</text>
+    <text class="cardtext" x="210" y="327">Remote Work Guidelines, excerpt</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the "A" in RAG. `assemble_prompt()` is a plain string builder: it walks the chunk list in order and writes each one out behind a bracketed number. Nothing clever happens here, and that is the point -- the model's grounding depends on this step being completely mechanical and inspectable.
+:::
+
+---
+
+## Every excerpt is numbered, not named
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 320">
+  <g class="fragment">
+    <rect class="card" x="120" y="60" width="360" height="70" style="stroke:var(--accent)"/>
+    <text class="cardtext" x="145" y="102">Chunk: "PTO Policy v2"</text>
+  </g>
+  <path class="flow draw fragment" pathLength="1" d="M 500 95 L 560 95"/>
+  <g class="fragment">
+    <rect class="tag main" x="600" y="60" width="60" height="34"/>
+    <text class="tagtext" x="630" y="83">[1]</text>
+    <rect class="card" x="670" y="60" width="260" height="70"/>
+    <text class="cardtext" x="690" y="102">(PTO Policy v2) ...</text>
+  </g>
+  <text class="cap" x="500" y="200" text-anchor="middle">the number is the excerpt's only name inside the prompt</text>
+  <text class="note" x="500" y="240" text-anchor="middle">order of chunks in decides the order of numbers out -- nothing else does</text>
+</svg>
+```
+
+A chunk's doc title never reaches the model directly. Its `[n]` does.
+
+::: notes
+The numbering is positional, not semantic: chunk one becomes `[1]` because it is first in the list `assemble_prompt()` was handed, full stop. That is also why generation can later write `[2]` in its answer and the app can resolve it back to a real source: the mapping was fixed the moment the prompt was built.
+:::
+
+---
+
+## An instruction wraps the excerpts
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <g class="fragment">
+    <rect class="zone" x="40" y="50" width="280" height="280"/>
+    <text class="zonelabel" x="180" y="80" text-anchor="middle">PREAMBLE</text>
+    <text class="note" x="180" y="180" text-anchor="middle">the question, plus</text>
+    <text class="note" x="180" y="206" text-anchor="middle">"answer using only</text>
+    <text class="note" x="180" y="232" text-anchor="middle">the excerpts below"</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="360" y="50" width="280" height="280" style="stroke:var(--accent)"/>
+    <text class="zonelabel" x="500" y="80" text-anchor="middle" style="fill:var(--accent)">EXCERPTS</text>
+    <rect class="tag main" x="470" y="140" width="60" height="30"/>
+    <text class="tagtext" x="500" y="161">[1]</text>
+    <rect class="tag feat" x="470" y="182" width="60" height="30"/>
+    <text class="tagtext" x="500" y="203">[2]</text>
+    <rect class="tag head" x="470" y="224" width="60" height="30"/>
+    <text class="tagtext" x="500" y="245">[3]</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="680" y="50" width="280" height="280"/>
+    <text class="zonelabel" x="820" y="80" text-anchor="middle">CLOSING RULE</text>
+    <text class="note" x="820" y="180" text-anchor="middle">"cite each fact as [n].</text>
+    <text class="note" x="820" y="206" text-anchor="middle">If the excerpts don't</text>
+    <text class="note" x="820" y="232" text-anchor="middle">cover it, say so."</text>
+  </g>
+</svg>
+```
+
+::: notes
+Three zones, in this exact order in the real string: an instruction that scopes the model to the excerpts, the numbered excerpts themselves, and a closing rule that demands a citation for every claim. The closing rule is what makes cite-or-refuse enforceable downstream -- it is written directly into the prompt, not bolted on after the model answers.
+:::
+
+---
+
+## What crosses the boundary to the model
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 380">
+  <rect class="zone" x="40" y="60" width="420" height="260"/>
+  <text class="zonelabel" x="250" y="90" text-anchor="middle">EVERYTHING RAG KNOWS</text>
+  <g class="fragment">
+    <rect class="node ghost" x="80" y="120" width="150" height="55"/>
+    <text class="cardtext" x="100" y="153">corpus</text>
+  </g>
+  <g class="fragment">
+    <rect class="node ghost" x="290" y="120" width="150" height="55"/>
+    <text class="cardtext" x="315" y="153">index</text>
+  </g>
+  <g class="fragment">
+    <rect class="node ghost" x="80" y="200" width="360" height="55"/>
+    <text class="cardtext" x="100" y="233">48 chunks</text>
+  </g>
+
+  <rect class="zone" x="620" y="60" width="340" height="260" style="stroke:var(--amber)"/>
+  <text class="zonelabel" x="790" y="90" text-anchor="middle" style="fill:var(--amber)">THE MODEL</text>
+
+  <g class="fragment">
+    <path class="flow draw fragment" pathLength="1" d="M 460 250 L 640 250"/>
+    <rect class="card hot" x="660" y="220" width="260" height="60"/>
+    <text class="cardtext" x="680" y="255" style="fill:var(--amber)">the prompt string</text>
+  </g>
+
+  <text class="cap" x="500" y="355" text-anchor="middle">corpus, index, and every other chunk never cross -- only this one string does</text>
+</svg>
+```
+
+The model never sees the corpus. It never sees the index. It sees one string, built once, per question.
+
+::: notes
+This is why grounding is checkable: the model's entire universe for this answer is the literal text `assemble_prompt()` returned. Nothing else it might "know" from training can slip in through this channel, because nothing else is in the channel.
+:::
+
+<!--FB:augmentation|Augmentation: Building the Prompt-->
+
+---
+
+# Cite or Refuse {.center}
+
+::: lead
+Retrieval and augmentation hand the model a stack of excerpts. Generation is the
+last step: turn that stack into a sentence a human can trust, or say, honestly,
+that the corpus doesn't have the answer.
+:::
+
+Cite or refuse is the discipline that makes a RAG system trustworthy.
+
+::: notes
+Generation is not "the model writes whatever it wants." Every claim either
+traces to a retrieved chunk, or the system declines. There is no third option.
+This is the same demo query that ran through retrieval, hybrid search, and
+augmentation in the earlier slides, now reaching its two possible endings.
+:::
+
+---
+
+## Two ways a question can end
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <text class="note" x="255" y="55" text-anchor="middle" style="fill:var(--muted)">query: "how many days of PTO do I get"</text>
+    <rect class="card" x="60" y="80" width="390" height="260" style="stroke:var(--feat)"/>
+    <text class="zonelabel" x="255" y="112" style="fill:var(--feat)">ANSWERED</text>
+    <text class="cardtext" x="85" y="160">Full-time employees accrue 20</text>
+    <text class="cardtext" x="85" y="188">days of paid time off per year.</text>
+    <rect class="tag feat" x="85" y="212" width="34" height="26"/>
+    <text class="tagtext" x="102" y="230">[1]</text>
+    <text class="note" x="130" y="230">Paid Time Off Policy v2</text>
+    <text class="note" x="255" y="316" text-anchor="middle" style="fill:var(--feat)">score clears the refusal bar</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="745" y="55" text-anchor="middle" style="fill:var(--muted)">query: "what's the weather in Tokyo tomorrow"</text>
+    <rect class="card" x="550" y="80" width="390" height="260" style="stroke:#e06b9c"/>
+    <text class="zonelabel" x="745" y="112" style="fill:#e06b9c">REFUSED</text>
+    <text class="cardtext" x="575" y="170">"The corpus doesn't cover this</text>
+    <text class="cardtext" x="575" y="198">well enough to answer."</text>
+    <text class="note" x="745" y="316" text-anchor="middle" style="fill:#e06b9c">score never clears the bar</text>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="500" y="380">Same generator, same gate -- the evidence decides which card you land on.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Same model, same prompt template, same threshold check. The only difference
+between these two cards is what retrieval found. A well-covered question gets
+a cited sentence. A genuinely uncovered one gets an honest no.
+:::
+
+---
+
+## A citation is a pointer, not decoration
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <text class="cap big" x="500" y="90">"...accrue 20 days of paid time off per year."</text>
+    <rect class="tag feat" x="710" y="66" width="46" height="30"/>
+    <text class="tagtext" x="733" y="86">[1]</text>
+  </g>
+  <g class="fragment">
+    <path class="leader feat" d="M 733 96 L 733 210" style="stroke:var(--feat)"/>
+    <rect class="card" x="330" y="210" width="340" height="130" style="stroke:var(--feat)"/>
+    <text class="zonelabel" x="500" y="242" style="fill:var(--feat)">RETRIEVED CHUNK</text>
+    <text class="cardtext" x="352" y="278">Paid Time Off Policy v2</text>
+    <text class="note" x="352" y="306">"...accrue 20 days of paid time off..."</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="378" text-anchor="middle">[1] is a pointer, not decoration -- it names the exact chunk the sentence came from.</text>
+  </g>
+</svg>
+```
+
+::: notes
+The bracket number is not a footnote for style. It resolves back to one
+specific chunk in the index. Anyone reading the answer can walk that pointer
+and check the claim against the source themselves.
+:::
+
+---
+
+## Where the line gets drawn
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <path class="edge" style="marker-end:none;stroke:var(--edge)" d="M 100 220 L 900 220"/>
+    <text class="note" x="100" y="252">low similarity</text>
+    <text class="note" x="900" y="252" text-anchor="end">high similarity</text>
+  </g>
+  <g class="fragment">
+    <path class="leader head" d="M 196 190 L 196 250" style="stroke:var(--amber)"/>
+    <text class="cap" x="196" y="170" style="fill:var(--amber)">refusal threshold</text>
+  </g>
+  <g class="fragment">
+    <circle cx="140" cy="220" r="16" style="fill:#3a2230;stroke:#e06b9c;stroke-width:2.5"/>
+    <text class="note" x="140" y="290" text-anchor="middle" style="fill:#e06b9c">weather query: 0.00</text>
+  </g>
+  <g class="fragment">
+    <circle class="node feat" cx="580" cy="220" r="16"/>
+    <text class="note" x="580" y="290" text-anchor="middle" style="fill:var(--feat)">PTO query: 0.48</text>
+  </g>
+  <g class="fragment">
+    <text class="cap big" x="500" y="360">Below the line: refuse. Above it: cite.</text>
+  </g>
+</svg>
+```
+
+::: notes
+The gate is one number: the best similarity score retrieval returned. Set it
+too low and the model starts guessing on thin evidence. Set it too high and it
+refuses questions the corpus actually answers. The threshold is a real,
+tunable knob, not a metaphor.
+:::
+
+---
+
+## No partial credit
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="400" y="50" width="200" height="70"/>
+    <text class="cardtext" x="420" y="92">check top score</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 460 120 L 260 220"/>
+    <rect class="card" x="80" y="220" width="320" height="110" style="stroke:var(--feat)"/>
+    <text class="zonelabel" x="240" y="252" style="fill:var(--feat)">ABOVE THE BAR</text>
+    <text class="cardtext" x="105" y="292">write the answer, cite [n]</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 540 120 L 740 220"/>
+    <rect class="card" x="600" y="220" width="320" height="110" style="stroke:#e06b9c"/>
+    <text class="zonelabel" x="760" y="252" style="fill:#e06b9c">BELOW THE BAR</text>
+    <text class="cardtext" x="625" y="292">decline, honestly</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="378" text-anchor="middle">No partial credit -- an answer is either grounded, or it doesn't happen.</text>
+  </g>
+</svg>
+```
+
+::: notes
+A plain language model never has this branch -- it always produces text. Cite
+or refuse gives the system a way to say "I don't know" instead of a fluent
+guess. That one branch is the difference between a tool people can trust and
+one that merely sounds confident.
+:::
+
+<!--FB:generation|Generation: Cite or Refuse-->
+
+---
+
+# Agentic RAG: The Tool-Use Loop {.center}
+
+::: lead
+Every concept so far runs retrieval exactly once per question. An agent gets to
+check its own result first, and search again if it wasn't good enough.
+:::
+
+::: notes
+This is the last mechanical concept before evaluation. Nothing about the retrieval
+machinery changes here -- the same `.search()` from every earlier topic is still
+doing the work. What's new is a decision wrapped around it: look at the score,
+decide whether to trust it, and only pay for a second call when the first one earns it.
+:::
+
+---
+
+## One search, or two?
+
+The retrieval loop so far always asks once. An agent gets to check its own work first.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="60" y="90" width="380" height="220"/>
+    <text class="cap big" x="250" y="140" text-anchor="middle">One-shot retrieval</text>
+    <text class="note" x="250" y="185" text-anchor="middle">search once</text>
+    <text class="note" x="250" y="215" text-anchor="middle">answer immediately</text>
+    <text class="note" x="250" y="245" text-anchor="middle">no matter how weak the hit</text>
+  </g>
+  <g class="fragment">
+    <rect class="card hot" x="560" y="90" width="380" height="220"/>
+    <text class="cap big" x="750" y="140" text-anchor="middle">Agentic retrieval</text>
+    <text class="note" x="750" y="185" text-anchor="middle">search, then check the score</text>
+    <text class="note" x="750" y="215" text-anchor="middle">reformulate if it's weak</text>
+    <text class="note" x="750" y="245" text-anchor="middle">search again before answering</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="360" text-anchor="middle">The only difference: the ability to look at its own result and try again.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Topics so far (retrieval through generation) are one fixed pass: embed the query, pull the top chunks, answer. An agent wraps that same search_corpus function as a tool it can call, inspect, and call again -- the retrieval machinery underneath doesn't change, only who decides when to stop.
+:::
+
+---
+
+## The decision loop
+
+One tool call, one confidence check, and a fork: answer now, or search again first.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="node" x="40" y="140" width="170" height="90"/>
+    <text class="cap" x="125" y="192" text-anchor="middle">question</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 210 185 L 278 185"/>
+    <text class="note" x="245" y="165" text-anchor="middle">call</text>
+    <rect class="node feat" x="280" y="140" width="230" height="90"/>
+    <text class="cap" x="395" y="192" text-anchor="middle">search_corpus</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 510 185 L 588 185"/>
+    <text class="note" x="550" y="165" text-anchor="middle">check</text>
+    <polygon class="node" points="680,110 770,185 680,260 590,185"/>
+    <text class="cap" x="680" y="190" text-anchor="middle">confident?</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 770 185 L 828 185"/>
+    <text class="note" x="800" y="165" text-anchor="middle">yes</text>
+    <rect class="node" x="830" y="140" width="140" height="90"/>
+    <text class="cap" x="900" y="192" text-anchor="middle">answer</text>
+  </g>
+  <g class="fragment">
+    <path class="flow draw fragment" pathLength="1" d="M 680 260 C 680 335, 395 335, 395 232"/>
+    <text class="note" x="540" y="355" text-anchor="middle">no -> reformulate, search_corpus again</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is run_agent(): a scripted loop, not a free-ranging agent. It calls search_corpus once, and only takes the loop-back edge if the top score comes back under 0.2. The retry is capped at exactly one -- there's no path back through the diamond a second time, so this can never turn into an unbounded search spiral.
+:::
+
+---
+
+## A real trace
+
+The question: "what's up with the database when it just kind of goes down." Vague on purpose.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="60" y="50" width="880" height="110"/>
+    <text class="cardtext" x="90" y="95">search_corpus("what's up with the database ... goes down")</text>
+    <text class="note" x="90" y="130">-> top: On-call Runbook: Database Outage v2, score 0.176</text>
+    <text class="note" x="90" y="152" style="fill:var(--amber)">0.176 < 0.2 -> not confident, reformulate</text>
+  </g>
+  <g class="fragment">
+    <rect class="card hot" x="60" y="200" width="880" height="110"/>
+    <text class="cardtext" x="90" y="245">search_corpus("what's with database ... goes down")</text>
+    <text class="note" x="90" y="280">-> top: On-call Runbook: Database Outage v2, score 0.176</text>
+    <text class="note" x="90" y="302">same top doc, same score -- the reformulation confirmed it, not changed it</text>
+  </g>
+  <g class="fragment">
+    <text class="cap" x="500" y="360" text-anchor="middle">finish: "If the primary database is unreachable, page the database on-call immediately. [1]"</text>
+  </g>
+</svg>
+```
+
+::: notes
+DEMO_QUERY_WEAK ("what happens during a database outage") was the first thing tried here, and despite the name it scores 0.212 -- just over the 0.2 bar, so it never triggers a second call. This awkward, filler-heavy phrasing is what actually pushes the first score under threshold. Both calls land on the same document in this case; the reformulation didn't need to find something new, it just had to clear the confidence bar.
+:::
+
+---
+
+## How the rewrite happens
+
+The reformulation is a word filter, not a rewrite from scratch: drop anything four letters or shorter.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="60" y="70" width="880" height="120"/>
+    <text class="cardtext" x="90" y="140" xml:space="preserve"><tspan>what's </tspan><tspan style="fill:var(--muted);text-decoration:line-through">up </tspan><tspan>with </tspan><tspan style="fill:var(--muted);text-decoration:line-through">the </tspan><tspan>database when </tspan><tspan style="fill:var(--muted);text-decoration:line-through">it </tspan><tspan>just kind </tspan><tspan style="fill:var(--muted);text-decoration:line-through">of </tspan><tspan>goes down</tspan></text>
+    <text class="note" x="90" y="175">grey + struck: words of length 3 or less</text>
+  </g>
+  <g class="fragment">
+    <path class="edge" d="M 500 190 L 500 235"/>
+    <rect class="card hot" x="60" y="245" width="880" height="90"/>
+    <text class="cardtext" x="90" y="298">what's with database when just kind goes down</text>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="370" text-anchor="middle">A real agent would rewrite with an LLM call. This toy loop keeps it deterministic on purpose, so the figure is exactly reproducible.</text>
+  </g>
+</svg>
+```
+
+::: notes
+The rule is literally `" ".join(w for w in question.split() if len(w) > 3)`. It has nothing to do with meaning -- it just strips short filler words, the same words a person trims when repeating themselves more plainly. It's a stand-in for what a real agent's reformulation step does conceptually, kept simple so the trace stays deterministic and checkable.
+:::
+
+---
+
+## Not blind repetition
+
+The agent only pays for a second search when the first one earns it.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="zone" x="30" y="30" width="940" height="150"/>
+    <text class="zonelabel" x="500" y="55" text-anchor="middle">CONFIDENT ON THE FIRST TRY -- ONE CALL</text>
+    <rect class="node" x="60" y="80" width="150" height="70"/>
+    <text class="cap" x="135" y="122" text-anchor="middle">question</text>
+    <path class="edge" d="M 210 115 L 268 115"/>
+    <rect class="node" x="270" y="80" width="220" height="70"/>
+    <text class="cap" x="380" y="122" text-anchor="middle">search_corpus</text>
+    <path class="edge" d="M 490 115 L 548 115"/>
+    <rect class="node" x="550" y="80" width="150" height="70"/>
+    <text class="cap" x="625" y="122" text-anchor="middle">answer</text>
+    <text class="note" x="850" y="122" text-anchor="middle">score 0.212</text>
+  </g>
+  <g class="fragment">
+    <rect class="zone" x="30" y="210" width="940" height="170"/>
+    <text class="zonelabel" x="500" y="235" text-anchor="middle">WEAK ON THE FIRST TRY -- TWO CALLS</text>
+    <rect class="node" x="60" y="260" width="130" height="70"/>
+    <text class="cap" x="125" y="302" text-anchor="middle">question</text>
+    <path class="edge" d="M 190 295 L 238 295"/>
+    <rect class="node" x="240" y="260" width="190" height="70"/>
+    <text class="cap" x="335" y="302" text-anchor="middle">search_corpus</text>
+    <path class="edge" d="M 430 295 L 478 295"/>
+    <rect class="node feat" x="480" y="260" width="190" height="70"/>
+    <text class="cap" x="575" y="302" text-anchor="middle">search again</text>
+    <path class="edge" d="M 670 295 L 718 295"/>
+    <rect class="node" x="720" y="260" width="130" height="70"/>
+    <text class="cap" x="785" y="302" text-anchor="middle">answer</text>
+    <text class="note" x="920" y="302" text-anchor="middle">0.176</text>
+  </g>
+</svg>
+```
+
+::: notes
+Same corpus, same k, same code path -- the only thing that changes the shape of the trace is the confidence of the first hit. That's the actual point of the design: an agent that searched twice on every question would double its latency and cost for no benefit on the questions it already nailed. Gating the retry on a real threshold means the expensive path only runs when it's earning its keep.
+:::
+
+<!--FB:agentic-rag|Agentic RAG: The Tool-Use Loop-->
+
+---
+
+# Evaluation: How You Know It's Working {.center}
+
+::: lead
+A demo can look convincing and still be wrong. The only way to trust a RAG
+system is to run it against questions with known answers, and grade it
+honestly.
+:::
+
+Every concept so far -- chunking, retrieval, hybrid search, reranking,
+generation -- is a design choice. Evaluation is how you find out whether
+those choices actually work.
+
+::: notes
+This is the closing concept of the deck. Nothing built so far should be
+trusted just because it looks reasonable in a one-off demo. A real
+evaluation is a fixed, repeatable question set with a known correct answer
+for each question, run automatically every time the pipeline changes.
+:::
+
+---
+
+## A frozen set of questions, each with a known answer
+
+Write down real questions a user would ask, then name the one document that
+actually answers each. Freeze the list. Score every future change against
+it, unchanged.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="40" y="30" width="560" height="60"/>
+    <text class="cardtext" x="66" y="67">"parental leave weeks"</text>
+    <path class="edge" d="M 610 60 L 700 60"/>
+    <rect class="card" x="710" y="30" width="250" height="60"/>
+    <text class="cardtext" x="734" y="67" style="font-size:13px">hr-06 &middot; Parental Leave Policy</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="40" y="110" width="560" height="60"/>
+    <text class="cardtext" x="66" y="147">"code review pull request size"</text>
+    <path class="edge" d="M 610 140 L 700 140"/>
+    <rect class="card" x="710" y="110" width="250" height="60"/>
+    <text class="cardtext" x="734" y="147" style="font-size:13px">eng-08 &middot; Code Review Guidelines</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="40" y="190" width="560" height="60"/>
+    <text class="cardtext" x="66" y="227">"aurora vault encryption key rotation"</text>
+    <path class="edge" d="M 610 220 L 700 220"/>
+    <rect class="card" x="710" y="190" width="250" height="60"/>
+    <text class="cardtext" x="734" y="227" style="font-size:13px">prod-08 &middot; Aurora Vault Encryption</text>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="40" y="290" width="560" height="60" style="stroke:var(--muted); stroke-dasharray:6 5"/>
+    <text class="cardtext" x="66" y="327">"what is the meaning of life"</text>
+    <path class="edge" d="M 610 320 L 700 320" style="stroke-dasharray:6 5"/>
+    <rect class="card" x="710" y="290" width="250" height="60" style="stroke:var(--muted); stroke-dasharray:6 5"/>
+    <text class="cardtext" x="734" y="315" style="font-size:12px">no such document</text>
+    <text class="cardtext" x="734" y="333" style="font-size:12px">exists -- on purpose</text>
+  </g>
+</svg>
+```
+
+::: notes
+Three of the four questions have a real answer in the corpus. The fourth is
+deliberately unanswerable -- it belongs in the set for exactly the same
+reason as the other three, to check what the system does, not just whether
+it sounds confident.
+:::
+
+---
+
+## Recall@k is a looser bar than faithful
+
+Recall@k asks whether the right document is anywhere in the top few
+results. Faithful asks a stricter question -- is it the very top hit, with a
+real similarity score worth trusting.
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <circle class="zone" cx="280" cy="200" r="150"/>
+    <circle class="zone" cx="280" cy="200" r="100"/>
+    <circle class="zone" cx="280" cy="200" r="50"/>
+    <circle cx="280" cy="140" r="9" fill="var(--accent)"/>
+    <text class="cap" x="280" y="370">recall@5</text>
+    <text class="note" x="280" y="392" text-anchor="middle" style="font-size:13px">right doc lands anywhere in the top 5</text>
+  </g>
+  <g class="fragment">
+    <circle class="zone" cx="720" cy="200" r="150"/>
+    <circle class="zone" cx="720" cy="200" r="100"/>
+    <circle class="zone" cx="720" cy="200" r="50"/>
+    <circle cx="720" cy="200" r="9" fill="var(--feat)"/>
+    <text class="cap" x="720" y="370">faithful</text>
+    <text class="note" x="720" y="392" text-anchor="middle" style="font-size:13px">right doc is the #1 hit, above threshold</text>
+  </g>
+</svg>
+```
+
+::: notes
+A pipeline can pass recall@k and still be untrustworthy at the top. The
+right document is in the list, but something else outranks it -- and that
+is what actually gets cited. Faithful is the harder, more honest bar.
+:::
+
+---
+
+## Running it for real
+
+```{=html}
+<svg class="ragfig" viewBox="0 0 1000 400">
+  <g class="fragment">
+    <rect class="card" x="60" y="20" width="620" height="56"/>
+    <text class="cardtext" x="86" y="55">"parental leave weeks"</text>
+    <circle cx="820" cy="48" r="24" fill="none" stroke="var(--feat)" stroke-width="4"/>
+    <path d="M 808,48 L 817,58 L 834,36" fill="none" stroke="var(--feat)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="60" y="100" width="620" height="56"/>
+    <text class="cardtext" x="86" y="135">"code review pull request size"</text>
+    <circle cx="820" cy="128" r="24" fill="none" stroke="var(--feat)" stroke-width="4"/>
+    <path d="M 808,128 L 817,138 L 834,116" fill="none" stroke="var(--feat)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="60" y="180" width="620" height="56"/>
+    <text class="cardtext" x="86" y="215">"aurora vault encryption key rotation"</text>
+    <circle cx="820" cy="208" r="24" fill="none" stroke="var(--feat)" stroke-width="4"/>
+    <path d="M 808,208 L 817,218 L 834,196" fill="none" stroke="var(--feat)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g class="fragment">
+    <rect class="card" x="60" y="260" width="620" height="56" style="stroke:#e06b9c"/>
+    <text class="cardtext" x="86" y="295">"what is the meaning of life"</text>
+    <circle cx="820" cy="288" r="24" fill="none" stroke="#e06b9c" stroke-width="4"/>
+    <path d="M 808,276 L 832,300 M 832,276 L 808,300" stroke="#e06b9c" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g class="fragment">
+    <text class="note" x="500" y="360" text-anchor="middle">The one X is not a defect. It is the system correctly saying it does not know.</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is a real run of the real toy pipeline against these four frozen
+questions. Three pass recall and faithful together. The fourth fails both,
+on purpose -- there is no document in this corpus about the meaning of life,
+and the honest answer is to say so, not to guess from the nearest chunk.
+:::
+
+---
+
+## Back to where this deck started
+
+A plain language model would have answered the meaning-of-life question
+anyway, fluently and with no warning that it was guessing. This system
+checks itself against real evidence first. It only speaks when it has some.
+
+---
+
+<!--FB:evaluation|Evaluation: How You Know It Works-->
