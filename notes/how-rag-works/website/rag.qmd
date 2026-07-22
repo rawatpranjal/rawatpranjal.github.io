@@ -2073,7 +2073,7 @@ The question: "what's up with the database when it just kind of goes down." Vagu
     <rect class="card" x="60" y="50" width="880" height="110"/>
     <text class="cardtext" x="90" y="95">search_corpus("what's up with the database ... goes down")</text>
     <text class="note" x="90" y="130">-> top: On-call Runbook: Database Outage v2, score 0.176</text>
-    <text class="note" x="90" y="152" style="fill:var(--amber)">0.176 < 0.2 -> not confident, reformulate</text>
+    <text class="note" x="90" y="152" style="fill:var(--amber)">0.176 &lt; 0.2 -> not confident, reformulate</text>
   </g>
   <g class="fragment">
     <rect class="card hot" x="60" y="200" width="880" height="110"/>
