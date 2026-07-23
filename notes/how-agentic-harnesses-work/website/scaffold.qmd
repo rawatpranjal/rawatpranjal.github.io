@@ -191,7 +191,7 @@ Anthropic, Effective harnesses for long-running agents (2025)
 ::: notes
 The quote is verbatim from the keystone source. The shift-worker frame is
 the single most useful mental model in the deck: every harness component
-is something you would also build for human shift workers -- a logbook, a
+is something you would also build for human shift workers - a logbook, a
 task board, a test suite, a door that locks.
 :::
 
@@ -213,7 +213,7 @@ Every figure ahead is a photograph of one real, executing system: a tiny Python 
     <rect class="node" x="380" y="100" width="240" height="130" rx="12"/>
     <text class="cap big" x="500" y="160">tinyharness</text>
     <text class="note" x="500" y="195" text-anchor="middle" style="font-size:13px">loop, tools, hooks, skills,</text>
-    <text class="note" x="500" y="213" text-anchor="middle" style="font-size:13px">MCP, compaction, git -- all real</text>
+    <text class="note" x="500" y="213" text-anchor="middle" style="font-size:13px">MCP, compaction, git - all real</text>
   </g>
   <g class="fragment pop" data-fragment-index="3">
     <rect class="card ok" x="690" y="120" width="250" height="90"/>
@@ -854,6 +854,63 @@ Existence proofs: a C compiler built over ~2,000 fresh sessions, each reading th
 ::: {.src}
 Quote: Geoffrey Huntley, the Ralph technique · docs/long-running-agents-research.md · Anthropic, Long-running Claude for scientific computing
 :::
+
+---
+
+# Coda · Beyond the Toy {.center}
+
+---
+
+## Meet Smolagents
+
+Every loop in this deck was hand-built to be photographed. The same shape also runs inside a real, open-source library.
+
+::: {.def-box}
+**Smolagents:** a lightweight, open-source Python agent library from Hugging Face. Give a `ToolCallingAgent` a model and a list of tools. It runs the same loop tinyharness hand-built, for real.
+:::
+
+---
+
+<!--FB:smolagents-real|tinyharness, Meet Smolagents-->
+
+---
+
+## The same loop, for real
+
+Every frame above is smolagents' own `ToolCallingAgent` running. Real `ToolCall` and `ToolOutput` objects, real `agent.memory.steps`, produced by the library itself, not by this deck. Only the model's one answer per turn is scripted, the same honesty contract as tinyharness itself.
+
+::: {.key-idea}
+The loop tinyharness hand-built is the same loop a real lightweight framework runs. The model proposes an action, the framework parses a real tool call, the real tool executes, and the observation lands back in context. Same ORIENT, ACT, CHECK, RECORD lap as Part 1.
+:::
+
+---
+
+## Beyond the toy
+
+tinyharness stays small on purpose. The real ecosystem has a few names worth knowing.
+
+::: {.def-box}
+**Mem0:** an open-source memory layer for agents. It gives a session persistent, cross-session memory in a real store, the same job Part 4's disk-backed memory.md does by hand. Named here, not run in this deck.
+:::
+
+---
+
+## Where this shape shows up
+
+::::: {.taxonomy style="--cols:3"}
+::: cat
+<h4>tinyharness</h4>
+This deck's own hand-built harness. Every part exposed, nothing hidden, built to teach the shape.
+:::
+::: cat
+<h4>Smolagents</h4>
+A real, lightweight, code-first agent library. A `ToolCallingAgent` or `CodeAgent` in a few lines, the same loop, production-real.
+:::
+::: cat
+<h4>AutoGen + CrewAI</h4>
+Heavier multi-agent frameworks. Many agents, roles, and conversations coordinated for you, more machinery, more to configure.
+:::
+:::::
 
 ---
 
