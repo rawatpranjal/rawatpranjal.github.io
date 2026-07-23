@@ -1,0 +1,1080 @@
+---
+title: "How Agentic Harnesses Work, Visually"
+subtitle: "The machinery around the model: loops, tools, hooks, skills, MCP, memory, and agents that run for days"
+author: "Pranjal Rawat"
+format:
+  revealjs:
+    theme: black
+    transition: fade
+    background-transition: fade
+    incremental: false
+    slide-number: c/t
+    controls: true
+    progress: true
+    width: 1200
+    height: 720
+    margin: 0.055
+    center: true
+    navigation-mode: linear
+---
+
+```{=html}
+<style>
+:root {
+  --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
+  --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114; --pink: #e06b9c;
+  --violet: #b19cf5;
+}
+.reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
+.reveal h1, .reveal h2, .reveal h3 { color: var(--fg); font-weight: 700; letter-spacing: -0.5px; text-transform: none; }
+.reveal h2 { font-size: 1.55em; border-bottom: 2px solid var(--rule); padding-bottom: 0.25em; margin-bottom: 0.5em; }
+.reveal a { color: var(--accent); }
+.reveal .slide-number { background: none; color: var(--muted); }
+.reveal .footer, .reveal .slide-number { font-size: 12px; }
+.reveal strong { color: var(--accent); }
+.reveal em { color: var(--sub); font-style: italic; }
+.reveal .subtle { color: var(--sub); font-size: 0.8em; }
+.reveal .src { color: var(--muted); font-size: 0.55em; margin-top: 0.8em; }
+.reveal .lead { font-size: 1.15em; line-height: 1.5; }
+.reveal code { color: var(--feat); background: rgba(124,176,222,0.08); padding: 1px 6px; border-radius: 4px; }
+.reveal section img { background: none; border: none; box-shadow: none; }
+/* SVG shared visual language */
+.fig { width: 100%; height: auto; max-height: 62vh; display: block; margin: 0 auto; }
+.node { fill: var(--node); stroke: var(--accent); stroke-width: 2.5; }
+.node.feat { stroke: var(--feat); }
+.node.hot { fill: #3a2f14; stroke: var(--amber); }
+.node.ghost { fill: #191c20; stroke: var(--edge); }
+.node.bad { stroke: var(--pink); }
+.cap { fill: var(--fg); font: 16px -apple-system, sans-serif; text-anchor: middle; }
+.cap.big { font-size: 21px; font-weight: 600; }
+.zonelabel { fill: var(--muted); font: 600 14px -apple-system, sans-serif; letter-spacing: 1.5px; text-anchor: middle; }
+.edge { stroke: var(--edge); stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+.flow { stroke: var(--accent); stroke-width: 2.5; fill: none; marker-end: url(#arrowA); stroke-dasharray: 6 5; }
+.zone { fill: none; stroke: var(--rule); stroke-width: 1.5; rx: 12; }
+.card { fill: var(--node); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
+.card.hot { stroke: var(--amber); }
+.card.ok { stroke: var(--feat); }
+.card.bad { stroke: var(--pink); }
+.cardtext { fill: var(--fg); font: 15px ui-monospace, monospace; }
+.note { fill: var(--sub); font: 15px -apple-system, sans-serif; }
+.reveal .fragment.grow-in { opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
+.reveal .fragment.grow-in.visible { opacity: 1; transform: scale(1); }
+/* draw-on edges */
+.edge.draw, .flow.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.reveal .fragment.visible .edge.draw,
+.reveal .fragment.visible .flow.draw,
+.reveal .edge.draw.fragment.visible,
+.reveal .flow.draw.fragment.visible { animation: gv-draw 0.55s ease both; }
+@keyframes gv-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6472"/>
+    </marker>
+    <marker id="arrowA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7cb0de"/>
+    </marker>
+  </defs>
+</svg>
+```
+
+# One model, one shot {.center}
+
+::: lead
+A language model is astonishing for an hour and helpless over a week. It
+forgets everything between sessions, grades its own homework, and stops
+when the transcript looks finished, not when the work is.
+:::
+
+The harness is everything built around the model to fix that.
+
+::: notes
+This deck is about the machinery, not the model: the loop, the tools, the
+hooks, the skills, MCP, the memory files, and the multi-session engines
+that let an agent work for days. The sibling decks cover git and RAG; this
+one covers the thing that runs them.
+:::
+
+---
+
+## Ask for too much
+
+One prompt, one model, twelve features. The model gets a single forward pass at a time, and a context window that does not grow with the job.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="40" y="150" width="300" height="100"/>
+    <text class="cardtext" x="62" y="185">"build todo.py with</text>
+    <text class="cardtext" x="62" y="210">all 12 features in</text>
+    <text class="cardtext" x="62" y="235">feature_list.json"</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 340 200 L 425 200"/>
+  <text class="note fragment" data-fragment-index="2" x="383" y="180" text-anchor="middle">one shot</text>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="430" y="160" width="200" height="80" rx="10"/>
+    <text class="cap" x="530" y="205">the model</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 630 200 L 715 200"/>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card bad" x="720" y="150" width="240" height="100"/>
+    <text class="cardtext" x="742" y="185" style="fill:var(--pink)">5 features built,</text>
+    <text class="cardtext" x="742" y="210" style="fill:var(--pink)">1 half-written,</text>
+    <text class="cardtext" x="742" y="235" style="fill:var(--pink)">context full</text>
+  </g>
+  <g class="fragment" data-fragment-index="4">
+    <text class="cap big" x="500" y="330">The task is bigger than any single context window</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the founding problem of the whole field: real work outlasts one
+context. Everything in this deck follows from taking that seriously.
+:::
+
+---
+
+## Shift workers with amnesia
+
+Long work means many sessions. Anthropic's harness paper puts it plainly: each new session *"begins with no memory of what came before."*
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="zone" x="60" y="70" width="260" height="180"/>
+    <text class="zonelabel" x="190" y="100">SESSION 1</text>
+    <circle class="node" cx="190" cy="160" r="34"/>
+    <text class="note" x="190" y="225" text-anchor="middle">starts blank</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="zone" x="370" y="70" width="260" height="180"/>
+    <text class="zonelabel" x="500" y="100">SESSION 2</text>
+    <circle class="node" cx="500" cy="160" r="34"/>
+    <text class="note" x="500" y="225" text-anchor="middle">starts blank, again</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="zone" x="680" y="70" width="260" height="180"/>
+    <text class="zonelabel" x="810" y="100">SESSION 3</text>
+    <circle class="node" cx="810" cy="160" r="34"/>
+    <text class="note" x="810" y="225" text-anchor="middle">and again</text>
+  </g>
+  <g class="fragment" data-fragment-index="4">
+    <text class="cap big" x="500" y="330">A project staffed by engineers on shifts,</text>
+    <text class="cap big" x="500" y="360">where nobody remembers the last shift</text>
+  </g>
+</svg>
+```
+
+::: {.src}
+Anthropic, Effective harnesses for long-running agents (2025)
+:::
+
+::: notes
+The quote is verbatim from the keystone source. The shift-worker frame is
+the single most useful mental model in the deck: every harness component
+is something you would also build for human shift workers -- a logbook, a
+task board, a test suite, a door that locks.
+:::
+
+---
+
+## Meet tinyharness
+
+Every figure ahead is a photograph of one real, executing system: a tiny Python harness wrapping a scripted model, building a real CLI app from a real 12-item feature list, with a real test suite as the judge.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="60" y="120" width="250" height="90"/>
+    <text class="cardtext" x="82" y="152">scripted model</text>
+    <text class="note" x="82" y="182" text-anchor="start" style="font-size:13px">a lookup table of turns,</text>
+    <text class="note" x="82" y="200" text-anchor="start" style="font-size:13px">so every run replays exactly</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="380" y="100" width="240" height="130" rx="12"/>
+    <text class="cap big" x="500" y="160">tinyharness</text>
+    <text class="note" x="500" y="195" text-anchor="middle" style="font-size:13px">loop, tools, hooks, skills,</text>
+    <text class="note" x="500" y="213" text-anchor="middle" style="font-size:13px">MCP, compaction, git -- all real</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card ok" x="690" y="120" width="250" height="90"/>
+    <text class="cardtext" x="712" y="152">todo.py + tests</text>
+    <text class="note" x="712" y="182" text-anchor="start" style="font-size:13px">12 features, unittest as</text>
+    <text class="note" x="712" y="200" text-anchor="start" style="font-size:13px">the oracle, real git commits</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 310 165 L 375 165"/>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 620 165 L 685 165"/>
+  <g class="fragment" data-fragment-index="4">
+    <text class="cap big" x="500" y="320">The model's words are scripted. Everything else executes.</text>
+    <text class="note" x="500" y="355" text-anchor="middle">Files really written, tests really run, hooks really block, commits really land. Nothing is a mockup.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Same honesty contract as the sibling decks: the RAG deck runs a real toy
+corpus, the git deck drives a real repository, this deck runs a real toy
+harness. The one scripted part is the model's dialogue, which is what
+makes every run reproducible and every figure assertable by code.
+:::
+
+---
+
+
+# The Problem
+
+## The Problem {auto-animate=true}
+
+![](assets/the-problem/step-01.png){fig-align="center"}
+
+## The Problem {auto-animate=true}
+
+![](assets/the-problem/step-02.png){fig-align="center"}
+
+## The Problem {auto-animate=true}
+
+![](assets/the-problem/step-03.png){fig-align="center"}
+
+## The Problem {auto-animate=true}
+
+![](assets/the-problem/step-04.png){fig-align="center"}
+
+## The Problem {auto-animate=true}
+
+![](assets/the-problem/step-05.png){fig-align="center"}
+
+---
+
+# Part 1 · The Loop {.center}
+
+::: lead
+Start from the atom. A model call is a pure function of its context. Tools
+give it hands. The loop gives it persistence.
+:::
+
+::: {.src}
+Grounding: docs/long-running-agents-research.md · autonomous-loop-patterns.md
+:::
+
+---
+
+
+# One Call, One Context
+
+## One Call, One Context {auto-animate=true}
+
+![](assets/one-call-one-context/step-01.png){fig-align="center"}
+
+## One Call, One Context {auto-animate=true}
+
+![](assets/one-call-one-context/step-02.png){fig-align="center"}
+
+## One Call, One Context {auto-animate=true}
+
+![](assets/one-call-one-context/step-03.png){fig-align="center"}
+
+## One Call, One Context {auto-animate=true}
+
+![](assets/one-call-one-context/step-04.png){fig-align="center"}
+
+---
+
+
+# Tools Close the Loop
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-01.png){fig-align="center"}
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-02.png){fig-align="center"}
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-03.png){fig-align="center"}
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-04.png){fig-align="center"}
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-05.png){fig-align="center"}
+
+## Tools Close the Loop {auto-animate=true}
+
+![](assets/tools-close-the-loop/step-06.png){fig-align="center"}
+
+---
+
+
+# The Agent Loop
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-01.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-02.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-03.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-04.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-05.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-06.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-07.png){fig-align="center"}
+
+## The Agent Loop {auto-animate=true}
+
+![](assets/the-agent-loop/step-08.png){fig-align="center"}
+
+---
+
+## Anatomy of every harness
+
+Strip away the branding and every long-running harness has the same six parts. The rest of this deck colors them in.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 480">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card hot" x="360" y="330" width="280" height="90"/>
+    <text class="cardtext" x="384" y="365">the disk</text>
+    <text class="note" x="384" y="395" style="font-size:13px">files, git, the task board</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="60" y="90" width="220" height="80" rx="10"/>
+    <text class="cap" x="170" y="125">driver loop</text>
+    <text class="note" x="170" y="152" text-anchor="middle" style="font-size:13px">spawns sessions, holds the budget</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="node" x="390" y="90" width="220" height="80" rx="10"/>
+    <text class="cap" x="500" y="125">fresh worker</text>
+    <text class="note" x="500" y="152" text-anchor="middle" style="font-size:13px">new context every session</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="node feat" x="720" y="90" width="220" height="80" rx="10"/>
+    <text class="cap" x="830" y="125">verifier</text>
+    <text class="note" x="830" y="152" text-anchor="middle" style="font-size:13px">fresh eyes, reruns the oracle</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="5">
+    <rect class="node" x="130" y="220" width="220" height="70" rx="10"/>
+    <text class="cap" x="240" y="250">stop control</text>
+    <text class="note" x="240" y="275" text-anchor="middle" style="font-size:13px">budgets, strikes, Ralph checks</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="6">
+    <rect class="node" x="650" y="220" width="220" height="70" rx="10"/>
+    <text class="cap" x="760" y="250">human gate</text>
+    <text class="note" x="760" y="275" text-anchor="middle" style="font-size:13px">approvals, irreversible steps</text>
+  </g>
+  <path class="edge draw fragment" data-fragment-index="7" pathLength="1" d="M 250 170 L 450 330"/>
+  <path class="edge draw fragment" data-fragment-index="7" pathLength="1" d="M 500 170 L 500 325"/>
+  <path class="edge draw fragment" data-fragment-index="7" pathLength="1" d="M 790 170 L 570 335"/>
+  <g class="fragment" data-fragment-index="7">
+    <text class="cap big" x="500" y="465">Every part reads and writes ONE shared thing: the disk</text>
+  </g>
+</svg>
+```
+
+::: {.src}
+Synthesis of ~35 public sources: Anthropic engineering, Cursor, Osmani, Huntley, 12-factor agents
+:::
+
+::: notes
+The survey doc behind this slide read across every public long-running
+harness it could find; these six parts appear in essentially all of them.
+The disk being the hub, not any process, is the load-bearing fact.
+:::
+
+---
+
+# Part 2 · Feeding the Context {.center}
+
+::: lead
+The context window is the model's entire universe, and it is small. Skills,
+retrieval, and MCP are three disciplines for filling it with the right
+things at the right time.
+:::
+
+---
+
+
+# Skills Load On Demand
+
+## Skills Load On Demand {auto-animate=true}
+
+![](assets/skills-load-on-demand/step-01.png){fig-align="center"}
+
+## Skills Load On Demand {auto-animate=true}
+
+![](assets/skills-load-on-demand/step-02.png){fig-align="center"}
+
+## Skills Load On Demand {auto-animate=true}
+
+![](assets/skills-load-on-demand/step-03.png){fig-align="center"}
+
+## Skills Load On Demand {auto-animate=true}
+
+![](assets/skills-load-on-demand/step-04.png){fig-align="center"}
+
+## Skills Load On Demand {auto-animate=true}
+
+![](assets/skills-load-on-demand/step-05.png){fig-align="center"}
+
+---
+
+
+# RAG, in One Breath
+
+## RAG, in One Breath {auto-animate=true}
+
+![](assets/rag-in-one-breath/step-01.png){fig-align="center"}
+
+## RAG, in One Breath {auto-animate=true}
+
+![](assets/rag-in-one-breath/step-02.png){fig-align="center"}
+
+## RAG, in One Breath {auto-animate=true}
+
+![](assets/rag-in-one-breath/step-03.png){fig-align="center"}
+
+---
+
+## The full RAG story is its own deck
+
+Chunking, embeddings as geometry, hybrid search, reranking, cite-or-refuse. All of it, slowly, over a real corpus.
+
+[How RAG Works, Visually →](../../how-rag-works/website/rag.html)
+
+---
+
+
+# MCP, the Universal Port
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-01.png){fig-align="center"}
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-02.png){fig-align="center"}
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-03.png){fig-align="center"}
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-04.png){fig-align="center"}
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-05.png){fig-align="center"}
+
+## MCP, the Universal Port {auto-animate=true}
+
+![](assets/mcp-the-universal-port/step-06.png){fig-align="center"}
+
+---
+
+# Part 3 · The Guardrails {.center}
+
+::: lead
+Why not just tell the model the rules? Because prose competes with
+everything else in the column, and the model is graded on looking right.
+:::
+
+---
+
+## Why the model can't grade itself
+
+One forward pass optimizes toward *looks approved*, not *is correct*. Four root causes, all structural, none fixable by asking nicely.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 440">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="node" x="80" y="60" width="200" height="80" rx="10"/>
+    <text class="cap" x="180" y="95">one forward</text>
+    <text class="cap" x="180" y="120">pass</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="1" pathLength="1" d="M 280 100 L 680 100"/>
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card hot" x="690" y="65" width="250" height="70"/>
+    <text class="cardtext" x="712" y="95" style="fill:var(--amber)">"looks approved"</text>
+    <text class="note" x="712" y="120" style="font-size:13px">not "is correct"</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card" x="60" y="200" width="200" height="90"/>
+    <text class="cardtext" x="78" y="232" style="font-size:13px">turn boundary is</text>
+    <text class="cardtext" x="78" y="252" style="font-size:13px">a one-way membrane</text>
+    <text class="note" x="78" y="276" style="font-size:12px">no going back to check</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card" x="290" y="200" width="200" height="90"/>
+    <text class="cardtext" x="308" y="232" style="font-size:13px">the preference</text>
+    <text class="cardtext" x="308" y="252" style="font-size:13px">prior</text>
+    <text class="note" x="308" y="276" style="font-size:12px">trained to please</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="card" x="520" y="200" width="200" height="90"/>
+    <text class="cardtext" x="538" y="232" style="font-size:13px">the verification</text>
+    <text class="cardtext" x="538" y="252" style="font-size:13px">gap</text>
+    <text class="note" x="538" y="276" style="font-size:12px">claiming is cheaper than checking</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="5">
+    <rect class="card" x="750" y="200" width="200" height="90"/>
+    <text class="cardtext" x="768" y="232" style="font-size:13px">per-turn</text>
+    <text class="cardtext" x="768" y="252" style="font-size:13px">statelessness</text>
+    <text class="note" x="768" y="276" style="font-size:12px">no memory of its own promises</text>
+  </g>
+  <g class="fragment" data-fragment-index="6">
+    <text class="cap big" x="500" y="365">"Done" is not a report of a verified state.</text>
+    <text class="cap big" x="500" y="398">It is the most probable continuation of a transcript that looks finished.</text>
+  </g>
+</svg>
+```
+
+::: {.src}
+docs/why-root-cause-2026-06-24.md, "Why the agent keeps making these mistakes"
+:::
+
+::: notes
+The punchline is verbatim from the root-cause doc. This is the theory beat
+of the deck; everything in Part 3 and Part 5 is a countermeasure to one of
+these four causes.
+:::
+
+---
+
+## Gates, not prose
+
+A rule written in the context ages, drifts, and competes with everything else there. A rule wired as code fires exactly when it applies, every time.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="zone" x="60" y="60" width="400" height="270"/>
+    <text class="zonelabel" x="260" y="90">RULE AS PROSE</text>
+    <rect class="card" x="90" y="110" width="340" height="45"/>
+    <text class="cardtext" x="110" y="138" style="font-size:13px">"please never touch .env"</text>
+    <rect class="card ghost" x="90" y="165" width="340" height="30" style="opacity:0.7"/>
+    <rect class="card ghost" x="90" y="203" width="340" height="30" style="opacity:0.5"/>
+    <rect class="card ghost" x="90" y="241" width="340" height="30" style="opacity:0.3"/>
+    <text class="note" x="260" y="310" text-anchor="middle">buried, compacted away, or just ignored</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="zone" x="540" y="60" width="400" height="270"/>
+    <text class="zonelabel" x="740" y="90">RULE AS GATE</text>
+    <rect class="node" x="580" y="130" width="140" height="60" rx="10"/>
+    <text class="cap" x="650" y="165">tool call</text>
+    <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 720 160 L 790 160"/>
+    <g class="fragment pop" data-fragment-index="3">
+      <rect class="card bad" x="795" y="130" width="110" height="60"/>
+      <text class="cardtext" x="815" y="165" style="fill:var(--pink)">DENIED</text>
+    </g>
+    <text class="note fragment" x="740" y="240" text-anchor="middle" data-fragment-index="3">fires at the exact moment the rule applies,</text>
+    <text class="note fragment" x="740" y="265" text-anchor="middle" data-fragment-index="3">cannot be talked past, costs zero context</text>
+  </g>
+</svg>
+```
+
+::: notes
+This is the pitch for hooks: deterministic code at the loop's boundary
+beats instructions inside the stochastic part. The flipbook next shows a
+real gate really blocking a real command.
+:::
+
+---
+
+
+# Hooks Own the Boundary
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-01.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-02.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-03.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-04.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-05.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-06.png){fig-align="center"}
+
+## Hooks Own the Boundary {auto-animate=true}
+
+![](assets/hooks-own-the-boundary/step-07.png){fig-align="center"}
+
+---
+
+# Part 4 · Memory Across Sessions {.center}
+
+::: lead
+The context dies with the session. Whatever should outlive it must move to
+disk before the lights go out.
+:::
+
+---
+
+
+# Memory Lives on Disk
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-01.png){fig-align="center"}
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-02.png){fig-align="center"}
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-03.png){fig-align="center"}
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-04.png){fig-align="center"}
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-05.png){fig-align="center"}
+
+## Memory Lives on Disk {auto-animate=true}
+
+![](assets/memory-lives-on-disk/step-06.png){fig-align="center"}
+
+---
+
+
+# Compaction: What Survives
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-01.png){fig-align="center"}
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-02.png){fig-align="center"}
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-03.png){fig-align="center"}
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-04.png){fig-align="center"}
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-05.png){fig-align="center"}
+
+## Compaction: What Survives {auto-animate=true}
+
+![](assets/compaction-what-survives/step-06.png){fig-align="center"}
+
+---
+
+# Part 5 · The Long Run {.center}
+
+::: lead
+Now assemble everything into a harness that ships a project across many
+sessions: an initializer that builds the world, workers that do one feature
+each, a verifier with fresh eyes, a driver that refuses early victory, and
+a disk that survives any crash.
+:::
+
+::: {.src}
+Anthropic, Effective harnesses for long-running agents · Long-running Claude for scientific computing
+:::
+
+---
+
+
+# The Initializer
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-01.png){fig-align="center"}
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-02.png){fig-align="center"}
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-03.png){fig-align="center"}
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-04.png){fig-align="center"}
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-05.png){fig-align="center"}
+
+## The Initializer {auto-animate=true}
+
+![](assets/the-initializer/step-06.png){fig-align="center"}
+
+---
+
+
+# One Feature per Session
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-01.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-02.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-03.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-04.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-05.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-06.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-07.png){fig-align="center"}
+
+## One Feature per Session {auto-animate=true}
+
+![](assets/one-feature-per-session/step-08.png){fig-align="center"}
+
+---
+
+
+# Four Failure Modes
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-01.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-02.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-03.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-04.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-05.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-06.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-07.png){fig-align="center"}
+
+## Four Failure Modes {auto-animate=true}
+
+![](assets/four-failure-modes/step-08.png){fig-align="center"}
+
+---
+
+
+# Executor vs Verifier
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-01.png){fig-align="center"}
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-02.png){fig-align="center"}
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-03.png){fig-align="center"}
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-04.png){fig-align="center"}
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-05.png){fig-align="center"}
+
+## Executor vs Verifier {auto-animate=true}
+
+![](assets/executor-vs-verifier/step-06.png){fig-align="center"}
+
+---
+
+
+# The Ralph Loop
+
+## The Ralph Loop {auto-animate=true}
+
+![](assets/the-ralph-loop/step-01.png){fig-align="center"}
+
+## The Ralph Loop {auto-animate=true}
+
+![](assets/the-ralph-loop/step-02.png){fig-align="center"}
+
+## The Ralph Loop {auto-animate=true}
+
+![](assets/the-ralph-loop/step-03.png){fig-align="center"}
+
+## The Ralph Loop {auto-animate=true}
+
+![](assets/the-ralph-loop/step-04.png){fig-align="center"}
+
+## The Ralph Loop {auto-animate=true}
+
+![](assets/the-ralph-loop/step-05.png){fig-align="center"}
+
+---
+
+
+# Kill It, and Resume
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-01.png){fig-align="center"}
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-02.png){fig-align="center"}
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-03.png){fig-align="center"}
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-04.png){fig-align="center"}
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-05.png){fig-align="center"}
+
+## Kill It, and Resume {auto-animate=true}
+
+![](assets/kill-it-and-resume/step-06.png){fig-align="center"}
+
+---
+
+# The Whole Machine {.center}
+
+---
+
+## Many brains, many hands
+
+At fleet scale the same shapes recur. Flat self-coordinating agents deadlock; planner, worker, and judge scale.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 420">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="zone" x="50" y="60" width="270" height="280"/>
+    <text class="zonelabel" x="185" y="90">FLAT</text>
+    <circle class="node" cx="120" cy="160" r="24"/>
+    <circle class="node" cx="250" cy="160" r="24"/>
+    <circle class="node" cx="185" cy="250" r="24"/>
+    <path class="edge" d="M 144 160 L 226 160"/>
+    <path class="edge" d="M 135 180 L 172 230"/>
+    <path class="edge" d="M 235 180 L 198 230"/>
+    <text class="note" x="185" y="315" text-anchor="middle" style="fill:var(--pink)">risk-averse, deadlocks on locks</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="zone" x="365" y="60" width="270" height="280"/>
+    <text class="zonelabel" x="500" y="90">PLANNER / WORKER / JUDGE</text>
+    <rect class="node" x="440" y="110" width="120" height="46" rx="8"/>
+    <text class="cap" x="500" y="139" style="font-size:14px">planner</text>
+    <rect class="node" x="390" y="195" width="100" height="42" rx="8"/>
+    <rect class="node" x="510" y="195" width="100" height="42" rx="8"/>
+    <text class="cap" x="440" y="221" style="font-size:13px">worker</text>
+    <text class="cap" x="560" y="221" style="font-size:13px">worker</text>
+    <rect class="node feat" x="440" y="270" width="120" height="46" rx="8"/>
+    <text class="cap" x="500" y="299" style="font-size:14px">judge</text>
+    <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 470 156 L 445 195"/>
+    <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 530 156 L 555 195"/>
+    <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 445 237 L 480 270"/>
+    <path class="edge draw fragment" data-fragment-index="2" pathLength="1" d="M 555 237 L 520 270"/>
+    <text class="note" x="500" y="330" text-anchor="middle" style="fill:var(--feat)">continue or stop is the judge's call</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="zone" x="680" y="60" width="270" height="280"/>
+    <text class="zonelabel" x="815" y="90">BRAIN / HANDS</text>
+    <rect class="node" x="745" y="120" width="140" height="55" rx="8"/>
+    <text class="cap" x="815" y="152" style="font-size:14px">session state</text>
+    <rect class="node" x="745" y="195" width="140" height="55" rx="8"/>
+    <text class="cap" x="815" y="227" style="font-size:14px">harness loop</text>
+    <rect class="node" x="745" y="270" width="140" height="55" rx="8"/>
+    <text class="cap" x="815" y="302" style="font-size:14px">sandbox</text>
+    <text class="note" x="815" y="358" text-anchor="middle">three interfaces, swappable hands</text>
+  </g>
+  <g class="fragment" data-fragment-index="4">
+    <text class="note" x="500" y="395" text-anchor="middle">One dissent worth keeping: parallel agents without shared context fragment decisions (Cognition).</text>
+  </g>
+</svg>
+```
+
+::: {.src}
+Cursor, Scaling long-running autonomous coding · Anthropic, Scaling managed agents
+:::
+
+::: notes
+Cursor's flat experiment produced agents that deadlocked on file locks and
+grew risk-averse; the planner/worker/judge pipeline shipped a browser-scale
+codebase. Managed Agents decouples the brain from the hands so sessions
+are cattle, not pets.
+:::
+
+---
+
+## The whole machine
+
+Every element the deck introduced, on one map.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 500">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="zone" x="330" y="40" width="360" height="230"/>
+    <text class="zonelabel" x="510" y="66">ONE SESSION</text>
+    <rect class="card" x="355" y="85" width="130" height="160"/>
+    <text class="note" x="420" y="110" text-anchor="middle" style="font-size:12px">context</text>
+    <rect x="365" y="120" width="110" height="14" style="fill:#8b8b92; opacity:0.6; rx:3"/>
+    <rect x="365" y="139" width="110" height="14" style="fill:#b19cf5; opacity:0.6; rx:3"/>
+    <rect x="365" y="158" width="110" height="14" style="fill:#7cb0de; opacity:0.6; rx:3"/>
+    <rect x="365" y="177" width="110" height="14" style="fill:#e8834a; opacity:0.6; rx:3"/>
+    <rect x="365" y="196" width="110" height="14" style="fill:#6bbf8a; opacity:0.6; rx:3"/>
+    <circle class="node" cx="580" cy="130" r="30"/>
+    <text class="cap" x="580" y="135" style="font-size:13px">model</text>
+    <rect class="node" x="545" y="190" width="70" height="40" rx="8"/>
+    <text class="cap" x="580" y="215" style="font-size:12px">tools</text>
+    <path class="edge" d="M 485 140 L 550 130"/>
+    <path class="edge" d="M 580 160 L 580 190"/>
+    <path class="edge" d="M 545 215 L 490 210"/>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card hot" x="640" y="95" width="40" height="120"/>
+    <text class="note" x="660" y="240" text-anchor="middle" style="font-size:12px; fill:var(--amber)">hooks</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="node" x="80" y="90" width="170" height="60" rx="10"/>
+    <text class="cap" x="165" y="118" style="font-size:14px">skills</text>
+    <text class="note" x="165" y="140" text-anchor="middle" style="font-size:11px">index → body → spokes</text>
+    <rect class="node" x="80" y="175" width="170" height="60" rx="10"/>
+    <text class="cap" x="165" y="203" style="font-size:14px">MCP servers</text>
+    <text class="note" x="165" y="225" text-anchor="middle" style="font-size:11px">JSON-RPC tool ports</text>
+    <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 250 120 L 352 130"/>
+    <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 250 205 L 540 212"/>
+  </g>
+  <g class="fragment pop" data-fragment-index="4">
+    <rect class="card hot" x="290" y="320" width="440" height="110"/>
+    <text class="zonelabel" x="510" y="348">THE DISK</text>
+    <text class="cardtext" x="315" y="378" style="font-size:12px">feature_list.json · progress.md · AGENTS.md</text>
+    <text class="cardtext" x="315" y="402" style="font-size:12px">todo.py · tests/ · .git (commit heartbeat)</text>
+    <path class="edge draw fragment" data-fragment-index="4" pathLength="1" d="M 510 270 L 510 315"/>
+  </g>
+  <g class="fragment pop" data-fragment-index="5">
+    <rect class="node feat" x="770" y="320" width="160" height="70" rx="10"/>
+    <text class="cap" x="850" y="350" style="font-size:14px">verifier</text>
+    <text class="note" x="850" y="372" text-anchor="middle" style="font-size:11px">fresh eyes, rerun the oracle</text>
+    <path class="edge draw fragment" data-fragment-index="5" pathLength="1" d="M 770 355 L 735 370"/>
+  </g>
+  <g class="fragment pop" data-fragment-index="6">
+    <rect class="node" x="80" y="320" width="160" height="70" rx="10"/>
+    <text class="cap" x="160" y="350" style="font-size:14px">driver + Ralph</text>
+    <text class="note" x="160" y="372" text-anchor="middle" style="font-size:11px">budgets, strikes, "really done?"</text>
+    <path class="edge draw fragment" data-fragment-index="6" pathLength="1" d="M 240 355 L 285 370"/>
+  </g>
+  <g class="fragment" data-fragment-index="7">
+    <text class="cap big" x="500" y="475">Sessions come and go. The disk is the project.</text>
+  </g>
+</svg>
+```
+
+::: notes
+The assembled map mirrors the anatomy slide from Part 1, now with every
+box filled in by a flipbook the viewer has watched actually run.
+:::
+
+---
+
+## The harness carries the intelligence
+
+A stronger model helps. A stronger harness helps more, because every component encodes something no model can do alone: remember, verify, refuse, survive.
+
+::: lead
+*"The agent doesn't get smarter across iterations. The codebase gets
+smarter, and the next agent reads it."*
+:::
+
+Existence proofs: a C compiler built over ~2,000 fresh sessions, each reading the repo cold. A scientific solver run for weeks on checkpoints and an oracle. Neither needed a bigger model. Both needed a better harness.
+
+::: {.src}
+docs/long-running-agents-research.md · Anthropic, Long-running Claude for scientific computing
+:::
+
+---
+
+## References
+
+**Anthropic engineering**
+[Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) · [Long-running Claude for scientific computing](https://www.anthropic.com/engineering) · [Scaling managed agents](https://www.anthropic.com/engineering)
+
+**Practitioners**
+[Cursor: scaling long-running autonomous coding](https://cursor.com/blog) · [Addy Osmani: self-improving coding agents](https://addyosmani.com) · [Geoffrey Huntley: the Ralph technique](https://ghuntley.com/ralph/) · [12-factor agents](https://github.com/humanlayer/12-factor-agents)
+
+**Siblings**
+[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html)
+
+::: {.src}
+Every figure in this deck: a real run of tinyharness, regenerable with build/regen_all.py
+:::
