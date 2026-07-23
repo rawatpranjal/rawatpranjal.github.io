@@ -148,7 +148,7 @@ Pranjal Rawat
 :root {
   --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
   --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
-  --node: #1d2733; --edge: #5a6472; --ink: #0f1114;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114; --pink: #e06b9c;
 }
 .reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 .reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
@@ -205,6 +205,17 @@ Pranjal Rawat
 .reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
 @keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
+.reveal .src { color: var(--muted); font-size: 0.55em; margin-top: 0.8em; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -423,6 +434,15 @@ Pranjal Rawat
 </section>
 <section class="slide level2 center">
 
+<div class="def-box">
+<p><strong>Cite-or-refuse</strong>, the contract behind every answer this deck builds toward: a claim traces to a retrieved chunk and names it with <code>[n]</code>, or the system declines instead of guessing.</p>
+</div>
+<div class="key-idea">
+<p>Retrieval turns a prompt into evidence; generation must cite it or refuse. Every concept from here on is one piece of making that contract real.</p>
+</div>
+</section>
+<section class="slide level2 center">
+
 </section></section>
 <section>
 <section id="the-problem-and-the-fix-1" class="title-slide slide level1 center">
@@ -455,6 +475,9 @@ Pranjal Rawat
 <p>Building the index and answering a question are two different jobs, on two different clocks.</p>
 </div>
 <p>One runs once, ahead of time. The other runs every time someone types a question.</p>
+<div class="key-idea">
+<p>Two different jobs, two different clocks: the offline build (chunk, embed, index) happens once; the online loop (retrieve, augment, generate) reruns for every question.</p>
+</div>
 <aside class="notes">
 <p>This is the map for the whole deck. Everything that follows – chunking, embeddings, hybrid search, reranking, prompts, refusals – is a closeup of one box in this picture. Keep this shape in mind and the details never get confusing about when they happen.</p>
 <style type="text/css">
@@ -638,6 +661,44 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="the-whole-pipeline-five-stages" class="slide level2 center">
+<h2>The whole pipeline, five stages</h2>
+<div class="taxonomy" style="--cols:5">
+<div class="cat">
+<h4>
+ingest
+</h4>
+<p>raw documents: HR, product, engineering, off-topic</p>
+</div>
+<div class="cat">
+<h4>
+index
+</h4>
+<p>chunk, embed, and fit the vectors into one structure</p>
+</div>
+<div class="cat">
+<h4>
+retrieve
+</h4>
+<p>score every chunk against the query, keep the top-k</p>
+</div>
+<div class="cat">
+<h4>
+rerank
+</h4>
+<p>score just those candidates again, more carefully</p>
+</div>
+<div class="cat">
+<h4>
+generate
+</h4>
+<p>cite the evidence, or refuse</p>
+</div>
+</div>
+</section>
+<section class="slide level2 center">
+
 </section></section>
 <section>
 <section id="the-naive-rag-loop" class="title-slide slide level1 center">
@@ -702,6 +763,12 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2 center">
+
+<div class="def-box">
+<p><strong>Chunk</strong>, the unit retrieval actually indexes and hands back: one self-contained slice of a document, small enough that a question only pulls the fact it needs.</p>
+</div>
+</section>
 <section id="equal-non-overlapping-cuts-can-break-an-idea" class="slide level2 center">
 <h2>Equal, non-overlapping cuts can break an idea</h2>
 <p>A window of fixed size slides across the words. The simplest version just cuts, edge to edge, with nothing shared.</p>
@@ -744,6 +811,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="pitfall">
+<p>A fact that straddles a chunk boundary survives whole in neither chunk. Fixed-size, non-overlapping cuts guarantee this happens somewhere in a large corpus, overlap (the next slide) is the guard.</p>
+</div>
 </section>
 <section id="overlap-keeps-the-idea-whole" class="slide level2 center">
 <h2>Overlap keeps the idea whole</h2>
@@ -871,6 +944,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>Chunk size is a tradeoff, not a default: too big dilutes a chunk across unrelated facts, too small shatters one fact into pieces with no context. Overlap fixes the second failure, not the first.</p>
+</div>
 </section></section>
 <section>
 <section id="chunking-the-corpus" class="title-slide slide level1 center">
@@ -899,6 +978,9 @@ Pranjal Rawat
 <p>A chunk of text turns into a list of numbers. That list is a location - somewhere you could point to on a map.</p>
 </div>
 <p>Once meaning has a location, comparing meanings becomes measuring distance.</p>
+<div class="def-box">
+<p><strong>Embedding</strong>, the list of numbers a chunk (or a query) turns into: a location in a shared space where distance stands in for how related two pieces of text are.</p>
+</div>
 <aside class="notes">
 <p>This is the idea that makes every later concept (retrieval, hybrid search, reranking) possible. Before this, a “search” is a distance calculation.</p>
 <style type="text/css">
@@ -1073,6 +1155,9 @@ Pranjal Rawat
 <section id="the-next-screens-are-the-real-thing" class="slide level2 center">
 <h2>The next screens are the real thing</h2>
 <p>Not a mockup: the real 48-document Aurora Cloud corpus, chunked and turned into real TF-IDF vectors, projected to 2 axes. Each dot is a real chunk, colored by its document’s tag. The star is a real query, placed by the same vectorizer, at its real projected position.</p>
+<div class="key-idea">
+<p>Once meaning has a location, “search by meaning” has a precise mechanical definition: nearest-neighbor distance on that map. Retrieval is exactly this, run at real scale.</p>
+</div>
 </section></section>
 <section>
 <section id="embeddings-are-geometry-1" class="title-slide slide level1 center">
@@ -1099,6 +1184,9 @@ Pranjal Rawat
 <h1>Building the Index</h1>
 <div class="lead">
 <p>Every chunk now has a vector. Those vectors don’t sit around loose – they get packed together into one structure: the index. Building it happens once. Answering a question against it never does.</p>
+</div>
+<div class="def-box">
+<p><strong>Vector index</strong>, every chunk’s embedding stored together in one fitted structure. Built once from the whole corpus; every later question is a read against it, never a rebuild.</p>
 </div>
 <aside class="notes">
 <p>This is the hinge between “embeddings as geometry” and “retrieval”: once each of the 48 chunks is a point in vector space, those points get stored together as a single fitted object – the TF-IDF matrix plus the vectorizer that produced it. Fitting that object is a one-time cost. Every question that follows, no matter how different, is just a lookup against the same object.</p>
@@ -1283,6 +1371,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>Fitting the index is a one-time cost; search is what recurs, and search is cheap. Treating “build the index” as a per-question step is the mistake to rule out.</p>
+</div>
 </section></section>
 <section>
 <section id="building-the-index-1" class="title-slide slide level1 center">
@@ -1311,6 +1405,9 @@ Pranjal Rawat
 <p>The index holds 48 points. Retrieval is the one operation that matters: drop the query onto the same map, and read off whichever points sit closest.</p>
 </div>
 <p>Nothing about retrieval is mysterious once the geometry is in place. It’s a distance calculation, run once per question.</p>
+<div class="def-box">
+<p><strong>Retrieval</strong>, scoring every chunk in the index against the query’s vector and keeping the top few. One distance calculation, run once per question, before generation ever sees the corpus.</p>
+</div>
 <aside class="notes">
 <p>This is the payoff of “embeddings are geometry” and “building the index.” Both of those concepts existed to make this one moment possible: a question arrives, and answering it becomes “which points are nearest,” not “which document sounds right.”</p>
 <style type="text/css">
@@ -1405,6 +1502,9 @@ Pranjal Rawat
 <section id="the-next-screens-are-the-real-thing-1" class="slide level2 center">
 <h2>The next screens are the real thing</h2>
 <p>Not a mockup: the real 48-document Aurora Cloud corpus, the real fitted index from the last concept, one real query run through <code>.search()</code>. The ranked list, the scores, and the map are all computed live.</p>
+<div class="key-idea">
+<p>Retrieval always returns its top-k, confidently, whether the best score is 0.48 or 0.02. Deciding what a weak score means is generation’s job, not retrieval’s.</p>
+</div>
 <aside class="notes">
 <p>Watch the same query land in the embedding space right where the top-ranked hr documents sit, and watch a second, uncovered question come back with uniformly low scores – retrieval still answers, it just isn’t confident about any of it.</p>
 <style type="text/css">
@@ -1448,6 +1548,29 @@ Pranjal Rawat
 <h1>One ranking isn’t enough</h1>
 <div class="lead">
 <p>Dense search ranks by meaning. Sparse search ranks by exact words. Run the same query through both and they don’t agree – fusing the two beats trusting either alone.</p>
+</div>
+</section>
+<section id="three-notions-of-relevant" class="slide level2 center">
+<h2>Three notions of “relevant”</h2>
+<div class="taxonomy" style="--cols:3">
+<div class="cat">
+<h4>
+lexical
+</h4>
+<p>BM25 / TF-IDF, rewards exact term overlap, blind to paraphrase</p>
+</div>
+<div class="cat">
+<h4>
+semantic
+</h4>
+<p>dense cosine similarity, rewards topical closeness, blind to rare exact terms</p>
+</div>
+<div class="cat">
+<h4>
+hybrid
+</h4>
+<p>reciprocal rank fusion, combines both rankings by position, not raw score</p>
+</div>
 </div>
 </section>
 <section id="dense-vs.-sparse-two-different-notions-of-relevant" class="slide level2 center">
@@ -1621,6 +1744,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>Dense and sparse have different blind spots, paraphrase versus rare exact terms. Fusing them means the system never has to bet on which failure mode a given query will hit.</p>
+</div>
 </section></section>
 <section>
 <section id="hybrid-search" class="title-slide slide level1 center">
@@ -1667,6 +1796,12 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2 center">
+
+<div class="def-box">
+<p><strong>Reranking</strong>, a second, narrower pass over just the candidates retrieval already found, scoring each one on its own instead of against the whole corpus at once. It reorders; it never fetches a new document.</p>
+</div>
+</section>
 <section id="the-first-pass-is-approximate" class="slide level2 center">
 <h2>The First Pass Is Approximate</h2>
 <p>A single global signal, spread across every word in the query, does not always put the right document on top.</p>
@@ -1712,6 +1847,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>A single global signal, scored across the whole corpus at once, is what makes retrieval fast, and exactly why its order is only approximately right. Reranking trades that speed for a second, narrower look.</p>
+</div>
 </section>
 <section id="what-actually-happened-on-call-handoff-day" class="slide level2 center">
 <h2>What Actually Happened: “on-call handoff day”</h2>
@@ -1832,6 +1973,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="pitfall">
+<p>A reranker that only counts word overlap can’t break a tie on the one word neither candidate mentions. Aurora Cloud’s near-duplicate PTO pair (15 days vs.&nbsp;20) never swaps under this reranker.</p>
+</div>
 </section></section>
 <section>
 <section id="reranking" class="title-slide slide level1 center">
@@ -2068,6 +2215,15 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>The model’s entire universe for an answer is the literal prompt string <code>assemble_prompt()</code> built. Corpus, index, and every other chunk never cross that boundary, which is exactly what makes grounding checkable.</p>
+</div>
+</section>
+<section class="slide level2 center">
+
 </section></section>
 <section>
 <section id="augmentation-building-the-prompt" class="title-slide slide level1 center">
@@ -2221,6 +2377,12 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2 center">
+
+<div class="pitfall">
+<p>No relevant chunk retrieved, without a refusal gate, the model falls back on parametric memory and answers fluently anyway, with no warning it is guessing. The similarity threshold is the guard that turns “no evidence” into an honest decline instead of a confident hallucination.</p>
+</div>
+</section>
 <section id="no-partial-credit" class="slide level2 center">
 <h2>No partial credit</h2>
 <svg class="ragfig" viewbox="0 0 1000 400">
@@ -2257,6 +2419,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>A plain model always produces text. Cite-or-refuse gives the system a branch a plain model doesn’t have: the ability to say “I don’t know” instead of a fluent guess.</p>
+</div>
 </section></section>
 <section>
 <section id="generation-cite-or-refuse" class="title-slide slide level1 center">
@@ -2496,6 +2664,12 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>The only difference between one-shot and agentic retrieval is the ability to check a confidence score and try again. The retry is capped at one call, gated on a real threshold, never an unbounded search spiral.</p>
+</div>
 </section></section>
 <section>
 <section id="agentic-rag-the-tool-use-loop-1" class="title-slide slide level1 center">
@@ -2617,6 +2791,12 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section class="slide level2 center">
+
+<div class="def-box">
+<p><strong>Recall@k</strong>, whether the right document lands anywhere in the top k results. A looser bar than faithful, which asks whether it’s the #1 hit with a score worth trusting.</p>
+</div>
+</section>
 <section id="running-it-for-real" class="slide level2 center">
 <h2>Running it for real</h2>
 <svg class="ragfig" viewbox="0 0 1000 400">
@@ -2665,6 +2845,9 @@ Pranjal Rawat
 <section id="back-to-where-this-deck-started" class="slide level2 center">
 <h2>Back to where this deck started</h2>
 <p>A plain language model would have answered the meaning-of-life question anyway, fluently and with no warning that it was guessing. This system checks itself against real evidence first. It only speaks when it has some.</p>
+<div class="key-idea">
+<p>Every design choice in this deck, chunk size, hybrid fusion, reranking, the refusal threshold, is just a hypothesis until it’s run against frozen questions with known answers. Evaluation is how you find out whether those choices actually work.</p>
+</div>
 </section>
 <section class="slide level2 center">
 
@@ -2681,8 +2864,16 @@ Pranjal Rawat
 <section id="evaluation-how-you-know-it-works-2" class="slide level2 center" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">Evaluation: How You Know It Works</h2>
 
+<img data-src="assets/evaluation/step-02.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="references" class="slide level2 center">
+<h2>References</h2>
+<p><strong>Guides</strong> <a href="https://arxiv.org/abs/2005.11401">Lewis et al., Retrieval-Augmented Generation (2020)</a> · <a href="https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf">Robertson &amp; Zaragoza, BM25 and Beyond (2009)</a> · <a href="https://python.langchain.com/docs/concepts/retrieval/">LangChain, retrieval concepts</a> · <a href="https://www.anthropic.com/news/contextual-retrieval">Anthropic, Contextual Retrieval</a></p>
+<p><strong>Siblings</strong> <a href="../../how-git-works/website/git.html">How Git Works, Visually</a> · <a href="../../how-inference-and-serving-works/website/inference.html">How Inference &amp; Serving Work, Visually</a> · <a href="../../how-evals-and-observability-work/website/evals.html">How Evals &amp; Observability Work, Visually</a> · <a href="../../how-agentic-harnesses-work/website/harness.html">How Agentic Harnesses Work, Visually</a> · <a href="../../how-langchain-and-langgraph-work/website/langchain.html">How LangChain &amp; LangGraph Work, Visually</a></p>
+<div class="src">
+<p>Every figure in this deck: a real TF-IDF pipeline over the 48-document Aurora Cloud corpus, regenerable with build/regen_all.py</p>
+</div>
 
-<img data-src="assets/evaluation/step-02.png" class="quarto-figure quarto-figure-center r-stretch"></section></section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

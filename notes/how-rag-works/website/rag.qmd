@@ -23,7 +23,7 @@ format:
 :root {
   --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
   --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
-  --node: #1d2733; --edge: #5a6472; --ink: #0f1114;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114; --pink: #e06b9c;
 }
 .reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 .reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
@@ -80,6 +80,17 @@ format:
 .reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
 @keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
+.reveal .src { color: var(--muted); font-size: 0.55em; margin-top: 0.8em; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -292,6 +303,16 @@ this becomes a concrete number.
 
 ---
 
+::: {.def-box}
+**Cite-or-refuse**, the contract behind every answer this deck builds toward: a claim traces to a retrieved chunk and names it with `[n]`, or the system declines instead of guessing.
+:::
+
+::: {.key-idea}
+Retrieval turns a prompt into evidence; generation must cite it or refuse. Every concept from here on is one piece of making that contract real.
+:::
+
+---
+
 
 # The Problem, and the Fix
 
@@ -320,6 +341,10 @@ Building the index and answering a question are two different jobs, on two diffe
 :::
 
 One runs once, ahead of time. The other runs every time someone types a question.
+
+::: {.key-idea}
+Two different jobs, two different clocks: the offline build (chunk, embed, index) happens once; the online loop (retrieve, augment, generate) reruns for every question.
+:::
 
 ::: notes
 This is the map for the whole deck. Everything that follows -- chunking, embeddings, hybrid search, reranking, prompts, refusals -- is a closeup of one box in this picture. Keep this shape in mind and the details never get confusing about when they happen.
@@ -476,6 +501,35 @@ Everything from here on zooms into one box from this picture: how retrieval actu
 Worth restating before diving into details: the split between "build the index" and "answer a question" is the single most useful fact to hold onto in this whole deck. Get that right and every later concept has an obvious home.
 :::
 
+---
+
+## The whole pipeline, five stages
+
+::::: {.taxonomy style="--cols:5"}
+::: {.cat}
+<h4>ingest</h4>
+raw documents: HR, product, engineering, off-topic
+:::
+::: {.cat}
+<h4>index</h4>
+chunk, embed, and fit the vectors into one structure
+:::
+::: {.cat}
+<h4>retrieve</h4>
+score every chunk against the query, keep the top-k
+:::
+::: {.cat}
+<h4>rerank</h4>
+score just those candidates again, more carefully
+:::
+::: {.cat}
+<h4>generate</h4>
+cite the evidence, or refuse
+:::
+:::::
+
+---
+
 
 # The Naive RAG Loop
 
@@ -531,6 +585,12 @@ This is the motivating problem for chunking. Indexed whole, this document return
 
 ---
 
+::: {.def-box}
+**Chunk**, the unit retrieval actually indexes and hands back: one self-contained slice of a document, small enough that a question only pulls the fact it needs.
+:::
+
+---
+
 ## Equal, non-overlapping cuts can break an idea
 
 A window of fixed size slides across the words. The simplest version just cuts, edge to edge, with nothing shared.
@@ -566,6 +626,12 @@ A window of fixed size slides across the words. The simplest version just cuts, 
 
 ::: notes
 This is the naive version of chunking: slide the window by its full size, no sharing. It works until an idea happens to straddle the cut -- then half of it ends up in chunk 1, half in chunk 2, and neither chunk contains the whole thing.
+:::
+
+---
+
+::: {.pitfall}
+A fact that straddles a chunk boundary survives whole in neither chunk. Fixed-size, non-overlapping cuts guarantee this happens somewhere in a large corpus, overlap (the next slide) is the guard.
 :::
 
 ---
@@ -683,6 +749,12 @@ Under the window this pipeline actually uses, nearly every one of the 48 documen
 Every square here is one of Aurora Cloud's real documents. Under the pipeline's actual default (size=40, overlap=10), all 48 stay whole -- confirmed empirically, not assumed. The flipbook that follows shrinks the window to size=15, finds a document that really does split into multiple chunks, and checks the overlapping words against each other directly.
 :::
 
+---
+
+::: {.key-idea}
+Chunk size is a tradeoff, not a default: too big dilutes a chunk across unrelated facts, too small shatters one fact into pieces with no context. Overlap fixes the second failure, not the first.
+:::
+
 
 # Chunking the Corpus
 
@@ -707,6 +779,10 @@ A chunk of text turns into a list of numbers. That list is a location - somewher
 :::
 
 Once meaning has a location, comparing meanings becomes measuring distance.
+
+::: {.def-box}
+**Embedding**, the list of numbers a chunk (or a query) turns into: a location in a shared space where distance stands in for how related two pieces of text are.
+:::
 
 ::: notes
 This is the idea that makes every later concept (retrieval, hybrid search, reranking) possible. Before this, a "search" is a distance calculation.
@@ -856,6 +932,10 @@ This reframe is the payoff of the whole concept: "search by meaning" was always 
 
 Not a mockup: the real 48-document Aurora Cloud corpus, chunked and turned into real TF-IDF vectors, projected to 2 axes. Each dot is a real chunk, colored by its document's tag. The star is a real query, placed by the same vectorizer, at its real projected position.
 
+::: {.key-idea}
+Once meaning has a location, "search by meaning" has a precise mechanical definition: nearest-neighbor distance on that map. Retrieval is exactly this, run at real scale.
+:::
+
 
 # Embeddings Are Geometry
 
@@ -879,6 +959,10 @@ Not a mockup: the real 48-document Aurora Cloud corpus, chunked and turned into 
 Every chunk now has a vector. Those vectors don't sit around loose -- they
 get packed together into one structure: the index. Building it happens
 once. Answering a question against it never does.
+:::
+
+::: {.def-box}
+**Vector index**, every chunk's embedding stored together in one fitted structure. Built once from the whole corpus; every later question is a read against it, never a rebuild.
 :::
 
 ::: notes
@@ -1054,6 +1138,12 @@ the query loop. It isn't. It runs once, before the first question ever
 arrives, and every subsequent question is a pure read against it.
 :::
 
+---
+
+::: {.key-idea}
+Fitting the index is a one-time cost; search is what recurs, and search is cheap. Treating "build the index" as a per-question step is the mistake to rule out.
+:::
+
 
 # Building the Index
 
@@ -1080,6 +1170,10 @@ query onto the same map, and read off whichever points sit closest.
 
 Nothing about retrieval is mysterious once the geometry is in place. It's a distance
 calculation, run once per question.
+
+::: {.def-box}
+**Retrieval**, scoring every chunk in the index against the query's vector and keeping the top few. One distance calculation, run once per question, before generation ever sees the corpus.
+:::
 
 ::: notes
 This is the payoff of "embeddings are geometry" and "building the index." Both of
@@ -1166,6 +1260,10 @@ Not a mockup: the real 48-document Aurora Cloud corpus, the real fitted index fr
 the last concept, one real query run through `.search()`. The ranked list, the
 scores, and the map are all computed live.
 
+::: {.key-idea}
+Retrieval always returns its top-k, confidently, whether the best score is 0.48 or 0.02. Deciding what a weak score means is generation's job, not retrieval's.
+:::
+
 ::: notes
 Watch the same query land in the embedding space right where the top-ranked hr
 documents sit, and watch a second, uncovered question come back with uniformly low
@@ -1199,6 +1297,25 @@ scores -- retrieval still answers, it just isn't confident about any of it.
 Dense search ranks by meaning. Sparse search ranks by exact words. Run the same
 query through both and they don't agree -- fusing the two beats trusting either alone.
 :::
+
+---
+
+## Three notions of "relevant"
+
+::::: {.taxonomy style="--cols:3"}
+::: {.cat}
+<h4>lexical</h4>
+BM25 / TF-IDF, rewards exact term overlap, blind to paraphrase
+:::
+::: {.cat}
+<h4>semantic</h4>
+dense cosine similarity, rewards topical closeness, blind to rare exact terms
+:::
+::: {.cat}
+<h4>hybrid</h4>
+reciprocal rank fusion, combines both rankings by position, not raw score
+:::
+:::::
 
 ---
 
@@ -1364,6 +1481,12 @@ a paraphrase that shares no words with the document. Fusing them means the syste
 doesn't have to bet on which failure mode this particular query will hit.
 :::
 
+---
+
+::: {.key-idea}
+Dense and sparse have different blind spots, paraphrase versus rare exact terms. Fusing them means the system never has to bet on which failure mode a given query will hit.
+:::
+
 
 # Hybrid Search
 
@@ -1401,6 +1524,12 @@ actual wording is in this chunk.
 Set up the handoff cleanly before showing anything moving. Retrieval already ran and
 already narrowed 48 documents down to 5 candidates -- reranking never sees the other
 43. It is a second pass over a short list, not a second search.
+:::
+
+---
+
+::: {.def-box}
+**Reranking**, a second, narrower pass over just the candidates retrieval already found, scoring each one on its own instead of against the whole corpus at once. It reorders; it never fetches a new document.
 :::
 
 ---
@@ -1447,6 +1576,12 @@ This slide is the abstract version of the mechanism, no real numbers yet. A doc 
 scores well by scattering partial matches across many query words can still lose to a
 doc with one precise match, once each is judged on its own instead of against the
 whole corpus at once.
+:::
+
+---
+
+::: {.key-idea}
+A single global signal, scored across the whole corpus at once, is what makes retrieval fast, and exactly why its order is only approximately right. Reranking trades that speed for a second, narrower look.
 :::
 
 ---
@@ -1569,6 +1704,12 @@ is identical before and after reranking, down to the score (both land on the sam
 overlap count and the same tie-break). Whatever actually resolves this pair -- picking
 one canonical version, deduplication upstream -- is a different concept's job, not
 reranking's.
+:::
+
+---
+
+::: {.pitfall}
+A reranker that only counts word overlap can't break a tie on the one word neither candidate mentions. Aurora Cloud's near-duplicate PTO pair (15 days vs. 20) never swaps under this reranker.
 :::
 
 
@@ -1781,6 +1922,14 @@ The model never sees the corpus. It never sees the index. It sees one string, bu
 This is why grounding is checkable: the model's entire universe for this answer is the literal text `assemble_prompt()` returned. Nothing else it might "know" from training can slip in through this channel, because nothing else is in the channel.
 :::
 
+---
+
+::: {.key-idea}
+The model's entire universe for an answer is the literal prompt string `assemble_prompt()` built. Corpus, index, and every other chunk never cross that boundary, which is exactly what makes grounding checkable.
+:::
+
+---
+
 
 # Augmentation: Building the Prompt
 
@@ -1920,6 +2069,12 @@ tunable knob, not a metaphor.
 
 ---
 
+::: {.pitfall}
+No relevant chunk retrieved, without a refusal gate, the model falls back on parametric memory and answers fluently anyway, with no warning it is guessing. The similarity threshold is the guard that turns "no evidence" into an honest decline instead of a confident hallucination.
+:::
+
+---
+
 ## No partial credit
 
 ```{=html}
@@ -1951,6 +2106,12 @@ A plain language model never has this branch -- it always produces text. Cite
 or refuse gives the system a way to say "I don't know" instead of a fluent
 guess. That one branch is the difference between a tool people can trust and
 one that merely sounds confident.
+:::
+
+---
+
+::: {.key-idea}
+A plain model always produces text. Cite-or-refuse gives the system a branch a plain model doesn't have: the ability to say "I don't know" instead of a fluent guess.
 :::
 
 
@@ -2163,6 +2324,12 @@ The agent only pays for a second search when the first one earns it.
 Same corpus, same k, same code path -- the only thing that changes the shape of the trace is the confidence of the first hit. That's the actual point of the design: an agent that searched twice on every question would double its latency and cost for no benefit on the questions it already nailed. Gating the retry on a real threshold means the expensive path only runs when it's earning its keep.
 :::
 
+---
+
+::: {.key-idea}
+The only difference between one-shot and agentic retrieval is the ability to check a confidence score and try again. The retry is capped at one call, gated on a real threshold, never an unbounded search spiral.
+:::
+
 
 # Agentic RAG: The Tool-Use Loop
 
@@ -2281,6 +2448,12 @@ is what actually gets cited. Faithful is the harder, more honest bar.
 
 ---
 
+::: {.def-box}
+**Recall@k**, whether the right document lands anywhere in the top k results. A looser bar than faithful, which asks whether it's the #1 hit with a score worth trusting.
+:::
+
+---
+
 ## Running it for real
 
 ```{=html}
@@ -2330,6 +2503,10 @@ A plain language model would have answered the meaning-of-life question
 anyway, fluently and with no warning that it was guessing. This system
 checks itself against real evidence first. It only speaks when it has some.
 
+::: {.key-idea}
+Every design choice in this deck, chunk size, hybrid fusion, reranking, the refusal threshold, is just a hypothesis until it's run against frozen questions with known answers. Evaluation is how you find out whether those choices actually work.
+:::
+
 ---
 
 
@@ -2342,3 +2519,17 @@ checks itself against real evidence first. It only speaks when it has some.
 ## Evaluation: How You Know It Works {auto-animate=true}
 
 ![](assets/evaluation/step-02.png){fig-align="center"}
+
+---
+
+## References
+
+**Guides**
+[Lewis et al., Retrieval-Augmented Generation (2020)](https://arxiv.org/abs/2005.11401) · [Robertson & Zaragoza, BM25 and Beyond (2009)](https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf) · [LangChain, retrieval concepts](https://python.langchain.com/docs/concepts/retrieval/) · [Anthropic, Contextual Retrieval](https://www.anthropic.com/news/contextual-retrieval)
+
+**Siblings**
+[How Git Works, Visually](../../how-git-works/website/git.html) · [How Inference & Serving Work, Visually](../../how-inference-and-serving-works/website/inference.html) · [How Evals & Observability Work, Visually](../../how-evals-and-observability-work/website/evals.html) · [How Agentic Harnesses Work, Visually](../../how-agentic-harnesses-work/website/harness.html) · [How LangChain & LangGraph Work, Visually](../../how-langchain-and-langgraph-work/website/langchain.html)
+
+::: {.src}
+Every figure in this deck: a real TF-IDF pipeline over the 48-document Aurora Cloud corpus, regenerable with build/regen_all.py
+:::
