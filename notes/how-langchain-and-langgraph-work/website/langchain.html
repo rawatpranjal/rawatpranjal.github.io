@@ -1368,6 +1368,71 @@ Agent loop
           display:block!important;
       }</style></aside>
 </section>
+<section id="pydantic-ai" class="slide level2 center">
+<h2>Pydantic AI</h2>
+<div class="def-box">
+<p><strong>Pydantic AI</strong> is a typed single-agent framework: <code>Agent(model, output_type=SomeModel)</code> runs one call and hands back a real, validated instance of that model. One pip install, no graph, no checkpointer.</p>
+</div>
+</section>
+<section id="instructor" class="slide level2 center">
+<h2>Instructor</h2>
+<div class="def-box">
+<p><strong>Instructor</strong> patches any OpenAI-compatible client so <code>.create()</code> returns a validated Pydantic object instead of raw JSON text, the smallest possible step from prose to a typed object.</p>
+</div>
+</section>
+<section class="slide level2 center">
+
+</section></section>
+<section>
+<section id="the-lighter-workhorses" class="title-slide slide level1 center">
+<h1>The Lighter Workhorses</h1>
+
+</section>
+<section id="the-lighter-workhorses-1" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">The Lighter Workhorses</h2>
+
+<img data-src="assets/pydantic-ai-and-instructor/step-01.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="the-lighter-workhorses-2" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">The Lighter Workhorses</h2>
+
+<img data-src="assets/pydantic-ai-and-instructor/step-02.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="the-lighter-workhorses-3" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">The Lighter Workhorses</h2>
+
+<img data-src="assets/pydantic-ai-and-instructor/step-03.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="the-lighter-workhorses-4" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">The Lighter Workhorses</h2>
+
+<img data-src="assets/pydantic-ai-and-instructor/step-04.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section class="slide level2 center">
+
+<div class="key-idea">
+<p>Pick the lightest tool that does the job: raw SDK for one call, Pydantic AI for one typed agent, LangGraph when you need durable multi-step.</p>
+</div>
+</section>
+<section id="three-ways-to-get-a-typed-order" class="slide level2 center">
+<h2>Three Ways to Get a Typed Order</h2>
+<div class="taxonomy" style="--cols:3">
+<div class="cat">
+<h4>
+Raw SDK
+</h4>
+<p>One call, hand-parsed JSON, no framework dependency. Right when there is exactly one call and you’re willing to parse the reply yourself.</p>
+</div>
+<div class="cat">
+<h4>
+Pydantic AI
+</h4>
+<p><code>Agent(model, output_type=Order)</code>, one pip install. Right when one call needs a validated typed result and nothing more.</p>
+</div>
+<div class="cat">
+<h4>
+LangGraph
+</h4>
+<p>Nodes, edges, a checkpointer. Right when the job is many calls, branching, or must resume without re-running side effects.</p>
+</div>
+</div>
+</section>
 <section id="references" class="slide level2 center">
 <h2>References</h2>
 <p><strong>Guides</strong> <a href="https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/">OpenAI, A practical guide to building agents</a> · <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic, Building effective agents</a> · <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals for AI agents</a></p>

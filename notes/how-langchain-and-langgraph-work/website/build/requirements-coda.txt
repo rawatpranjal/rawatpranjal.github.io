@@ -1,0 +1,11 @@
+# Pinned build deps for the pydantic-ai-and-instructor coda topic only
+# (interpreter: ~/.venvs/langchain-coda/bin/python -- deliberately excludes
+# langchain/langgraph, the whole point of the coda).
+# uv pip install --python ~/.venvs/langchain-coda/bin/python -r requirements-coda.txt
+pydantic-ai-slim==2.16.0
+pydantic-graph==2.16.0
+instructor==1.15.4
+openai==2.47.0
+pydantic==2.13.4
+pydantic-core==2.46.4
+matplotlib==3.11.1
