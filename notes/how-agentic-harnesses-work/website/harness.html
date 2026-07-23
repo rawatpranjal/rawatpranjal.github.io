@@ -313,7 +313,7 @@ Pranjal Rawat
 <p>Anthropic, Effective harnesses for long-running agents (2025)</p>
 </div>
 <aside class="notes">
-<p>The quote is verbatim from the keystone source. The shift-worker frame is the single most useful mental model in the deck: every harness component is something you would also build for human shift workers – a logbook, a task board, a test suite, a door that locks.</p>
+<p>The quote is verbatim from the keystone source. The shift-worker frame is the single most useful mental model in the deck: every harness component is something you would also build for human shift workers - a logbook, a task board, a test suite, a door that locks.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -340,7 +340,7 @@ Pranjal Rawat
     <rect class="node" x="380" y="100" width="240" height="130" rx="12"></rect>
     <text class="cap big" x="500" y="160">tinyharness</text>
     <text class="note" x="500" y="195" text-anchor="middle" style="font-size:13px">loop, tools, hooks, skills,</text>
-    <text class="note" x="500" y="213" text-anchor="middle" style="font-size:13px">MCP, compaction, git -- all real</text>
+    <text class="note" x="500" y="213" text-anchor="middle" style="font-size:13px">MCP, compaction, git - all real</text>
   </g>
   <g class="fragment pop" data-fragment-index="3">
     <rect class="card ok" x="690" y="120" width="250" height="90"></rect>
@@ -1410,6 +1410,82 @@ Kill-and-resume
 <p>Existence proofs: a C compiler built over ~2,000 fresh sessions, each reading the repo cold. A scientific solver run for weeks on checkpoints and an oracle. Neither needed a bigger model. Both needed a better harness.</p>
 <div class="src">
 <p>Quote: Geoffrey Huntley, the Ralph technique · docs/long-running-agents-research.md · Anthropic, Long-running Claude for scientific computing</p>
+</div>
+</section>
+<section class="slide level2 center">
+
+</section></section>
+<section>
+<section id="coda-beyond-the-toy" class="title-slide slide level1 center">
+<h1>Coda · Beyond the Toy</h1>
+
+</section>
+<section id="meet-smolagents" class="slide level2 center">
+<h2>Meet Smolagents</h2>
+<p>Every loop in this deck was hand-built to be photographed. The same shape also runs inside a real, open-source library.</p>
+<div class="def-box">
+<p><strong>Smolagents:</strong> a lightweight, open-source Python agent library from Hugging Face. Give a <code>ToolCallingAgent</code> a model and a list of tools. It runs the same loop tinyharness hand-built, for real.</p>
+</div>
+</section>
+<section class="slide level2 center">
+
+</section></section>
+<section>
+<section id="tinyharness-meet-smolagents" class="title-slide slide level1 center">
+<h1>tinyharness, Meet Smolagents</h1>
+
+</section>
+<section id="tinyharness-meet-smolagents-1" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">tinyharness, Meet Smolagents</h2>
+
+<img data-src="assets/smolagents-real/step-01.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="tinyharness-meet-smolagents-2" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">tinyharness, Meet Smolagents</h2>
+
+<img data-src="assets/smolagents-real/step-02.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="tinyharness-meet-smolagents-3" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">tinyharness, Meet Smolagents</h2>
+
+<img data-src="assets/smolagents-real/step-03.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="tinyharness-meet-smolagents-4" class="slide level2 center" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">tinyharness, Meet Smolagents</h2>
+
+<img data-src="assets/smolagents-real/step-04.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="the-same-loop-for-real" class="slide level2 center">
+<h2>The same loop, for real</h2>
+<p>Every frame above is smolagents’ own <code>ToolCallingAgent</code> running. Real <code>ToolCall</code> and <code>ToolOutput</code> objects, real <code>agent.memory.steps</code>, produced by the library itself, not by this deck. Only the model’s one answer per turn is scripted, the same honesty contract as tinyharness itself.</p>
+<div class="key-idea">
+<p>The loop tinyharness hand-built is the same loop a real lightweight framework runs. The model proposes an action, the framework parses a real tool call, the real tool executes, and the observation lands back in context. Same ORIENT, ACT, CHECK, RECORD lap as Part 1.</p>
+</div>
+</section>
+<section id="beyond-the-toy" class="slide level2 center">
+<h2>Beyond the toy</h2>
+<p>tinyharness stays small on purpose. The real ecosystem has a few names worth knowing.</p>
+<div class="def-box">
+<p><strong>Mem0:</strong> an open-source memory layer for agents. It gives a session persistent, cross-session memory in a real store, the same job Part 4’s disk-backed memory.md does by hand. Named here, not run in this deck.</p>
+</div>
+</section>
+<section id="where-this-shape-shows-up" class="slide level2 center">
+<h2>Where this shape shows up</h2>
+<div class="taxonomy" style="--cols:3">
+<div class="cat">
+<h4>
+tinyharness
+</h4>
+<p>This deck’s own hand-built harness. Every part exposed, nothing hidden, built to teach the shape.</p>
+</div>
+<div class="cat">
+<h4>
+Smolagents
+</h4>
+<p>A real, lightweight, code-first agent library. A <code>ToolCallingAgent</code> or <code>CodeAgent</code> in a few lines, the same loop, production-real.</p>
+</div>
+<div class="cat">
+<h4>
+AutoGen + CrewAI
+</h4>
+<p>Heavier multi-agent frameworks. Many agents, roles, and conversations coordinated for you, more machinery, more to configure.</p>
+</div>
 </div>
 </section>
 <section id="references" class="slide level2 center">

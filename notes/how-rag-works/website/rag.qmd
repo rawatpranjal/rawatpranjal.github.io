@@ -120,7 +120,7 @@ to picture what happens, step by step, when a RAG system and an agent built on t
 it answer a question over a real corpus. The running example throughout is a fictional
 company, Aurora Cloud, with 48 real documents: HR policy, product docs, engineering
 runbooks, and some deliberately unrelated pages. Every figure in this deck is a real
-run against that real corpus -- nothing is a mockup.
+run against that real corpus - nothing is a mockup.
 :::
 
 ---
@@ -167,7 +167,7 @@ Same question, three different answers, and no way to tell which one is real.
 
 ::: notes
 This is the hallucination problem in its plainest form: no grounding means no way to
-adjudicate between guesses. Note the number changes each time -- that's a deliberate
+adjudicate between guesses. Note the number changes each time - that's a deliberate
 callback to the near-duplicate PTO docs (hr-01 at 15 days, hr-02 at 20) that show up
 later in the corpus.
 :::
@@ -209,14 +209,14 @@ Aurora Cloud is the fictional company behind every example in this deck: 48 docu
     <text class="note" x="835" y="250" text-anchor="middle">12 docs</text>
   </g>
   <g class="fragment" data-fragment-index="5">
-    <text class="cap big" x="500" y="340">48 documents -- exactly what the model above never saw</text>
+    <text class="cap big" x="500" y="340">48 documents - exactly what the model above never saw</text>
   </g>
 </svg>
 ```
 
 ::: notes
 This is the corpus every later slide in the deck runs against, for real: chunking,
-embedding, retrieval, reranking, evaluation. Nothing here is a mockup -- it's the
+embedding, retrieval, reranking, evaluation. Nothing here is a mockup - it's the
 same 48-document object every topic's run.py imports from corpus.py.
 :::
 
@@ -258,7 +258,7 @@ Retrieval-augmented generation adds one step in front of writing: look before yo
 The answer is no longer memory. It is a copy of what the corpus actually says.
 
 ::: notes
-Search, cite, write -- three steps, each of which later topics in the deck open up
+Search, cite, write - three steps, each of which later topics in the deck open up
 in detail (retrieval, reranking, prompt assembly). For now this is just the shape
 of the fix.
 :::
@@ -288,7 +288,7 @@ Grounding is a contract, not a suggestion. A covered question gets a citation. A
     <text class="cardtext" x="610" y="250" style="fill:var(--muted)">-> decline, no guess</text>
   </g>
   <g class="fragment" data-fragment-index="4">
-    <text class="cap big" x="500" y="330">Cite or refuse -- never a bare guess</text>
+    <text class="cap big" x="500" y="330">Cite or refuse - never a bare guess</text>
   </g>
 </svg>
 ```
@@ -347,7 +347,7 @@ Two different jobs, two different clocks: the offline build (chunk, embed, index
 :::
 
 ::: notes
-This is the map for the whole deck. Everything that follows -- chunking, embeddings, hybrid search, reranking, prompts, refusals -- is a closeup of one box in this picture. Keep this shape in mind and the details never get confusing about when they happen.
+This is the map for the whole deck. Everything that follows - chunking, embeddings, hybrid search, reranking, prompts, refusals - is a closeup of one box in this picture. Keep this shape in mind and the details never get confusing about when they happen.
 :::
 
 ---
@@ -488,7 +488,7 @@ Put both loops side by side and the contrast is the whole point: one column runs
 ```
 
 ::: notes
-The left column happens once and then it's done. The right column is the loop -- it fires again for every question, always starting cold from the same frozen index. That's why it's called the naive RAG loop: nothing carries over between questions except the index itself.
+The left column happens once and then it's done. The right column is the loop - it fires again for every question, always starting cold from the same frozen index. That's why it's called the naive RAG loop: nothing carries over between questions except the index itself.
 :::
 
 ---
@@ -575,7 +575,7 @@ A document mixes several separate facts into one block of text. A question only 
     <text class="cap" x="890" y="150" text-anchor="middle" style="fill:var(--amber)">the one line</text>
     <text class="cap" x="890" y="173" text-anchor="middle" style="fill:var(--amber)">a query needs</text>
   </g>
-  <text class="note" x="500" y="385" text-anchor="middle">Retrieval works chunk by chunk -- it can only hand back what it indexed as one unit.</text>
+  <text class="note" x="500" y="385" text-anchor="middle">Retrieval works chunk by chunk - it can only hand back what it indexed as one unit.</text>
 </svg>
 ```
 
@@ -625,7 +625,7 @@ A window of fixed size slides across the words. The simplest version just cuts, 
 ```
 
 ::: notes
-This is the naive version of chunking: slide the window by its full size, no sharing. It works until an idea happens to straddle the cut -- then half of it ends up in chunk 1, half in chunk 2, and neither chunk contains the whole thing.
+This is the naive version of chunking: slide the window by its full size, no sharing. It works until an idea happens to straddle the cut - then half of it ends up in chunk 1, half in chunk 2, and neither chunk contains the whole thing.
 :::
 
 ---
@@ -666,12 +666,12 @@ Shift the window by less than its full size, and consecutive chunks share a few 
     <rect x="300" y="185" width="132" height="90" style="fill:var(--amber); fill-opacity:0.22; stroke:var(--amber); stroke-width:2; rx:8"/>
     <text class="note" x="366" y="234" text-anchor="middle" style="fill:var(--amber); font-weight:600">overlap</text>
   </g>
-  <text class="note" x="500" y="380" text-anchor="middle">The last words of chunk 1 are the first words of chunk 2 -- the idea at the seam survives in both.</text>
+  <text class="note" x="500" y="380" text-anchor="middle">The last words of chunk 1 are the first words of chunk 2 - the idea at the seam survives in both.</text>
 </svg>
 ```
 
 ::: notes
-Same window, shifted by less than its width. The two chunks now share a band of words. Whatever idea lands in that band is complete in chunk 1 and complete again in chunk 2 -- overlap is just insurance against the cut in the previous slide. The walkthrough proves this against real words: literally `chunk_i.text.split()[-5:] == chunk_{i+1}.text.split()[:5]`.
+Same window, shifted by less than its width. The two chunks now share a band of words. Whatever idea lands in that band is complete in chunk 1 and complete again in chunk 2 - overlap is just insurance against the cut in the previous slide. The walkthrough proves this against real words: literally `chunk_i.text.split()[-5:] == chunk_{i+1}.text.split()[:5]`.
 :::
 
 ---
@@ -706,12 +706,12 @@ A bigger window swallows unrelated ideas into one chunk. A smaller window slices
     <path class="edge" d="M 780 170 L 800 170" style="stroke-dasharray:4 4"/>
     <text class="note" x="740" y="300" text-anchor="middle">one idea, chopped into pieces with no context</text>
   </g>
-  <text class="note" x="500" y="370" text-anchor="middle">There is no universally right size -- it depends on how self-contained your documents' ideas are.</text>
+  <text class="note" x="500" y="370" text-anchor="middle">There is no universally right size - it depends on how self-contained your documents' ideas are.</text>
 </svg>
 ```
 
 ::: notes
-Both failure modes are real. Too big, and a single chunk answers for three different questions, diluting what a retriever matches against. Too small, and a chunk stops being a coherent unit at all -- just a shard of a sentence. Aurora Cloud's pipeline uses size=40 with overlap=10 as its working default; the walkthrough shows what a much smaller window does instead.
+Both failure modes are real. Too big, and a single chunk answers for three different questions, diluting what a retriever matches against. Too small, and a chunk stops being a coherent unit at all - just a shard of a sentence. Aurora Cloud's pipeline uses size=40 with overlap=10 as its working default; the walkthrough shows what a much smaller window does instead.
 :::
 
 ---
@@ -746,7 +746,7 @@ Under the window this pipeline actually uses, nearly every one of the 48 documen
 ```
 
 ::: notes
-Every square here is one of Aurora Cloud's real documents. Under the pipeline's actual default (size=40, overlap=10), all 48 stay whole -- confirmed empirically, not assumed. The flipbook that follows shrinks the window to size=15, finds a document that really does split into multiple chunks, and checks the overlapping words against each other directly.
+Every square here is one of Aurora Cloud's real documents. Under the pipeline's actual default (size=40, overlap=10), all 48 stay whole - confirmed empirically, not assumed. The flipbook that follows shrinks the window to size=15, finds a document that really does split into multiple chunks, and checks the overlapping words against each other directly.
 :::
 
 ---
@@ -956,7 +956,7 @@ Once meaning has a location, "search by meaning" has a precise mechanical defini
 # Building the Index {.center}
 
 ::: lead
-Every chunk now has a vector. Those vectors don't sit around loose -- they
+Every chunk now has a vector. Those vectors don't sit around loose - they
 get packed together into one structure: the index. Building it happens
 once. Answering a question against it never does.
 :::
@@ -968,7 +968,7 @@ once. Answering a question against it never does.
 ::: notes
 This is the hinge between "embeddings as geometry" and "retrieval": once
 each of the 48 chunks is a point in vector space, those points get stored
-together as a single fitted object -- the TF-IDF matrix plus the vectorizer
+together as a single fitted object - the TF-IDF matrix plus the vectorizer
 that produced it. Fitting that object is a one-time cost. Every question
 that follows, no matter how different, is just a lookup against the same
 object.
@@ -1001,14 +1001,14 @@ object.
     <rect class="card hot" x="620" y="150" width="280" height="100"/>
     <text class="cap big" x="760" y="207" text-anchor="middle">the index</text>
   </g>
-  <text class="note" x="500" y="385" text-anchor="middle">Not 48 separate lookups later -- one shared structure, right now.</text>
+  <text class="note" x="500" y="385" text-anchor="middle">Not 48 separate lookups later - one shared structure, right now.</text>
 </svg>
 ```
 
 ::: notes
 Under the hood this is literally one `VectorIndex` object: a fitted
 `TfidfVectorizer` plus the matrix of every chunk's vector, together. There
-is no per-chunk index -- there is one index that happens to contain 48 rows.
+is no per-chunk index - there is one index that happens to contain 48 rows.
 :::
 
 ---
@@ -1021,12 +1021,12 @@ The fit is a single event. Every search after it is free to repeat.
 <svg class="ragfig" viewBox="0 0 1000 400">
   <line x1="120" y1="230" x2="900" y2="230" style="stroke:var(--rule);stroke-width:2"/>
   <g class="fragment pop">
-    <text class="zonelabel" x="220" y="90">BUILD -- ONCE</text>
+    <text class="zonelabel" x="220" y="90">BUILD - ONCE</text>
     <circle class="node merge" cx="220" cy="230" r="28"/>
     <text class="cap" x="220" y="175">fit the index</text>
   </g>
   <path class="edge draw fragment" pathLength="1" d="M 248 230 L 900 230" style="stroke-dasharray:8 6"/>
-  <text class="zonelabel" x="620" y="90">QUERY -- ANY NUMBER OF TIMES</text>
+  <text class="zonelabel" x="620" y="90">QUERY - ANY NUMBER OF TIMES</text>
   <g class="fragment pop">
     <circle class="node" cx="400" cy="230" r="18"/>
     <text class="cap" x="400" y="290">search #1</text>
@@ -1085,7 +1085,7 @@ Three unrelated questions. One already-built index answers all of them.
   </g>
   <path class="edge draw fragment" data-fragment-index="3" pathLength="1" d="M 800 120 L 585 260"/>
 
-  <text class="note" x="500" y="385" text-anchor="middle">One PTO question, one outage question, one totally off-topic question -- same index, zero refits.</text>
+  <text class="note" x="500" y="385" text-anchor="middle">One PTO question, one outage question, one totally off-topic question - same index, zero refits.</text>
 </svg>
 ```
 
@@ -1112,7 +1112,7 @@ The wrong mental model refits per question. The right one fits once.
     <text class="cap" x="500" y="105" text-anchor="middle">rebuild</text>
     <rect class="node ghost" x="700" y="65" width="180" height="70"/>
     <text class="cap" x="790" y="105" text-anchor="middle">rebuild</text>
-    <text class="note" x="500" y="160" text-anchor="middle">a fresh index per question -- thrown away every time</text>
+    <text class="note" x="500" y="160" text-anchor="middle">a fresh index per question - thrown away every time</text>
   </g>
 
   <line x1="80" y1="195" x2="920" y2="195" style="stroke:var(--rule);stroke-width:1.5;stroke-dasharray:4 4"/>
@@ -1214,7 +1214,7 @@ answering it becomes "which points are nearest," not "which document sounds righ
 ```
 
 ::: notes
-The query is embedded through the exact same vectorizer that embedded every chunk --
+The query is embedded through the exact same vectorizer that embedded every chunk -
 that's what makes the comparison meaningful. Cosine similarity scores all 48 chunks
 at once; sorting and slicing to the top-k is the only step left.
 :::
@@ -1230,24 +1230,24 @@ at once; sorting and slicing to the top-k is the only step left.
   <g class="fragment">
     <circle class="node" cx="330" cy="140" r="18"/>
     <path class="edge draw" pathLength="1" d="M 480 190 L 348 148"/>
-    <text class="note" x="300" y="110" text-anchor="middle" style="fill:var(--feat)">0.481 -- close</text>
+    <text class="note" x="300" y="110" text-anchor="middle" style="fill:var(--feat)">0.481 - close</text>
   </g>
   <g class="fragment">
     <circle class="node" cx="740" cy="230" r="18"/>
     <path class="edge draw" pathLength="1" d="M 520 195 L 725 226"/>
-    <text class="note" x="770" y="270" text-anchor="middle" style="fill:var(--muted)">0.068 -- far</text>
+    <text class="note" x="770" y="270" text-anchor="middle" style="fill:var(--muted)">0.068 - far</text>
   </g>
   <g class="fragment">
     <circle class="node" cx="620" cy="90" r="18"/>
     <path class="edge draw" pathLength="1" d="M 510 160 L 610 100"/>
-    <text class="note" x="660" y="70" text-anchor="middle" style="fill:var(--muted)">0.062 -- far</text>
+    <text class="note" x="660" y="70" text-anchor="middle" style="fill:var(--muted)">0.062 - far</text>
   </g>
   <text class="cap big fragment" x="500" y="330" text-anchor="middle">Rank by score, take the top few, done.</text>
 </svg>
 ```
 
 ::: notes
-There's no threshold logic inside retrieval itself -- it always returns its top-k,
+There's no threshold logic inside retrieval itself - it always returns its top-k,
 confidently, whether the best score is 0.48 or 0.02. Deciding what to do with a weak
 top score is generation's job (cite or refuse), a few concepts from now.
 :::
@@ -1267,7 +1267,7 @@ Retrieval always returns its top-k, confidently, whether the best score is 0.48 
 ::: notes
 Watch the same query land in the embedding space right where the top-ranked hr
 documents sit, and watch a second, uncovered question come back with uniformly low
-scores -- retrieval still answers, it just isn't confident about any of it.
+scores - retrieval still answers, it just isn't confident about any of it.
 :::
 
 
@@ -1295,7 +1295,7 @@ scores -- retrieval still answers, it just isn't confident about any of it.
 
 ::: lead
 Dense search ranks by meaning. Sparse search ranks by exact words. Run the same
-query through both and they don't agree -- fusing the two beats trusting either alone.
+query through both and they don't agree - fusing the two beats trusting either alone.
 :::
 
 ---
@@ -1325,7 +1325,7 @@ reciprocal rank fusion, combines both rankings by position, not raw score
 <svg class="ragfig" viewBox="0 0 1000 400">
   <g class="fragment">
     <rect class="zone" x="40" y="55" width="430" height="300"/>
-    <text class="zonelabel" x="255" y="90" text-anchor="middle" style="fill:var(--accent)">DENSE -- COSINE SIMILARITY</text>
+    <text class="zonelabel" x="255" y="90" text-anchor="middle" style="fill:var(--accent)">DENSE - COSINE SIMILARITY</text>
     <text class="note" x="118" y="155">query</text>
     <circle class="node" cx="150" cy="205" r="34"/><text class="hash" x="150" y="211">Q</text>
     <circle class="node" cx="365" cy="150" r="30" style="stroke:var(--amber)"/>
@@ -1340,7 +1340,7 @@ reciprocal rank fusion, combines both rankings by position, not raw score
   </g>
   <g class="fragment">
     <rect class="zone" x="530" y="55" width="430" height="300"/>
-    <text class="zonelabel" x="745" y="90" text-anchor="middle" style="fill:var(--feat)">SPARSE -- BM25</text>
+    <text class="zonelabel" x="745" y="90" text-anchor="middle" style="fill:var(--feat)">SPARSE - BM25</text>
     <rect class="card" x="565" y="120" width="105" height="42"/><text class="cardtext" x="617" y="146" text-anchor="middle">notify</text>
     <rect class="card" x="680" y="120" width="120" height="42" style="stroke:var(--feat)"/><text class="cardtext" x="740" y="146" text-anchor="middle" style="fill:var(--feat)">escalation</text>
     <rect class="card" x="810" y="120" width="105" height="42"/><text class="cardtext" x="862" y="146" text-anchor="middle">on-call</text>
@@ -1354,7 +1354,7 @@ reciprocal rank fusion, combines both rankings by position, not raw score
 
 ::: notes
 Dense turns the query into a vector and measures how close it lands to every doc's
-vector -- a graded, continuous notion of "about the same thing." Sparse never leaves
+vector - a graded, continuous notion of "about the same thing." Sparse never leaves
 the words: it rewards a document for containing the query's rare terms, "escalation"
 and "on-call" here, whether or not the rest of the document is topically similar.
 :::
@@ -1387,7 +1387,7 @@ and "on-call" here, whether or not the rest of the document is topically similar
     <path class="edge" d="M 270 110 C 450 110, 550 196, 730 196" style="stroke:var(--amber);stroke-dasharray:5 4"/>
     <path class="edge" d="M 270 200 C 450 200, 550 286, 730 286" style="stroke:var(--accent);stroke-dasharray:5 4"/>
     <path class="edge" d="M 270 290 C 450 290, 550 110, 730 110" style="stroke:var(--feat);stroke-dasharray:5 4"/>
-    <text class="note" x="500" y="370" text-anchor="middle">Same corpus, same query -- Escalation Policy jumps from #3 to #1.</text>
+    <text class="note" x="500" y="370" text-anchor="middle">Same corpus, same query - Escalation Policy jumps from #3 to #1.</text>
   </g>
 </svg>
 ```
@@ -1438,7 +1438,7 @@ the results. Neither list is wrong; they're answering slightly different questio
     <text class="cardtext" x="750" y="205">#2</text><text class="cardtext" x="810" y="205" style="fill:var(--feat)">Escalation</text>
     <rect class="card" x="730" y="268" width="260" height="54" style="stroke:var(--accent)"/>
     <text class="cardtext" x="750" y="295">#3</text><text class="cardtext" x="810" y="295">Overview</text>
-    <text class="note" x="500" y="375" text-anchor="middle">score(chunk) = 1/(60 + rank_dense) + 1/(60 + rank_sparse) -- rank position only, never raw score</text>
+    <text class="note" x="500" y="375" text-anchor="middle">score(chunk) = 1/(60 + rank_dense) + 1/(60 + rank_sparse) - rank position only, never raw score</text>
   </g>
 </svg>
 ```
@@ -1522,7 +1522,7 @@ actual wording is in this chunk.
 
 ::: notes
 Set up the handoff cleanly before showing anything moving. Retrieval already ran and
-already narrowed 48 documents down to 5 candidates -- reranking never sees the other
+already narrowed 48 documents down to 5 candidates - reranking never sees the other
 43. It is a second pass over a short list, not a second search.
 :::
 
@@ -1588,7 +1588,7 @@ A single global signal, scored across the whole corpus at once, is what makes re
 
 ## What Actually Happened: "on-call handoff day"
 
-Tried the near-duplicate pairs first (PTO days, expense threshold, outage lag) --
+Tried the near-duplicate pairs first (PTO days, expense threshold, outage lag) -
 none of them swap, because the one word that tells those two docs apart never appears
 in the query. This query, tried next, produces a real swap at #1.
 
@@ -1624,7 +1624,7 @@ in the query. This query, tried next, produces a real swap at #1.
   </g>
 
   <text class="note" x="500" y="330" text-anchor="middle">"Onboarding Checklist" repeats the generic word "day" twice.</text>
-  <text class="note" x="500" y="352" text-anchor="middle">Only "On-call Rotation Schedule" contains the exact word "handoff" -- reranking promotes it.</text>
+  <text class="note" x="500" y="352" text-anchor="middle">Only "On-call Rotation Schedule" contains the exact word "handoff" - reranking promotes it.</text>
 </svg>
 ```
 
@@ -1666,7 +1666,7 @@ by idf, "handoff" is rare and, once scored on its own per chunk, decisive.
 
 ::: notes
 Ties directly to the assert in run.py: `set(ids_before) == set(ids_after)`. Worth
-saying plainly -- if retrieval missed the right document entirely, no amount of
+saying plainly - if retrieval missed the right document entirely, no amount of
 reranking gets it back. That is still retrieval's job, not reranking's.
 :::
 
@@ -1701,8 +1701,8 @@ tell two documents apart on the one word neither of them is being asked about.
 ::: notes
 Confirmed empirically, not assumed: run the PTO query and the pair's relative order
 is identical before and after reranking, down to the score (both land on the same
-overlap count and the same tie-break). Whatever actually resolves this pair -- picking
-one canonical version, deduplication upstream -- is a different concept's job, not
+overlap count and the same tie-break). Whatever actually resolves this pair - picking
+one canonical version, deduplication upstream - is a different concept's job, not
 reranking's.
 :::
 
@@ -1757,7 +1757,7 @@ Retrieval hands back three objects. The model reads one string. Something has to
     <text class="cardtext" x="680" y="192">Guidelines</text>
     <text class="note" x="680" y="226">score 0.068</text>
   </g>
-  <text class="cap" x="500" y="335" text-anchor="middle">a title, a score, a wall of text -- three separate objects</text>
+  <text class="cap" x="500" y="335" text-anchor="middle">a title, a score, a wall of text - three separate objects</text>
 </svg>
 ```
 
@@ -1814,7 +1814,7 @@ The retrieved chunks flow into a single card, and each one gains a number as it 
 ```
 
 ::: notes
-This is the "A" in RAG. `assemble_prompt()` is a plain string builder: it walks the chunk list in order and writes each one out behind a bracketed number. Nothing clever happens here, and that is the point -- the model's grounding depends on this step being completely mechanical and inspectable.
+This is the "A" in RAG. `assemble_prompt()` is a plain string builder: it walks the chunk list in order and writes each one out behind a bracketed number. Nothing clever happens here, and that is the point - the model's grounding depends on this step being completely mechanical and inspectable.
 :::
 
 ---
@@ -1835,7 +1835,7 @@ This is the "A" in RAG. `assemble_prompt()` is a plain string builder: it walks 
     <text class="cardtext" x="690" y="102">(PTO Policy v2) ...</text>
   </g>
   <text class="cap" x="500" y="200" text-anchor="middle">the number is the excerpt's only name inside the prompt</text>
-  <text class="note" x="500" y="240" text-anchor="middle">order of chunks in decides the order of numbers out -- nothing else does</text>
+  <text class="note" x="500" y="240" text-anchor="middle">order of chunks in decides the order of numbers out - nothing else does</text>
 </svg>
 ```
 
@@ -1879,7 +1879,7 @@ The numbering is positional, not semantic: chunk one becomes `[1]` because it is
 ```
 
 ::: notes
-Three zones, in this exact order in the real string: an instruction that scopes the model to the excerpts, the numbered excerpts themselves, and a closing rule that demands a citation for every claim. The closing rule is what makes cite-or-refuse enforceable downstream -- it is written directly into the prompt, not bolted on after the model answers.
+Three zones, in this exact order in the real string: an instruction that scopes the model to the excerpts, the numbered excerpts themselves, and a closing rule that demands a citation for every claim. The closing rule is what makes cite-or-refuse enforceable downstream - it is written directly into the prompt, not bolted on after the model answers.
 :::
 
 ---
@@ -1912,7 +1912,7 @@ Three zones, in this exact order in the real string: an instruction that scopes 
     <text class="cardtext" x="680" y="255" style="fill:var(--amber)">the prompt string</text>
   </g>
 
-  <text class="cap" x="500" y="355" text-anchor="middle">corpus, index, and every other chunk never cross -- only this one string does</text>
+  <text class="cap" x="500" y="355" text-anchor="middle">corpus, index, and every other chunk never cross - only this one string does</text>
 </svg>
 ```
 
@@ -1990,7 +1990,7 @@ augmentation in the earlier slides, now reaching its two possible endings.
     <text class="note" x="745" y="316" text-anchor="middle" style="fill:#e06b9c">score never clears the bar</text>
   </g>
   <g class="fragment">
-    <text class="cap big" x="500" y="380">Same generator, same gate -- the evidence decides which card you land on.</text>
+    <text class="cap big" x="500" y="380">Same generator, same gate - the evidence decides which card you land on.</text>
   </g>
 </svg>
 ```
@@ -2020,7 +2020,7 @@ a cited sentence. A genuinely uncovered one gets an honest no.
     <text class="note" x="352" y="306">"...accrue 20 days of paid time off..."</text>
   </g>
   <g class="fragment">
-    <text class="note" x="500" y="378" text-anchor="middle">[1] is a pointer, not decoration -- it names the exact chunk the sentence came from.</text>
+    <text class="note" x="500" y="378" text-anchor="middle">[1] is a pointer, not decoration - it names the exact chunk the sentence came from.</text>
   </g>
 </svg>
 ```
@@ -2096,13 +2096,13 @@ No relevant chunk retrieved, without a refusal gate, the model falls back on par
     <text class="cardtext" x="625" y="292">decline, honestly</text>
   </g>
   <g class="fragment">
-    <text class="note" x="500" y="378" text-anchor="middle">No partial credit -- an answer is either grounded, or it doesn't happen.</text>
+    <text class="note" x="500" y="378" text-anchor="middle">No partial credit - an answer is either grounded, or it doesn't happen.</text>
   </g>
 </svg>
 ```
 
 ::: notes
-A plain language model never has this branch -- it always produces text. Cite
+A plain language model never has this branch - it always produces text. Cite
 or refuse gives the system a way to say "I don't know" instead of a fluent
 guess. That one branch is the difference between a tool people can trust and
 one that merely sounds confident.
@@ -2144,7 +2144,7 @@ check its own result first, and search again if it wasn't good enough.
 
 ::: notes
 This is the last mechanical concept before evaluation. Nothing about the retrieval
-machinery changes here -- the same `.search()` from every earlier topic is still
+machinery changes here - the same `.search()` from every earlier topic is still
 doing the work. What's new is a decision wrapped around it: look at the score,
 decide whether to trust it, and only pay for a second call when the first one earns it.
 :::
@@ -2178,7 +2178,7 @@ The retrieval loop so far always asks once. An agent gets to check its own work 
 ```
 
 ::: notes
-Topics so far (retrieval through generation) are one fixed pass: embed the query, pull the top chunks, answer. An agent wraps that same search_corpus function as a tool it can call, inspect, and call again -- the retrieval machinery underneath doesn't change, only who decides when to stop.
+Topics so far (retrieval through generation) are one fixed pass: embed the query, pull the top chunks, answer. An agent wraps that same search_corpus function as a tool it can call, inspect, and call again - the retrieval machinery underneath doesn't change, only who decides when to stop.
 :::
 
 ---
@@ -2219,7 +2219,7 @@ One tool call, one confidence check, and a fork: answer now, or search again fir
 ```
 
 ::: notes
-This is run_agent(): a scripted loop, not a free-ranging agent. It calls search_corpus once, and only takes the loop-back edge if the top score comes back under 0.2. The retry is capped at exactly one -- there's no path back through the diamond a second time, so this can never turn into an unbounded search spiral.
+This is run_agent(): a scripted loop, not a free-ranging agent. It calls search_corpus once, and only takes the loop-back edge if the top score comes back under 0.2. The retry is capped at exactly one - there's no path back through the diamond a second time, so this can never turn into an unbounded search spiral.
 :::
 
 ---
@@ -2240,7 +2240,7 @@ The question: "what's up with the database when it just kind of goes down." Vagu
     <rect class="card hot" x="60" y="200" width="880" height="110"/>
     <text class="cardtext" x="90" y="245">search_corpus("what's with database ... goes down")</text>
     <text class="note" x="90" y="280">-> top: On-call Runbook: Database Outage v2, score 0.176</text>
-    <text class="note" x="90" y="302">same top doc, same score -- the reformulation confirmed it, not changed it</text>
+    <text class="note" x="90" y="302">same top doc, same score - the reformulation confirmed it, not changed it</text>
   </g>
   <g class="fragment">
     <text class="cap" x="500" y="360" text-anchor="middle">finish: "If the primary database is unreachable, page the database on-call immediately. [1]"</text>
@@ -2249,7 +2249,7 @@ The question: "what's up with the database when it just kind of goes down." Vagu
 ```
 
 ::: notes
-DEMO_QUERY_WEAK ("what happens during a database outage") was the first thing tried here, and despite the name it scores 0.212 -- just over the 0.2 bar, so it never triggers a second call. This awkward, filler-heavy phrasing is what actually pushes the first score under threshold. Both calls land on the same document in this case; the reformulation didn't need to find something new, it just had to clear the confidence bar.
+DEMO_QUERY_WEAK ("what happens during a database outage") was the first thing tried here, and despite the name it scores 0.212 - just over the 0.2 bar, so it never triggers a second call. This awkward, filler-heavy phrasing is what actually pushes the first score under threshold. Both calls land on the same document in this case; the reformulation didn't need to find something new, it just had to clear the confidence bar.
 :::
 
 ---
@@ -2277,7 +2277,7 @@ The reformulation is a word filter, not a rewrite from scratch: drop anything fo
 ```
 
 ::: notes
-The rule is literally `" ".join(w for w in question.split() if len(w) > 3)`. It has nothing to do with meaning -- it just strips short filler words, the same words a person trims when repeating themselves more plainly. It's a stand-in for what a real agent's reformulation step does conceptually, kept simple so the trace stays deterministic and checkable.
+The rule is literally `" ".join(w for w in question.split() if len(w) > 3)`. It has nothing to do with meaning - it just strips short filler words, the same words a person trims when repeating themselves more plainly. It's a stand-in for what a real agent's reformulation step does conceptually, kept simple so the trace stays deterministic and checkable.
 :::
 
 ---
@@ -2290,7 +2290,7 @@ The agent only pays for a second search when the first one earns it.
 <svg class="ragfig" viewBox="0 0 1000 400">
   <g class="fragment">
     <rect class="zone" x="30" y="30" width="940" height="150"/>
-    <text class="zonelabel" x="500" y="55" text-anchor="middle">CONFIDENT ON THE FIRST TRY -- ONE CALL</text>
+    <text class="zonelabel" x="500" y="55" text-anchor="middle">CONFIDENT ON THE FIRST TRY - ONE CALL</text>
     <rect class="node" x="60" y="80" width="150" height="70"/>
     <text class="cap" x="135" y="122" text-anchor="middle">question</text>
     <path class="edge" d="M 210 115 L 268 115"/>
@@ -2303,7 +2303,7 @@ The agent only pays for a second search when the first one earns it.
   </g>
   <g class="fragment">
     <rect class="zone" x="30" y="210" width="940" height="170"/>
-    <text class="zonelabel" x="500" y="235" text-anchor="middle">WEAK ON THE FIRST TRY -- TWO CALLS</text>
+    <text class="zonelabel" x="500" y="235" text-anchor="middle">WEAK ON THE FIRST TRY - TWO CALLS</text>
     <rect class="node" x="60" y="260" width="130" height="70"/>
     <text class="cap" x="125" y="302" text-anchor="middle">question</text>
     <path class="edge" d="M 190 295 L 238 295"/>
@@ -2321,7 +2321,7 @@ The agent only pays for a second search when the first one earns it.
 ```
 
 ::: notes
-Same corpus, same k, same code path -- the only thing that changes the shape of the trace is the confidence of the first hit. That's the actual point of the design: an agent that searched twice on every question would double its latency and cost for no benefit on the questions it already nailed. Gating the retry on a real threshold means the expensive path only runs when it's earning its keep.
+Same corpus, same k, same code path - the only thing that changes the shape of the trace is the confidence of the first hit. That's the actual point of the design: an agent that searched twice on every question would double its latency and cost for no benefit on the questions it already nailed. Gating the retry on a real threshold means the expensive path only runs when it's earning its keep.
 :::
 
 ---
@@ -2351,8 +2351,8 @@ system is to run it against questions with known answers, and grade it
 honestly.
 :::
 
-Every concept so far -- chunking, retrieval, hybrid search, reranking,
-generation -- is a design choice. Evaluation is how you find out whether
+Every concept so far - chunking, retrieval, hybrid search, reranking,
+generation - is a design choice. Evaluation is how you find out whether
 those choices actually work.
 
 ::: notes
@@ -2399,14 +2399,14 @@ it, unchanged.
     <path class="edge" d="M 610 320 L 700 320" style="stroke-dasharray:6 5"/>
     <rect class="card" x="710" y="290" width="250" height="60" style="stroke:var(--muted); stroke-dasharray:6 5"/>
     <text class="cardtext" x="734" y="315" style="font-size:12px">no such document</text>
-    <text class="cardtext" x="734" y="333" style="font-size:12px">exists -- on purpose</text>
+    <text class="cardtext" x="734" y="333" style="font-size:12px">exists - on purpose</text>
   </g>
 </svg>
 ```
 
 ::: notes
 Three of the four questions have a real answer in the corpus. The fourth is
-deliberately unanswerable -- it belongs in the set for exactly the same
+deliberately unanswerable - it belongs in the set for exactly the same
 reason as the other three, to check what the system does, not just whether
 it sounds confident.
 :::
@@ -2416,7 +2416,7 @@ it sounds confident.
 ## Recall@k is a looser bar than faithful
 
 Recall@k asks whether the right document is anywhere in the top few
-results. Faithful asks a stricter question -- is it the very top hit, with a
+results. Faithful asks a stricter question - is it the very top hit, with a
 real similarity score worth trusting.
 
 ```{=html}
@@ -2442,7 +2442,7 @@ real similarity score worth trusting.
 
 ::: notes
 A pipeline can pass recall@k and still be untrustworthy at the top. The
-right document is in the list, but something else outranks it -- and that
+right document is in the list, but something else outranks it - and that
 is what actually gets cited. Faithful is the harder, more honest bar.
 :::
 
@@ -2491,7 +2491,7 @@ is what actually gets cited. Faithful is the harder, more honest bar.
 ::: notes
 This is a real run of the real toy pipeline against these four frozen
 questions. Three pass recall and faithful together. The fourth fails both,
-on purpose -- there is no document in this corpus about the meaning of life,
+on purpose - there is no document in this corpus about the meaning of life,
 and the honest answer is to say so, not to guess from the nearest chunk.
 :::
 
@@ -2519,6 +2519,52 @@ Every design choice in this deck, chunk size, hybrid fusion, reranking, the refu
 ## Evaluation: How You Know It Works {auto-animate=true}
 
 ![](assets/evaluation/step-02.png){fig-align="center"}
+
+---
+
+## Making It Real, With Chroma
+
+Everything so far ran a hand-built TF-IDF index. Swap in chromadb, a real vector store, and chonkie, a real chunker, and the retrieval story does not change, only the plumbing underneath it does.
+
+::: {.def-box}
+**Chroma**, an embedded vector store, `pip install chromadb`, no server to run. A collection stores documents, embeds them, and answers `.query()` calls with the nearest matches, all inside the same Python process.
+:::
+
+
+# The Toy Index, Now Real Chroma
+
+## The Toy Index, Now Real Chroma {auto-animate=true}
+
+![](assets/chroma-real/step-01.png){fig-align="center"}
+
+## The Toy Index, Now Real Chroma {auto-animate=true}
+
+![](assets/chroma-real/step-02.png){fig-align="center"}
+
+## The Toy Index, Now Real Chroma {auto-animate=true}
+
+![](assets/chroma-real/step-03.png){fig-align="center"}
+
+---
+
+::: {.key-idea}
+The hand-built TF-IDF index becomes one real library call, `coll.query()`. Same corpus, same query, a relevant document retrieved, now backed by a real vector store instead of a few hundred lines of hand-rolled code.
+:::
+
+::::: {.taxonomy style="--cols:3"}
+::: {.cat}
+<h4>chroma</h4>
+embedded and local, runs in-process, no server, the vector store this coda actually calls
+:::
+::: {.cat}
+<h4>milvus, pinecone</h4>
+managed vector stores built for scale, a server (or a cloud service) to run and operate
+:::
+::: {.cat}
+<h4>chonkie, docling</h4>
+chonkie chunks text, used above for real, docling ingests PDFs and other documents into text, named here, not run
+:::
+:::::
 
 ---
 

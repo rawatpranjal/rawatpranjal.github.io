@@ -1183,6 +1183,76 @@ vehicle.
 
 ---
 
+## Pydantic AI
+
+::: def-box
+**Pydantic AI** is a typed single-agent framework: `Agent(model,
+output_type=SomeModel)` runs one call and hands back a real, validated
+instance of that model. One pip install, no graph, no checkpointer.
+:::
+
+---
+
+## Instructor
+
+::: def-box
+**Instructor** patches any OpenAI-compatible client so `.create()` returns
+a validated Pydantic object instead of raw JSON text, the smallest
+possible step from prose to a typed object.
+:::
+
+---
+
+
+# The Lighter Workhorses
+
+## The Lighter Workhorses {auto-animate=true}
+
+![](assets/pydantic-ai-and-instructor/step-01.png){fig-align="center"}
+
+## The Lighter Workhorses {auto-animate=true}
+
+![](assets/pydantic-ai-and-instructor/step-02.png){fig-align="center"}
+
+## The Lighter Workhorses {auto-animate=true}
+
+![](assets/pydantic-ai-and-instructor/step-03.png){fig-align="center"}
+
+## The Lighter Workhorses {auto-animate=true}
+
+![](assets/pydantic-ai-and-instructor/step-04.png){fig-align="center"}
+
+---
+
+::: key-idea
+Pick the lightest tool that does the job: raw SDK for one call, Pydantic
+AI for one typed agent, LangGraph when you need durable multi-step.
+:::
+
+## Three Ways to Get a Typed Order
+
+::::: {.taxonomy style="--cols:3"}
+::: cat
+<h4>Raw SDK</h4>
+One call, hand-parsed JSON, no framework dependency. Right when there is
+exactly one call and you're willing to parse the reply yourself.
+:::
+
+::: cat
+<h4>Pydantic AI</h4>
+`Agent(model, output_type=Order)`, one pip install. Right when one call
+needs a validated typed result and nothing more.
+:::
+
+::: cat
+<h4>LangGraph</h4>
+Nodes, edges, a checkpointer. Right when the job is many calls, branching,
+or must resume without re-running side effects.
+:::
+:::::
+
+---
+
 ## References
 
 **Guides**
