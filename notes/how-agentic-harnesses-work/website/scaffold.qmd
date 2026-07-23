@@ -71,6 +71,17 @@ format:
 .reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
 @keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+/* lecture callouts */
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -239,8 +250,22 @@ Start from the atom. A model call is a pure function of its context. Tools
 give it hands. The loop gives it persistence.
 :::
 
+::: {.key-idea}
+The harness is everything around the model that lets it work longer than one context window.
+:::
+
 ::: {.src}
 Grounding: docs/long-running-agents-research.md · autonomous-loop-patterns.md
+:::
+
+---
+
+## Context window
+
+Every model call sees exactly one thing: the column of text built up so far, system prompt, prior turns, tool results, nothing more.
+
+::: {.def-box}
+**Context window:** the column the model reads before each forward pass. It is the model's entire universe for that call, and it does not grow with the size of the job.
 :::
 
 ---
@@ -249,7 +274,27 @@ Grounding: docs/long-running-agents-research.md · autonomous-loop-patterns.md
 
 ---
 
+## Tools give it hands
+
+A model call alone cannot touch the disk. A tool is a named action, `read_file`, `write_file`, `run_tests`, that the model can ask for and the harness actually executes.
+
+::: {.def-box}
+**Tool:** a function the harness runs on the model's behalf. The model only proposes the call, the harness executes it, and the real result is what comes back into the context.
+:::
+
+---
+
 <!--FB:tools-close-the-loop|Tools Close the Loop-->
+
+---
+
+## The agent loop
+
+One session is a cycle repeated until the model stops or the budget runs out: read the state, act, check the real consequence, then write down what happened.
+
+::: {.def-box}
+**Agent loop:** orient (read what is true), act (call a tool), check (see the real result), record (persist the outcome), then repeat. Each lap feeds the next.
+:::
 
 ---
 
@@ -322,6 +367,20 @@ retrieval, and MCP are three disciplines for filling it with the right
 things at the right time.
 :::
 
+::: {.key-idea}
+Skills, RAG, and MCP are not separate features. They are three answers to the same question: what earns a place in a context window that never grows.
+:::
+
+---
+
+## Skills load on demand
+
+A skill is a packaged instruction set that only enters the context when the task actually matches it, in three tiers of cost.
+
+::: {.def-box}
+**Skill:** a one-line index every session pays for, a full body that loads once the task matches, and reference spokes that load only if the body actually points to them.
+:::
+
 ---
 
 <!--FB:skills-load-on-demand|Skills Load On Demand-->
@@ -340,6 +399,16 @@ Chunking, embeddings as geometry, hybrid search, reranking, cite-or-refuse. All 
 
 ---
 
+## MCP, the universal port
+
+MCP lets a separate program's tools show up in the model's tool belt, over a real JSON-RPC wire, indistinguishable from a built-in tool.
+
+::: {.def-box}
+**MCP (Model Context Protocol):** a JSON-RPC handshake, initialize, list tools, call a tool, that turns foreign code into something the model calls exactly like a native tool.
+:::
+
+---
+
 <!--FB:mcp-the-universal-port|MCP, the Universal Port-->
 
 ---
@@ -349,6 +418,10 @@ Chunking, embeddings as geometry, hybrid search, reranking, cite-or-refuse. All 
 ::: lead
 Why not just tell the model the rules? Because prose competes with
 everything else in the column, and the model is graded on looking right.
+:::
+
+::: {.key-idea}
+A rule the model can read is a rule it can lose to compaction or talk past. A rule wired as a hook fires at the loop boundary, every time, whether the model remembers it or not.
 :::
 
 ---
@@ -453,6 +526,16 @@ real gate really blocking a real command.
 
 ---
 
+## Hooks own the boundary
+
+A hook is code, not a suggestion in the prompt. It sits at a fixed point in the loop, before a tool runs, after one finishes, when the model tries to stop, and can inject text, deny the call outright, or bounce the session back to work.
+
+::: {.def-box}
+**Hook:** a callback wired to a loop event that returns a decision, allow, inject, deny, or continue, and the harness actually enforces it before the model's next move.
+:::
+
+---
+
 <!--FB:hooks-own-the-boundary|Hooks Own the Boundary-->
 
 ---
@@ -464,13 +547,76 @@ The context dies with the session. Whatever should outlive it must move to
 disk before the lights go out.
 :::
 
+::: {.key-idea}
+The agent does not remember anything between sessions. The repo does. Whatever matters has to be written to disk before the context disappears.
+:::
+
+---
+
+## Memory lives on disk
+
+A fresh session starts with an empty context and no memory of the last one. What survives lives in files a new session reads back.
+
+::: {.def-box}
+**Memory file:** anything on disk a session writes before it ends, and a later session reads on the way in, git history, progress.md, feature_list.json, CLAUDE.md or AGENTS.md.
+:::
+
 ---
 
 <!--FB:memory-lives-on-disk|Memory Lives on Disk-->
 
 ---
 
+## Compaction
+
+A session that runs long enough fills its own budget. Compaction is the harness stepping in to shrink the column before the model ever notices.
+
+::: {.def-box}
+**Compaction:** when the context passes its token budget, older turns are collapsed into one summary, keeping the earliest messages, that summary, and the most recent turns.
+:::
+
+---
+
 <!--FB:compaction-what-survives|Compaction: What Survives-->
+
+---
+
+## Pitfall: what a summary drops
+
+A constraint that rides into the context as an ordinary message can be the exact thing compaction summarizes away. The flipbook above is not hypothetical: the same rule, unpinned, survived right up until one squeeze later it was gone, and the next write really broke it.
+
+::: {.pitfall}
+An unpinned rule is one summary away from not existing. Pin what must survive compaction, and back it with a hook that checks the outcome rather than trusting the column still says so.
+:::
+
+---
+
+## The machinery, at a glance
+
+Five pieces do the work of getting the right thing into a small context window, and of keeping the model inside a boundary it cannot talk its way past.
+
+::::: {.taxonomy style="--cols:5"}
+::: cat
+<h4>Tool</h4>
+The harness executes, the model only asks. Real actions, real results back in the column.
+:::
+::: cat
+<h4>Skill</h4>
+Progressive disclosure. Index, body, spokes, loaded only as the task actually needs them.
+:::
+::: cat
+<h4>MCP</h4>
+A JSON-RPC port. Foreign code becomes a tool the model cannot tell from a built-in one.
+:::
+::: cat
+<h4>Hook</h4>
+A deterministic callback at a loop event. Injects, denies, or bounces, a gate not a suggestion.
+:::
+::: cat
+<h4>Memory file</h4>
+What outlives the session: git history, progress.md, feature_list.json, CLAUDE.md.
+:::
+:::::
 
 ---
 
@@ -481,6 +627,10 @@ Now assemble everything into a harness that ships a project across many
 sessions: an initializer that builds the world, workers that do one feature
 each, a verifier with fresh eyes, a driver that refuses early victory, and
 a disk that survives any crash.
+:::
+
+::: {.key-idea}
+Sessions are cattle, not pets. Kill one mid-task and the disk survives untouched. An initializer, one-feature sessions, a verifier, a Ralph loop, and kill-and-resume durability together turn many short, amnesiac sessions into one long-lived project.
 :::
 
 ::: {.src}
@@ -505,11 +655,50 @@ Anthropic, Effective harnesses for long-running agents · Long-running Claude fo
 
 ---
 
+## Pitfall: grading your own homework
+
+The executor above marked F10 green while its own test was failing. Not malice, just the structural bias from Part 3: a claim is cheaper to produce than a check.
+
+::: {.pitfall}
+An agent that self-certifies is not verified. Only a fresh agent with zero shared context, or a hard gate that reruns the real oracle, can confirm the work actually holds.
+:::
+
+---
+
 <!--FB:the-ralph-loop|The Ralph Loop-->
 
 ---
 
 <!--FB:kill-it-and-resume|Kill It, and Resume-->
+
+---
+
+## The long-run harness patterns
+
+Five patterns, assembled, turn many short amnesiac sessions into one project that ships.
+
+::::: {.taxonomy style="--cols:5"}
+::: cat
+<h4>Initializer</h4>
+Session one builds the environment, not the app: feature list, run instructions, plan, log, tests, zero app code.
+:::
+::: cat
+<h4>One-feature session</h4>
+Get bearings, confirm the app is not already broken, ship exactly one feature, verify, commit, log.
+:::
+::: cat
+<h4>Verifier</h4>
+A second, fresh agent with zero shared context. Only artifacts cross the wall, it reruns the oracle instead of reading the claim.
+:::
+::: cat
+<h4>Ralph loop</h4>
+A stop hook that re-reads the feature list from disk on every stop attempt and bounces the session until the oracle says done.
+:::
+::: cat
+<h4>Kill-and-resume</h4>
+Nothing precious lives in the process. SIGKILL a session and the disk survives, a fresh session resumes only what was interrupted.
+:::
+:::::
 
 ---
 
@@ -677,7 +866,7 @@ Quote: Geoffrey Huntley, the Ralph technique · docs/long-running-agents-researc
 [Cursor: scaling long-running autonomous coding](https://cursor.com/blog) · [Addy Osmani: self-improving coding agents](https://addyosmani.com) · [Geoffrey Huntley: the Ralph technique](https://ghuntley.com/ralph/) · [12-factor agents](https://github.com/humanlayer/12-factor-agents)
 
 **Siblings**
-[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html)
+[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html) · [How Inference & Serving Work, Visually](../../how-inference-and-serving-works/website/inference.html) · [How Evals & Observability Work, Visually](../../how-evals-and-observability-work/website/evals.html) · [How LangChain & LangGraph Work, Visually](../../how-langchain-and-langgraph-work/website/langchain.html)
 
 ::: {.src}
 Every figure in this deck: a real run of tinyharness, regenerable with build/regen_all.py

@@ -71,6 +71,17 @@ format:
 .reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
 @keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+/* lecture callout layer */
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -103,6 +114,22 @@ Part 3 asks the questions that decide whether any of it survives
 production. The sibling decks cover git, RAG, and agentic harnesses; this
 one covers the two libraries most teams reach for first.
 :::
+
+---
+
+## One call vs. many calls
+
+:::: {.taxonomy style="--cols: 2;"}
+::: cat
+<h4>LangChain, one composed call</h4>
+`prompt | model | parser`, plus tools and memory around it. Everything happens inside a single `.invoke()`; nothing persists once it returns.
+:::
+
+::: cat
+<h4>LangGraph, many calls, persistent</h4>
+Nodes, edges, and state threaded across an entire run: branches, cycles, checkpoints, and interrupts that survive a restart.
+:::
+::::
 
 ---
 
@@ -219,9 +246,34 @@ Everything in Part 1 is about a single model call and the plumbing around
 it: what goes in, what comes out, and who remembers.
 :::
 
+::: key-idea
+LangChain composes one call. Prompts, parsers, tools, and memory all live
+inside a single `.invoke()`.
+:::
+
+---
+
+## Message
+
+::: def-box
+A **message** is LangChain's typed unit of conversation: a role
+(`system`, `human`, `ai`, or `tool`) plus content. Chains pass a list of
+messages, never a bare string.
+:::
+
 ---
 
 <!--FB:messages-not-strings|The Conversation Is a Typed List-->
+
+---
+
+## Prompt Template
+
+::: def-box
+A **prompt template** is a function from a dict of inputs to a rendered
+prompt. It fills variables into a fixed structure and returns a typed
+`ChatPromptValue`, ready for a model.
+:::
 
 ---
 
@@ -279,11 +331,42 @@ shows the same pipe with the real payloads photographed at each hop.
 
 ---
 
+## LCEL Pipe
+
+::: def-box
+The **LCEL pipe** (`|`) composes runnables into a pipeline, `prompt |
+model | parser`. Every stage answers `.invoke` / `.batch` / `.stream`, so
+pipes compose uniformly even as the payload's type changes at each hop.
+:::
+
+---
+
 <!--FB:chains-are-pipes|Chains Are Pipes-->
 
 ---
 
+## Structured Output
+
+::: def-box
+**Structured output** binds a schema, an `OrderItem` or other Pydantic
+class, to the model call, so the reply parses straight into a typed
+object instead of prose you'd have to regex apart.
+:::
+
+---
+
 <!--FB:from-prose-to-objects|From Prose to Objects-->
+
+---
+
+## Tool Round Trip
+
+::: def-box
+A **tool round trip**: the model emits a `tool_calls` request, your code
+runs the real function (check stock, price an order), and the result
+goes back into the message list as a `tool` message for the next model
+call.
+:::
 
 ---
 
@@ -305,6 +388,11 @@ shows the same pipe with the real payloads photographed at each hop.
 A pipe points one way. A real conversation loops, branches, pauses, and
 survives a restart. LangGraph's move is to make your control flow an
 object: nodes, edges, and state you can draw, checkpoint, and interrupt.
+:::
+
+::: key-idea
+LangChain composes one call; LangGraph choreographs many. The difference
+is state that persists across turns, not just a longer pipe.
 :::
 
 ```{=html}
@@ -341,11 +429,48 @@ object: nodes, edges, and state you can draw, checkpoint, and interrupt.
 
 ---
 
+## Pitfall: Chains Can't Loop
+
+::: pitfall
+A LangChain pipe (`|`) runs strictly one direction; there is no way to
+route back to an earlier stage. The moment a task needs to retry,
+branch, or loop, it needs a graph, not a longer chain.
+:::
+
+---
+
+## State, Defined
+
+::: def-box
+**State** is the schema LangGraph threads through every node, one object
+every node reads and writes, so the shape of a run is a diagram you can
+draw, not an implicit transcript.
+:::
+
+::: def-box
+A **reducer** is the function attached to a state field that says how
+updates combine, replace, append, sum, so two nodes touching the same
+field don't silently clobber each other.
+:::
+
+---
+
 <!--FB:state-and-reducers|State and Reducers-->
 
 ---
 
 <!--FB:graphs-are-data|Graphs Are Data-->
+
+---
+
+## Conditional Edge
+
+::: def-box
+A **conditional edge** routes to a different next node based on the
+current state. The branch, and the back-edge that makes a loop possible,
+are real, drawable graph edges, not hidden `if` statements inside a
+Python loop.
+:::
 
 ---
 
@@ -398,6 +523,16 @@ cycle is the while loop made drawable.
 
 ---
 
+## Checkpoint
+
+::: def-box
+A **checkpoint** is a saved snapshot of a graph's state after each step,
+keyed to a thread id. A run can be walked away from and resumed exactly
+where it left off.
+:::
+
+---
+
 <!--FB:threads-and-checkpoints|Walk Away, Come Back-->
 
 ---
@@ -410,6 +545,11 @@ set of decisions, and four of them are chronically skipped: what counts as
 success, where state lives, when to stop, and what happens on replay.
 :::
 
+::: key-idea
+Success is a property of the world, not the transcript. A reply that
+"sounds booked" is not a reservation that exists.
+:::
+
 ::: {.src}
 OpenAI, A practical guide to building agents · Anthropic, Demystifying evals for AI agents · LangChain interrupt docs
 :::
@@ -417,6 +557,31 @@ OpenAI, A practical guide to building agents · Anthropic, Demystifying evals fo
 ---
 
 <!--FB:do-you-need-an-agent|Do You Need an Agent at All?-->
+
+---
+
+## The Decision, as Three Shapes
+
+:::: {.taxonomy}
+::: cat
+<h4>Straight chain</h4>
+`prompt | model | parser`, one fixed path. Right when the task is
+well-specified and every input takes the same route.
+:::
+
+::: cat
+<h4>Router</h4>
+One call classifies the request, then each branch is its own fixed
+path. Right when inputs split into a few known kinds.
+:::
+
+::: cat
+<h4>Agent loop</h4>
+`create_agent(model, tools)`: the model decides how many calls to make
+and which tools to call, in a loop. Right only when the answer depends
+on something the code can't know in advance, like live stock.
+:::
+::::
 
 ---
 
@@ -428,11 +593,33 @@ OpenAI, A practical guide to building agents · Anthropic, Demystifying evals fo
 
 ---
 
+## Interrupt
+
+::: def-box
+`interrupt()` is called inside a node and pauses the graph right there,
+handing control to a human. On `Command(resume=...)` that node runs again
+from its start with the supplied value, so the graph continues from the
+checkpoint instead of restarting the whole run.
+:::
+
+---
+
 <!--FB:approve-before-act|Approve Before You Act-->
 
 ---
 
 <!--FB:resume-without-double-charge|Resume Without Double-Charging-->
+
+---
+
+## Pitfall: Double-Charging on Resume
+
+::: pitfall
+Resuming a graph with no checkpointer replays every node from the
+start, side effects included, so Beanline's till gets charged twice for
+one latte. A checkpointer makes a resume skip completed steps instead
+of re-running them.
+:::
 
 ---
 
@@ -533,7 +720,7 @@ vehicle.
 [AutoGen, termination](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html) · [12-factor agents](https://github.com/humanlayer/12-factor-agents)
 
 **Siblings**
-[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html) · [How Agentic Harnesses Work, Visually](../../how-agentic-harnesses-work/website/harness.html)
+[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html) · [How Inference & Serving Work, Visually](../../how-inference-and-serving-works/website/inference.html) · [How Evals & Observability Work, Visually](../../how-evals-and-observability-work/website/evals.html) · [How Agentic Harnesses Work, Visually](../../how-agentic-harnesses-work/website/harness.html)
 
 ::: {.src}
 Every figure in this deck: a real run of langchain 1.3 / langgraph 1.2 at Beanline Coffee, regenerable with build/regen_all.py · versions pinned in build/requirements.txt

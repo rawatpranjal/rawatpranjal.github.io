@@ -196,6 +196,17 @@ Pranjal Rawat
 .reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
 @keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+/* lecture callout layer */
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -229,6 +240,23 @@ Pranjal Rawat
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+</section>
+<section id="one-call-vs.-many-calls" class="slide level2 center">
+<h2>One call vs.&nbsp;many calls</h2>
+<div class="taxonomy" style="--cols: 2;">
+<div class="cat">
+<h4>
+LangChain, one composed call
+</h4>
+<p><code>prompt | model | parser</code>, plus tools and memory around it. Everything happens inside a single <code>.invoke()</code>; nothing persists once it returns.</p>
+</div>
+<div class="cat">
+<h4>
+LangGraph, many calls, persistent
+</h4>
+<p>Nodes, edges, and state threaded across an entire run: branches, cycles, checkpoints, and interrupts that survive a restart.</p>
+</div>
+</div>
 </section>
 <section id="meet-beanline-coffee" class="slide level2 center">
 <h2>Meet Beanline Coffee</h2>
@@ -375,6 +403,15 @@ Pranjal Rawat
 <div class="lead">
 <p>Everything in Part 1 is about a single model call and the plumbing around it: what goes in, what comes out, and who remembers.</p>
 </div>
+<div class="key-idea">
+<p>LangChain composes one call. Prompts, parsers, tools, and memory all live inside a single <code>.invoke()</code>.</p>
+</div>
+</section>
+<section id="message" class="slide level2 center">
+<h2>Message</h2>
+<div class="def-box">
+<p>A <strong>message</strong> is LangChain’s typed unit of conversation: a role (<code>system</code>, <code>human</code>, <code>ai</code>, or <code>tool</code>) plus content. Chains pass a list of messages, never a bare string.</p>
+</div>
 </section>
 <section class="slide level2 center">
 
@@ -404,6 +441,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">The Conversation Is a Typed List</h2>
 
 <img data-src="assets/messages-not-strings/step-05.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="prompt-template" class="slide level2 center">
+<h2>Prompt Template</h2>
+<div class="def-box">
+<p>A <strong>prompt template</strong> is a function from a dict of inputs to a rendered prompt. It fills variables into a fixed structure and returns a typed <code>ChatPromptValue</code>, ready for a model.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -485,6 +528,12 @@ Pranjal Rawat
           display:block!important;
       }</style></aside>
 </section>
+<section id="lcel-pipe" class="slide level2 center">
+<h2>LCEL Pipe</h2>
+<div class="def-box">
+<p>The <strong>LCEL pipe</strong> (<code>|</code>) composes runnables into a pipeline, <code>prompt | model | parser</code>. Every stage answers <code>.invoke</code> / <code>.batch</code> / <code>.stream</code>, so pipes compose uniformly even as the payload’s type changes at each hop.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -517,6 +566,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Chains Are Pipes</h2>
 
 <img data-src="assets/chains-are-pipes/step-06.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="structured-output" class="slide level2 center">
+<h2>Structured Output</h2>
+<div class="def-box">
+<p><strong>Structured output</strong> binds a schema, an <code>OrderItem</code> or other Pydantic class, to the model call, so the reply parses straight into a typed object instead of prose you’d have to regex apart.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -549,6 +604,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">From Prose to Objects</h2>
 
 <img data-src="assets/from-prose-to-objects/step-06.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="tool-round-trip" class="slide level2 center">
+<h2>Tool Round Trip</h2>
+<div class="def-box">
+<p>A <strong>tool round trip</strong>: the model emits a <code>tool_calls</code> request, your code runs the real function (check stock, price an order), and the result goes back into the message list as a <code>tool</code> message for the next model call.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -638,6 +699,9 @@ Pranjal Rawat
 <div class="lead">
 <p>A pipe points one way. A real conversation loops, branches, pauses, and survives a restart. LangGraph’s move is to make your control flow an object: nodes, edges, and state you can draw, checkpoint, and interrupt.</p>
 </div>
+<div class="key-idea">
+<p>LangChain composes one call; LangGraph choreographs many. The difference is state that persists across turns, not just a longer pipe.</p>
+</div>
 <svg class="fig" viewbox="0 0 1000 300">
   <g class="fragment pop" data-fragment-index="1">
     <rect class="node ghost" x="70" y="110" width="120" height="55" rx="10"></rect>
@@ -696,6 +760,21 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Chains Can’t Loop</h2>
 
 <img data-src="assets/chains-cant-loop/step-06.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="pitfall-chains-cant-loop" class="slide level2 center">
+<h2>Pitfall: Chains Can’t Loop</h2>
+<div class="pitfall">
+<p>A LangChain pipe (<code>|</code>) runs strictly one direction; there is no way to route back to an earlier stage. The moment a task needs to retry, branch, or loop, it needs a graph, not a longer chain.</p>
+</div>
+</section>
+<section id="state-defined" class="slide level2 center">
+<h2>State, Defined</h2>
+<div class="def-box">
+<p><strong>State</strong> is the schema LangGraph threads through every node, one object every node reads and writes, so the shape of a run is a diagram you can draw, not an implicit transcript.</p>
+</div>
+<div class="def-box">
+<p>A <strong>reducer</strong> is the function attached to a state field that says how updates combine, replace, append, sum, so two nodes touching the same field don’t silently clobber each other.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -760,6 +839,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Graphs Are Data</h2>
 
 <img data-src="assets/graphs-are-data/step-06.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="conditional-edge" class="slide level2 center">
+<h2>Conditional Edge</h2>
+<div class="def-box">
+<p>A <strong>conditional edge</strong> routes to a different next node based on the current state. The branch, and the back-edge that makes a loop possible, are real, drawable graph edges, not hidden <code>if</code> statements inside a Python loop.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -875,6 +960,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">The Agent Is a Two-Node Cycle</h2>
 
 <img data-src="assets/the-react-agent/step-07.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="checkpoint" class="slide level2 center">
+<h2>Checkpoint</h2>
+<div class="def-box">
+<p>A <strong>checkpoint</strong> is a saved snapshot of a graph’s state after each step, keyed to a thread id. A run can be walked away from and resumed exactly where it left off.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -920,6 +1011,9 @@ Pranjal Rawat
 <div class="lead">
 <p>Everything so far was mechanism. What separates a demo from a system is a set of decisions, and four of them are chronically skipped: what counts as success, where state lives, when to stop, and what happens on replay.</p>
 </div>
+<div class="key-idea">
+<p>Success is a property of the world, not the transcript. A reply that “sounds booked” is not a reservation that exists.</p>
+</div>
 <div class="src">
 <p>OpenAI, A practical guide to building agents · Anthropic, Demystifying evals for AI agents · LangChain interrupt docs</p>
 </div>
@@ -956,6 +1050,29 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Do You Need an Agent at All?</h2>
 
 <img data-src="assets/do-you-need-an-agent/step-06.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="the-decision-as-three-shapes" class="slide level2 center">
+<h2>The Decision, as Three Shapes</h2>
+<div class="taxonomy">
+<div class="cat">
+<h4>
+Straight chain
+</h4>
+<p><code>prompt | model | parser</code>, one fixed path. Right when the task is well-specified and every input takes the same route.</p>
+</div>
+<div class="cat">
+<h4>
+Router
+</h4>
+<p>One call classifies the request, then each branch is its own fixed path. Right when inputs split into a few known kinds.</p>
+</div>
+<div class="cat">
+<h4>
+Agent loop
+</h4>
+<p><code>create_agent(model, tools)</code>: the model decides how many calls to make and which tools to call, in a loop. Right only when the answer depends on something the code can’t know in advance, like live stock.</p>
+</div>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -1024,6 +1141,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Stop, Retry, Escalate</h2>
 
 <img data-src="assets/stop-retry-escalate/step-07.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="interrupt" class="slide level2 center">
+<h2>Interrupt</h2>
+<div class="def-box">
+<p><code>interrupt()</code> is called inside a node and pauses the graph right there, handing control to a human. On <code>Command(resume=...)</code> that node runs again from its start with the supplied value, so the graph continues from the checkpoint instead of restarting the whole run.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -1096,6 +1219,12 @@ Pranjal Rawat
 <h2 data-id="quarto-animate-title">Resume Without Double-Charging</h2>
 
 <img data-src="assets/resume-without-double-charge/step-07.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="pitfall-double-charging-on-resume" class="slide level2 center">
+<h2>Pitfall: Double-Charging on Resume</h2>
+<div class="pitfall">
+<p>Resuming a graph with no checkpointer replays every node from the start, side effects included, so Beanline’s till gets charged twice for one latte. A checkpointer makes a resume skip completed steps instead of re-running them.</p>
+</div>
+</section>
 <section class="slide level2 center">
 
 </section></section>
@@ -1244,7 +1373,7 @@ Pranjal Rawat
 <p><strong>Guides</strong> <a href="https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/">OpenAI, A practical guide to building agents</a> · <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic, Building effective agents</a> · <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic, Demystifying evals for AI agents</a></p>
 <p><strong>LangChain / LangGraph docs</strong> <a href="https://docs.langchain.com/oss/python/langgraph/persistence">LangGraph persistence</a> · <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">Interrupts</a> · <a href="https://docs.langchain.com/">LangChain messages, runnables, tools</a></p>
 <p><strong>Also drawn on</strong> <a href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html">AutoGen, termination</a> · <a href="https://github.com/humanlayer/12-factor-agents">12-factor agents</a></p>
-<p><strong>Siblings</strong> <a href="../../how-git-works/website/git.html">How Git Works, Visually</a> · <a href="../../how-rag-works/website/rag.html">How RAG Works, Visually</a> · <a href="../../how-agentic-harnesses-work/website/harness.html">How Agentic Harnesses Work, Visually</a></p>
+<p><strong>Siblings</strong> <a href="../../how-git-works/website/git.html">How Git Works, Visually</a> · <a href="../../how-rag-works/website/rag.html">How RAG Works, Visually</a> · <a href="../../how-inference-and-serving-works/website/inference.html">How Inference &amp; Serving Work, Visually</a> · <a href="../../how-evals-and-observability-work/website/evals.html">How Evals &amp; Observability Work, Visually</a> · <a href="../../how-agentic-harnesses-work/website/harness.html">How Agentic Harnesses Work, Visually</a></p>
 <div class="src">
 <p>Every figure in this deck: a real run of langchain 1.3 / langgraph 1.2 at Beanline Coffee, regenerable with build/regen_all.py · versions pinned in build/requirements.txt</p>
 </div>

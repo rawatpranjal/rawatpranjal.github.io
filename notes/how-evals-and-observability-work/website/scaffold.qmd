@@ -1,0 +1,415 @@
+---
+title: "How Evals & Observability Work, Visually"
+subtitle: "One coffee shop, one bot: fixed test sets, judges, drift, spans, tokens and cost, offline scoring versus online tracing"
+author: "Pranjal Rawat"
+format:
+  revealjs:
+    theme: black
+    transition: fade
+    background-transition: fade
+    incremental: false
+    slide-number: c/t
+    controls: true
+    progress: true
+    width: 1200
+    height: 720
+    margin: 0.055
+    center: true
+    navigation-mode: linear
+---
+
+```{=html}
+<style>
+:root {
+  --bg: #16171a; --fg: #e6e6e9; --muted: #8b8b92; --sub: #a3a3ab;
+  --accent: #7cb0de; --feat: #6bbf8a; --amber: #d9a441; --rule: #2a2c31;
+  --node: #1d2733; --edge: #5a6472; --ink: #0f1114; --pink: #e06b9c;
+  --violet: #b19cf5;
+}
+.reveal { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.reveal, .reveal .slides section { background: var(--bg); color: var(--fg); }
+.reveal h1, .reveal h2, .reveal h3 { color: var(--fg); font-weight: 700; letter-spacing: -0.5px; text-transform: none; }
+.reveal h2 { font-size: 1.55em; border-bottom: 2px solid var(--rule); padding-bottom: 0.25em; margin-bottom: 0.5em; }
+.reveal a { color: var(--accent); }
+.reveal .slide-number { background: none; color: var(--muted); }
+.reveal .footer, .reveal .slide-number { font-size: 12px; }
+.reveal .subtle { color: var(--sub); font-size: 0.8em; }
+.reveal .src { color: var(--muted); font-size: 0.55em; margin-top: 0.8em; }
+.reveal .lead { font-size: 1.15em; line-height: 1.5; }
+.reveal .def-box, .reveal .key-idea, .reveal .pitfall { background: var(--node); border-radius: 8px; padding: .5em .8em; margin: .4em 0; border-left: 4px solid var(--accent); font-size: .82em; line-height: 1.4; }
+.reveal .key-idea { border-left-color: var(--feat); }
+.reveal .pitfall  { border-left-color: var(--pink); }
+.reveal .def-box::before  { content: "DEFINITION"; }
+.reveal .key-idea::before { content: "KEY IDEA"; }
+.reveal .pitfall::before  { content: "PITFALL"; }
+.reveal .def-box::before,.reveal .key-idea::before,.reveal .pitfall::before { display:block; font-size:.62em; letter-spacing:1.5px; font-weight:700; color:var(--muted); margin-bottom:.25em; }
+.reveal .taxonomy { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); gap:.6em; margin-top:.5em; }
+.reveal .taxonomy .cat { background:var(--node); border:1px solid var(--rule); border-top:3px solid var(--accent); border-radius:6px; padding:.5em .7em; font-size:.74em; }
+.reveal .taxonomy .cat h4 { margin:0 0 .2em; color:var(--accent); font-size:1.05em; }
+.reveal code { color: var(--feat); background: rgba(124,176,222,0.08); padding: 1px 6px; border-radius: 4px; }
+.reveal section img { background: none; border: none; box-shadow: none; }
+/* SVG shared visual language */
+.fig { width: 100%; height: auto; max-height: 62vh; display: block; margin: 0 auto; }
+.node { fill: var(--node); stroke: var(--accent); stroke-width: 2.5; }
+.node.feat { stroke: var(--feat); }
+.node.hot { fill: #3a2f14; stroke: var(--amber); }
+.node.ghost { fill: #191c20; stroke: var(--edge); }
+.node.bad { stroke: var(--pink); }
+.cap { fill: var(--fg); font: 16px -apple-system, sans-serif; text-anchor: middle; }
+.cap.big { font-size: 21px; font-weight: 600; }
+.zonelabel { fill: var(--muted); font: 600 14px -apple-system, sans-serif; letter-spacing: 1.5px; text-anchor: middle; }
+.edge { stroke: var(--edge); stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+.flow { stroke: var(--accent); stroke-width: 2.5; fill: none; marker-end: url(#arrowA); stroke-dasharray: 6 5; }
+.zone { fill: none; stroke: var(--rule); stroke-width: 1.5; rx: 12; }
+.card { fill: var(--node); stroke: var(--rule); stroke-width: 1.5; rx: 8; }
+.card.hot { stroke: var(--amber); }
+.card.ok { stroke: var(--feat); }
+.card.bad { stroke: var(--pink); }
+.cardtext { fill: var(--fg); font: 15px ui-monospace, monospace; }
+.note { fill: var(--sub); font: 15px -apple-system, sans-serif; }
+.reveal .fragment.grow-in { opacity: 0; transform: scale(0.9); transition: all 0.3s ease; }
+.reveal .fragment.grow-in.visible { opacity: 1; transform: scale(1); }
+/* draw-on edges */
+.edge.draw, .flow.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.reveal .fragment.visible .edge.draw,
+.reveal .fragment.visible .flow.draw,
+.reveal .edge.draw.fragment.visible,
+.reveal .flow.draw.fragment.visible { animation: gv-draw 0.55s ease both; }
+@keyframes gv-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.reveal .fragment.pop { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.reveal .fragment.pop.visible { animation: gv-pop 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes gv-pop { 0% { opacity: 0; transform: scale(0.5); } 60% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5a6472"/>
+    </marker>
+    <marker id="arrowA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7cb0de"/>
+    </marker>
+  </defs>
+</svg>
+```
+
+# Two ways to ask "is it working" {.center}
+
+::: lead
+Grading a bot against a fixed test set answers one question: did it get
+these known cases right. Watching a live run answers a different one:
+what actually happened, span by span, token by token, dollar by dollar.
+Most teams build only the first and are surprised when it doesn't explain
+the second.
+:::
+
+**Offline, scored.** A fixed test set, a metric, a number that regresses or doesn't.
+**Online, traced.** A live run, instrumented into spans, read after the fact.
+
+::: notes
+The deck is one long argument in two halves. Part 1 stays offline: a
+frozen test set, deterministic metrics, judges, pairwise preference, and
+the arithmetic of whether a drop is real. Part 2 makes the pivot: the
+same bot, now watched as it runs, with token/cost/latency spans instead
+of pass/fail rows. Part 3 runs the real libraries, deepeval, ragas,
+langfuse, deterministically, no stub.
+:::
+
+---
+
+## Offline-scored vs. online-traced
+
+::: {.def-box}
+**Offline-scored vs. online-traced.** Offline-scored means graded against
+a test set with known-correct answers. Online-traced means watched as it
+runs, with no answer key, via spans, tokens, and cost.
+:::
+
+---
+
+## Meet Beanline Coffee, graded
+
+Every figure ahead is a photograph of real code grading (or tracing) one small coffee shop's order-taking bot: a fixed set of orders, a scripted model that replies the same way every run, and real langchain/langgraph underneath.
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 400">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card" x="60" y="120" width="230" height="90"/>
+    <text class="cardtext" x="82" y="152">fixed test set</text>
+    <text class="note" x="82" y="182" text-anchor="start" style="font-size:13px">5 orders, known</text>
+    <text class="note" x="82" y="200" text-anchor="start" style="font-size:13px">expected answers</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="node" x="370" y="100" width="250" height="130" rx="12"/>
+    <text class="cap big" x="495" y="150">Beanline's bot</text>
+    <text class="note" x="495" y="185" text-anchor="middle" style="font-size:13px">ScriptedChatModel:</text>
+    <text class="note" x="495" y="203" text-anchor="middle" style="font-size:13px">every prediction, replayed exactly</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="3">
+    <rect class="card ok" x="700" y="90" width="250" height="150"/>
+    <text class="cardtext" x="722" y="122">two verdicts</text>
+    <text class="note" x="722" y="150" text-anchor="start" style="font-size:13px">offline: a score, a pass/fail row</text>
+    <text class="note" x="722" y="172" text-anchor="start" style="font-size:13px">online: a span tree, tokens, cost</text>
+    <text class="note" x="722" y="194" text-anchor="start" style="font-size:13px">both computed by real code</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 290 165 L 365 165"/>
+  <path class="flow draw fragment" data-fragment-index="3" pathLength="1" d="M 620 165 L 695 165"/>
+  <g class="fragment" data-fragment-index="4">
+    <text class="cap big" x="500" y="320">The model's words are scripted. Every metric, span, and dollar is computed for real.</text>
+    <text class="note" x="500" y="355" text-anchor="middle">Exact match really compares strings, judges are scripted models through real judging code, spans really nest, tokens and cost really sum. Nothing is a mockup.</text>
+  </g>
+</svg>
+```
+
+::: notes
+Same honesty contract as the sibling decks. The one fake is the model's
+dialogue; every metric, judge verdict, statistic, span, and dollar figure
+is computed by real code on that dialogue, which is exactly what makes
+every figure assertable by an independent oracle.
+:::
+
+---
+
+# Part 1 · Offline, scored {.center}
+
+::: lead
+A frozen test set with known-correct answers, and a metric that turns a
+prediction into a number. Deterministic by construction: same script, same
+score, every run.
+:::
+
+::: {.def-box}
+**Test set.** A frozen list of (input, expected) pairs, checked into the
+repo like code, the eval's ground truth. Byte-identical every run.
+:::
+
+---
+
+## Grading needs an answer key
+
+::: {.key-idea}
+Grading needs an answer key. A reference-based metric is a pure function of
+(prediction, expected). Without a known-correct answer to compare against,
+it cannot be honest.
+:::
+
+---
+
+<!--FB:what-is-a-test-set|What Is a Test Set?-->
+
+---
+
+## Two ways to check an answer
+
+::: {.def-box}
+**Exact match.** Does the prediction equal the expected string, verbatim.
+The simplest metric, and the hardest one to argue with.
+:::
+
+::: {.def-box}
+**Recall@k.** Of the items that were actually relevant, how many did the
+top-k surface. Ragas's non-LLM version of this is `NonLLMContextRecall`.
+:::
+
+---
+
+<!--FB:offline-metrics|Offline Metrics: Exact Match, Recall, and the BLEU Trap-->
+
+---
+
+## The trap in surface metrics
+
+::: {.pitfall}
+**BLEU / ROUGE score a correct paraphrase low.** Two answers can share the
+same meaning and almost no surface tokens, token overlap alone cannot
+tell "reworded" from "wrong." Target what the answer actually claims (a
+number, a fact), not its word choice.
+:::
+
+---
+
+<!--FB:llm-as-judge|LLM as Judge, and How It Fails-->
+
+---
+
+## A model grading a model
+
+::: {.def-box}
+**LLM-as-judge.** A second model reads a candidate answer against a rubric
+and returns a verdict. Useful when there's no exact string to match
+against, and only as reliable as what the rubric actually asks it to
+check.
+:::
+
+::: {.pitfall}
+**A judge asked to check agreement will rubber-stamp a false premise.**
+Write rubrics against ground truth (the menu, the till, the stock room),
+never against a claim the prompt itself supplied.
+:::
+
+---
+
+<!--FB:pairwise-comparison|Pairwise Comparison: A vs B-->
+
+---
+
+## Three families of offline metric
+
+::::: {.taxonomy style="--cols:3"}
+::: {.cat}
+`<h4>Reference-based</h4>`{=html}
+Exact match, recall@k. Compares the output against a known-correct
+answer. Deterministic, cheap, and blind to anything the reference didn't
+anticipate.
+:::
+
+::: {.cat}
+`<h4>Surface</h4>`{=html}
+Token-overlap scores like BLEU/ROUGE. Cheap to compute, but grades word
+choice, not correctness, the trap from the last section.
+:::
+
+::: {.cat}
+`<h4>LLM-judge</h4>`{=html}
+A model scores another model, against a rubric or in pairwise preference.
+Handles open-ended output, at the cost of a rubric that must target truth.
+:::
+:::::
+
+---
+
+## Is the drop real?
+
+::: {.def-box}
+**Statistical significance (for a pass rate).** A pass rate is a
+proportion; a proportion measured on a small sample has a wide confidence
+interval. The same nominal drop can be noise at n=20 and signal at n=200,
+report the interval, not just the rate.
+:::
+
+---
+
+<!--FB:statistical-significance|Is the Drop Real? Statistical Significance-->
+
+---
+
+# Part 2 · The pivot to observability {.center}
+
+::: lead
+A test set answers "did it get the known cases right." It cannot answer
+"what happened on the live run nobody scripted." That takes watching, not
+scoring: nested spans, token counts, cost, latency, read after the fact.
+:::
+
+```{=html}
+<svg class="fig" viewBox="0 0 1000 260">
+  <g class="fragment pop" data-fragment-index="1">
+    <rect class="card ok" x="80" y="90" width="360" height="90"/>
+    <text class="cardtext" x="102" y="122">offline · scored</text>
+    <text class="note" x="102" y="150" text-anchor="start" style="font-size:13px">fixed inputs, known answers, one number</text>
+  </g>
+  <g class="fragment pop" data-fragment-index="2">
+    <rect class="card hot" x="560" y="90" width="360" height="90"/>
+    <text class="cardtext" x="582" y="122">online · traced</text>
+    <text class="note" x="582" y="150" text-anchor="start" style="font-size:13px;fill:var(--amber)">live inputs, no known answer, a span tree</text>
+  </g>
+  <path class="flow draw fragment" data-fragment-index="2" pathLength="1" d="M 445 135 L 555 135"/>
+  <g class="fragment" data-fragment-index="3">
+    <text class="cap big" x="500" y="220">Same bot. Different question, different instrument.</text>
+  </g>
+</svg>
+```
+
+---
+
+## Watching, not scoring
+
+::: {.def-box}
+**Trace / span.** A trace is the record of one real run; a span is one
+step inside it (a model call, a tool call), with a start, a duration, and
+its own attributes, nested under whichever span called it.
+:::
+
+::: {.key-idea}
+Observability watches a live run with no answer key. The question changes
+from "was this right" to "what happened, and what did it cost."
+:::
+
+---
+
+## The two instruments, side by side
+
+::::: {.taxonomy style="--cols:2"}
+::: {.cat}
+`<h4>Offline &middot; scored</h4>`{=html}
+Fixed inputs, known-correct answers, a metric that is a pure function of
+(prediction, expected). One number, comparable run to run.
+:::
+
+::: {.cat}
+`<h4>Online &middot; traced</h4>`{=html}
+Live inputs, no known answer, a nested span tree with tokens, cost, and
+latency read after the fact. Not a score, a record of what happened.
+:::
+:::::
+
+---
+
+<!--FB:observability-the-pivot|The Pivot: Scored Offline, Traced Online-->
+
+---
+
+<!--FB:a-real-trace|A Real Trace: Spans, Tokens, Cost-->
+
+---
+
+<!--FB:drift-over-time|Drift Over Time: Same Eval, Two Model Versions-->
+
+---
+
+# Part 3 · Real tools, no stubs {.center}
+
+::: lead
+Three widely used libraries, run for real and deterministically: DeepEval's
+own metric objects, Ragas's own non-LLM metrics, and the Langfuse SDK's own
+span emission, captured offline with an in-memory OpenTelemetry exporter.
+:::
+
+::: {.key-idea}
+A real library's own objects and formulas can run deterministically
+without ever calling a hosted LLM, the point of Part 3 is the code path,
+not the difficulty of the metric.
+:::
+
+::: {.src}
+DeepEval docs · Ragas docs · Langfuse v4 (OpenTelemetry-based) docs
+:::
+
+---
+
+<!--FB:deepeval-real-asserts|DeepEval, For Real-->
+
+---
+
+<!--FB:ragas-rag-metrics|Ragas: Real RAG Metrics-->
+
+---
+
+<!--FB:langfuse-trace|Langfuse, Captured Offline-->
+
+---
+
+## References
+
+**Guides**
+[Anthropic, Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) · [OpenAI, A practical guide to building agents](https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/) · [Anthropic, Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+
+**Libraries**
+[DeepEval docs](https://deepeval.com/docs/getting-started) · [Ragas docs](https://docs.ragas.io/) · [Langfuse docs](https://langfuse.com/docs)
+
+**Siblings**
+[How Git Works, Visually](../../how-git-works/website/git.html) · [How RAG Works, Visually](../../how-rag-works/website/rag.html) · [How Inference & Serving Work, Visually](../../how-inference-and-serving-works/website/inference.html) · [How Agentic Harnesses Work, Visually](../../how-agentic-harnesses-work/website/harness.html) · [How LangChain & LangGraph Work, Visually](../../how-langchain-and-langgraph-work/website/langchain.html)
+
+::: {.src}
+Every figure in this deck: a real run of langchain 1.3 / langgraph 1.2 / deepeval / ragas / langfuse at Beanline Coffee, regenerable with build/regen_all.py · versions pinned in build/requirements.txt
+:::
