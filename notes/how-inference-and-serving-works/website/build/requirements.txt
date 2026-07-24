@@ -1,8 +1,0 @@
-# Pinned build deps for the inference deck.
-# interpreter: /Users/pranjal/.venvs/inference-deck/bin/python
-# uv pip install --python /Users/pranjal/.venvs/inference-deck/bin/python -r requirements.txt
-torch==2.13.0
-transformers==5.14.1
-matplotlib==3.11.1
-ollama==0.6.2
-litellm==1.93.0

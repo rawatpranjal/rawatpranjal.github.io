@@ -72,9 +72,6 @@
 
   .entry { display: flex; gap: 26px; padding: 22px 0; border-top: 1px solid var(--rule); }
   .entry:first-child { border-top: none; }
-  .group-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; color: var(--muted); padding-top: 26px; margin: 26px 0 0; border-top: 1px solid var(--rule); }
-  .group-label:first-child { border-top: none; padding-top: 6px; margin-top: 2px; }
-  .group-label + .entry { border-top: none; }
   .entry .date { flex: 0 0 64px; text-align: center; padding-top: 4px; }
   .entry .date .yr { font-size: 30px; font-weight: 700; line-height: 1; color: var(--fg); }
   .entry .date .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 4px; }
@@ -127,7 +124,6 @@
       <button data-tab="research">Research</button>
       <button data-tab="blog">Blog</button>
       <button data-tab="oss">Open Source</button>
-      <button data-tab="notes">Notes</button>
     </nav>
   </header>
 
@@ -296,59 +292,6 @@
   </section>
 
   <!-- NOTES -->
-  <section class="panel" id="notes">
-    <div class="group-label">Agent Engineering</div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-inference-and-serving-works/website/inference.html">How Inference &amp; Serving Work, Visually</a></h3>
-        <div class="sub">A visual walk through how a model turns a prompt into tokens, tokenization, logits, sampling, the KV cache, batching, quantization, and serving with Ollama.</div>
-        <div class="links"><a href="notes/how-inference-and-serving-works/website/inference.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-rag-works/website/rag.html">How RAG Works, Visually</a></h3>
-        <div class="sub">A visual walk through retrieval-augmented generation, from chunking and embeddings to retrieval, reranking, and cite-or-refuse generation.</div>
-        <div class="links"><a href="notes/how-rag-works/website/rag.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-langchain-and-langgraph-work/website/langchain.html">How LangChain &amp; LangGraph Work, Visually</a></h3>
-        <div class="sub">A visual walk through LangChain composing one model call and LangGraph choreographing many, up to the questions that decide production.</div>
-        <div class="links"><a href="notes/how-langchain-and-langgraph-work/website/langchain.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-agentic-harnesses-work/website/harness.html">How Agentic Harnesses Work, Visually</a></h3>
-        <div class="sub">A visual walk through the machinery around a language model, the context window, agent loop, tools, memory, and the harnesses that keep agents working for days.</div>
-        <div class="links"><a href="notes/how-agentic-harnesses-work/website/harness.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-evals-and-observability-work/website/evals.html">How Evals &amp; Observability Work, Visually</a></h3>
-        <div class="sub">A visual walk through grading and watching an LLM app, test sets, offline metrics, LLM-as-judge, significance, and tracing a real run with DeepEval, Ragas, and Langfuse.</div>
-        <div class="links"><a href="notes/how-evals-and-observability-work/website/evals.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="group-label">Other Notes</div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/how-git-works/website/git.html">How Git Works, Visually</a></h3>
-        <div class="sub">A visual walk through git, from your first commit to branches, merges, rebase, remotes, and the undo safety net.</div>
-        <div class="links"><a href="notes/how-git-works/website/git.html">Open the deck →</a></div>
-      </div>
-    </div>
-    <div class="entry">
-      <div class="body">
-        <h3><a href="notes/ddcm-irl-models/ddcm-irl.html">Dynamic Choice and IRL, Visually</a></h3>
-        <div class="sub">A visual guide to dynamic discrete choice and inverse reinforcement learning, from the stated math to estimators, counterfactuals, and EconIRL.</div>
-        <div class="links"><a href="notes/ddcm-irl-models/ddcm-irl.html">Open the deck →</a></div>
-      </div>
-    </div>
-  </section>
 
   <footer>
     <a href="mailto:pp712@georgetown.edu">Email</a>
