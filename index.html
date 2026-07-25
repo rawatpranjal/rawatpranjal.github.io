@@ -206,14 +206,14 @@
   <!-- ECONRL -->
   <section class="panel" id="econrl">
     <div class="prose" style="padding-bottom:2px;">
-      <p>Reinforcement learning for economics: a monograph, the code behind it, lecture slides, and a package for estimating dynamic choice models.</p>
+      <p>The monograph, its code and slides, and a package for dynamic choice estimation.</p>
     </div>
 
     <div class="group-label">Monograph</div>
     <div class="entry">
       <div class="body">
         <h3>A Survey of Reinforcement Learning for Economics</h3>
-        <div class="sub">291 pages on RL methods for economic problems with high-dimensional states and continuous actions. Covers algorithms and theory, structural estimation, macro, games, bandits, offline RL, RLHF, causal inference, robust and constrained RL, world models, and field deployments. Every chapter carries a worked simulation.</div>
+        <div class="sub">291 pages of RL methods for economic problems, with a worked simulation in every chapter.</div>
         <div class="links"><a href="https://arxiv.org/abs/2603.08956">arXiv</a><a href="https://arxiv.org/pdf/2603.08956">PDF</a><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics">Source</a></div>
       </div>
     </div>
@@ -221,84 +221,92 @@
     <div class="group-label">Chapters</div>
     <div class="repo">
       <h3>1. Introduction</h3>
-      <div class="sub">Why sequential decision problems in economics are hard, and what RL adds.</div>
+      <div class="sub">Why sequential decision problems in economics are hard.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch00_intro.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>2. Two Cultures of Sequential Decision-Making</h3>
-      <div class="sub">A translation between the inference tradition and the control tradition, term by term.</div>
-      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch00.pdf">Slides (PDF)</a></div>
+      <div class="sub">Translating between the inference tradition and the control tradition.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch00_language.pdf">PDF</a> &middot; <a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch00.pdf">Slides</a></div>
     </div>
     <div class="repo">
       <h3>3. A Brief History of Reinforcement Learning</h3>
-      <div class="sub">From animal conditioning and optimal control to temporal differences and deep RL.</div>
+      <div class="sub">From animal conditioning and optimal control to deep RL.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch01_history.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>4. Reinforcement Learning Algorithms</h3>
-      <div class="sub">Dynamic programming, Monte Carlo, temporal differences, policy gradients, and the convergence theory behind them. Includes the curse of dimensionality.</div>
-      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch02_rl_algorithms.pdf">Algorithms (PDF)</a> · <a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch03_theory.pdf">Theory (PDF)</a></div>
+      <div class="sub">Dynamic programming, temporal differences, policy gradients, and their convergence theory.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch02_rl_algorithms.pdf">Algorithms (PDF)</a> &middot; <a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch03_theory.pdf">Theory (PDF)</a></div>
     </div>
     <div class="repo">
       <h3>5. The Empirics of Deep Reinforcement Learning</h3>
-      <div class="sub">What actually happens when you train deep RL, and why Bellman error is not value error.</div>
+      <div class="sub">What happens when you actually train deep RL.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch03b_deeprl.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>6. Structural Estimation with Reinforcement Learning</h3>
-      <div class="sub">RL as a numerical method inside the estimation loop. Bus engine replacement solved by DP and by DQN.</div>
+      <div class="sub">RL as a numerical method inside the estimation loop.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch05_econ_models.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>7. Reinforcement Learning for Macroeconomic Models</h3>
-      <div class="sub">Deep RL as a solver for representative-agent and heterogeneous-agent models, mean-field games, and policy design.</div>
+      <div class="sub">Deep RL as a solver for representative and heterogeneous agent models.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch06_macro.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>8. Reinforcement Learning in Games</h3>
-      <div class="sub">Durable goods monopoly and the Coase conjecture, counterfactual regret minimisation in poker, and multi-agent learning in Cournot and Bertrand.</div>
+      <div class="sub">Coase conjecture, counterfactual regret minimisation, multi-agent Cournot and Bertrand.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch06_games.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>9. Bandits and Dynamic Pricing</h3>
-      <div class="sub">Regret, exploration, and what a bandit means to a statistician versus a computer scientist. Demand learning under price experimentation.</div>
+      <div class="sub">Regret, exploration, and demand learning under price experimentation.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch07_bandits.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>10. Offline Reinforcement Learning</h3>
-      <div class="sub">Learning a policy from logged data alone. FQI, CQL, IQL and BCQ on perishable inventory pricing.</div>
+      <div class="sub">Learning a policy from logged data alone.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch08_offline_rl.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>11. RLHF and AI Alignment</h3>
-      <div class="sub">Preference learning as discrete choice. Reward models, RLHF and DPO on a job search problem.</div>
+      <div class="sub">Preference learning as discrete choice.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch09_rlhf.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>12. Causal Inference for Reinforcement Learning</h3>
-      <div class="sub">Confounded off-policy evaluation, sensitivity analysis, instruments and proxies.</div>
+      <div class="sub">Confounded off-policy evaluation, sensitivity, instruments and proxies.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch10_causal.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>13. Reinforcement Learning for Causal Inference</h3>
-      <div class="sub">The other direction: RL machinery for causal questions. Dynamic treatment regimes, the OPE estimator canon, and dynamic double machine learning.</div>
+      <div class="sub">Dynamic treatment regimes and double machine learning.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch10b_rl_for_ci.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>14. Quantile, Robust and Constrained Reinforcement Learning</h3>
-      <div class="sub">Risk-sensitive inventory control, robust consumption-savings under model misspecification, and production under a carbon constraint.</div>
+      <div class="sub">Risk-sensitive, robust, and constrained control.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch11_dist_robust.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>15. World Models and Model-Based Reinforcement Learning</h3>
-      <div class="sub">Planning through a learned model. Dyna on a changing maze, the cobweb model, and a fishery.</div>
+      <div class="sub">Planning through a learned model.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch12_world_models.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>16. Reinforcement Learning in the Field</h3>
-      <div class="sub">Primary-source accounts of deployed systems, the anatomy of a production RL platform, and when off-policy evaluation can be trusted.</div>
+      <div class="sub">Primary-source accounts of deployed systems.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch13_field.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>17. Discussion</h3>
-      <div class="sub">Where the two cultures meet, and what is still missing.</div>
+      <div class="sub">Where the two cultures meet.</div>
+      <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/ch99_conclusion.pdf">PDF</a></div>
     </div>
     <div class="repo">
       <h3>Appendix A. Mathematical Preliminaries</h3>
-      <div class="sub">Contraction mappings, stochastic approximation and the theory a graduate reader needs, each illustrated by a simulation. Includes the glossary of acronyms and terms.</div>
+      <div class="sub">The theory a graduate reader needs, each result illustrated by a simulation.</div>
       <div class="sub"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/download/v1.0-chapters/appA_preliminaries.pdf">PDF</a></div>
     </div>
 
@@ -306,7 +314,7 @@
     <div class="entry">
       <div class="body">
         <h3><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics">survey-of-reinforcement-learning-in-economics</a></h3>
-        <div class="sub">Every figure and table in the monograph comes from a script in this repository. 62 simulations across 16 chapters, each self-contained, seeded, cached, and runnable on its own. MIT licensed.</div>
+        <div class="sub">Every figure in the monograph comes from a script here. 62 simulations, MIT licensed.</div>
         <div class="links"><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics">GitHub</a><a href="https://github.com/rawatpranjal/survey-of-reinforcement-learning-in-economics/releases/tag/v1.0-chapters">Chapter PDFs</a></div>
       </div>
     </div>
@@ -315,7 +323,7 @@
     <div class="entry">
       <div class="body">
         <h3><a href="https://pypi.org/project/econirl/">EconIRL</a></h3>
-        <div class="sub">A Python package for dynamic discrete choice and inverse reinforcement learning, with standard errors. Recovers preferences and beliefs from observed sequential choices.</div>
+        <div class="sub">Dynamic discrete choice and inverse reinforcement learning, with standard errors.</div>
         <div class="links"><a href="https://pypi.org/project/econirl/">PyPI</a><a href="https://econirl.readthedocs.io/">Docs</a></div>
       </div>
     </div>
@@ -324,13 +332,13 @@
     <div class="entry">
       <div class="body">
         <h3>Dynamic Discrete Choice and Inverse Reinforcement Learning</h3>
-        <div class="sub">Inferring preferences and beliefs from human behavior. The narrow companion to the survey, covering structural estimation and IRL in depth. Forthcoming, Oxford Research Encyclopedia of Economics and Finance, with John Rust.</div>
+        <div class="sub">Inferring preferences and beliefs from behavior. Oxford Research Encyclopedia, with John Rust.</div>
       </div>
     </div>
     <div class="entry">
       <div class="body">
         <h3>Algorithmic Collusion in Auctions</h3>
-        <div class="sub">Controlled lab experiments measuring bid suppression across Q-learning, bandits, and pacing. WEAI 2025.</div>
+        <div class="sub">Lab experiments measuring bid suppression across Q-learning, bandits, and pacing.</div>
         <div class="links"><a href="https://arxiv.org/abs/2306.09437">arXiv</a><a href="https://arxiv.org/pdf/2306.09437">PDF</a><a href="https://github.com/rawatpranjal/algorithmic-collusion">Code</a></div>
       </div>
     </div>
